@@ -19,7 +19,7 @@
 
 1. Clone the project and cd into the directory of the project, then install the requirements.
     ```
-    pip3 install -r requirements.txt
+    pip install -r requirements.txt
     ```
 
 2. Run the start.py file, with the IP of your machine.
