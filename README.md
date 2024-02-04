@@ -31,15 +31,6 @@ Example, assuming that the IP of your machine is 192.168.56.1:
     ```
     python3 start.py 192.168.56.1
     ```
-    
-It creates six terminals, the first four host the APIs that the IBI would be communicating with.
-
-You would be faced with the sixth terminal which is where the intent manager runs and gives out information.
-
-The fifth terminal is where you can delete an intent any time by running the commmand below, while "IP.AD.DRE.SS" is the IP of your machine:
-    ```
-    python3 delete_intents.py "IP.AD.DRE.SS"
-    ```
 
 3. To send an intent from another module running on another machine to the IBI on your machine, copy the file 'put_intents.py' and paste in the other machine and then run the command below, while "IP.AD.DRE.SS" is the IP of your machine:
     ```
