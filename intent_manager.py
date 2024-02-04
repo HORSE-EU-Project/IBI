@@ -8,9 +8,15 @@ import conflict_resolution
 import get_intents
 import send_workflows
 import sys
+import store_intent
+from elasticsearch import Elasticsearch
+
+#es = Elasticsearch('http://172.21.0.1:9200')
 
 
-def intent_manager_fun(intent_dict_main, workflow_url):
+def intent_manager_fun(intent_dict_main, workflow_url, whatif_send_url, whatif_receive_url,
+                       stored_intents_url, elasticsearch_url):
+    es = Elasticsearch(elasticsearch_url)
     #columns to be used while writing the intents into the intent store
     columns = ['intent_id', 'intent_type', 'threat', 'host', 'action', 'time_frame', 'priority']
     intent_store = 'intent_store.csv'
@@ -153,6 +159,7 @@ def intent_manager_fun(intent_dict_main, workflow_url):
                                      'priority': policy_dict['priority']
                                      }
                         writer.writerow(base_data)
+
                     else:
                         exist = 0
                         #if there is an existing intent for a host, but the priority value of the new intent coming in is higher
@@ -220,26 +227,46 @@ def intent_manager_fun(intent_dict_main, workflow_url):
         #send the policy or policies inside the policy array as workflow to the RTR
         for i in range(len(policy_arr)):
             send_workflows.send_workflow_fun(workflow_url, policy_arr[i])
+            del policy_arr[i]["command"]
+            #send the policies as intents to be stored on the stored_intents api
+            store_intent.store_intent_fun(stored_intents_url, policy_arr[i])
+            # send the policies as intents to be stored on elasticsearch
+            intent_index = es.exists(index="stored_intents", id=1, doc_type=None, params=None, headers=None)
+            if intent_index == True:
+                resp1 = es.search(index="stored_intents", query={"match_all": {}})
+                total = resp1['hits']['total']['value']
+                policy_arr[i]['id'] = total+1
+                resp2 = es.index(index="stored_intents", id=total+1, document=policy_arr[i])
+                print('intent ', resp2['result'])
+            else:
+                policy_arr[i]['id'] = 1
+                resp2 = es.index(index="stored_intents", id=1, document=policy_arr[i])
+                print('intent ', resp2['result'])
             time.sleep(1)
 
-#stores the intents retrieved from the intent api
-retrieved_intents_arr = []
-print('intent manager started - waiting for intent')
-#IP address of the machine on which the IBI is running
-ip = sys.argv[1]
-#ip = "192.168.56.1"
-#the various APIs to be connected to
-intents_url = "http://" + ip + ":7777/intents"
-workflow_url = "http://" + ip + ":7778/workflows"
-whatif_send_url = "http://" + ip + ":7779/workflows"
-whatif_receive_url = "http://" + ip + ":7780/workflows"
-#intents_url = "http://192.168.56.1:7777/intents"
-#workflow_url = "http://192.168.56.1:7778/workflows"
+def execute_intent_manager(intent, ip):
+    #stores the intents retrieved from the intent api
+    retrieved_intents_arr = []
+    print('intent manager started - waiting for intent')
+    #IP address of the machine on which the IBI is running
+    #ip = sys.argv[1]
+    #ip = "192.168.56.1"
+    #ip = "172.21.0.1"
+    #the various APIs to be connected to
+    #intents_url = "http://" + ip + ":7777/intents"
+    workflow_url = "http://" + ip + ":7777/workflows"
+    whatif_send_url = "http://" + ip + ":7777/whatif_sends"
+    whatif_receive_url = "http://" + ip + ":7777/whatif_receives"
+    stored_intents_url = "http://" + ip + ":7777/stored_intents"
+    elasticsearch_url = "http://" + ip + ":9200"
+    #intents_url = "http://192.168.56.1:7777/intents"
+    #workflow_url = "http://192.168.56.1:7778/workflows"
 
-while True:
-    #get the intent from the intent api
-    intent_dict_main = get_intents.get_intent_fun(intents_url)
-
+    intent_dict_main = {}
+    intent_dict_main['intent_type'] = intent.intent_type
+    intent_dict_main['threat'] = intent.threat
+    intent_dict_main['host'] = intent.host
+    intent_dict_main['time_frame'] = intent.time_frame
     #if new intent got from the intent api is not the same with the last intent stored in retrieved_intents_arr
     #or if retrieved_intents_arr is empty, then call the intent manager function - intent_manager_fun
     if intent_dict_main['intent_type'] != '':
@@ -247,11 +274,11 @@ while True:
         if l != 0:
             if retrieved_intents_arr[l-1] != intent_dict_main:
                 retrieved_intents_arr.append(intent_dict_main)
-                intent_manager_fun(intent_dict_main, workflow_url)
+                intent_manager_fun(intent_dict_main, workflow_url, whatif_send_url,
+                                   whatif_receive_url, stored_intents_url, elasticsearch_url)
         else:
             retrieved_intents_arr.append(intent_dict_main)
-            intent_manager_fun(intent_dict_main, workflow_url)
-    #repeat every five seconds
-    time.sleep(5)
-
+            intent_manager_fun(intent_dict_main, workflow_url, whatif_send_url,
+                               whatif_receive_url, stored_intents_url, elasticsearch_url)
+    
 
