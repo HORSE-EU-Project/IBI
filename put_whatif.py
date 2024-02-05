@@ -5,12 +5,13 @@ import sys
 host = sys.argv[1]
 
 #api_url = "http://192.168.56.1:7780/workflows"
-api_url = "http://" + host + ":7780/workflows"
+api_url = "http://" + host + ":7777/whatif_receives"
 
 whatif_reply = {
 	"command":"",
 	"intent_type":"",
-	"threat":"","host":"",
+	"threat":"",
+	"host":[],
 	"action":"",
 	"time_frame":"",
 	"what_if_response": "ok"
