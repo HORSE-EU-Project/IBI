@@ -210,4 +210,4 @@ def delete_stored_intent(idx: int):
 
 
 if __name__ == "__main__":
-    uvicorn.run("run_all:app", host=host, port=port, reload=True)
+    uvicorn.run("start:app", host=host, port=port, reload=True)
