@@ -15,7 +15,7 @@ def conflict_fun(df, ind, intent_host_arr, intent_dict_main, policy_dict, workfl
                     #call the delete_intents_fun function which sends a json with ID of intent to delete to the RTR
                     delete_command.delete_intents_fun(df['intent_id'][ind], workflow_url)
                     
-                    #TO PUT COMMAND FOR DELETING INTENTS IN ELASTICSEARCH OR STORED INTENTS API HERE
+                    #TO PUT FUNCTION FOR DELETING INTENTS IN ELASTICSEARCH OR STORED INTENTS API HERE
                     
                     time.sleep(1)
                     #remove this intent to be deleted from the intent store and reshuffle the intent store
