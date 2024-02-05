@@ -106,11 +106,11 @@ class Whatif_send(BaseModel):
     command: str
     intent_type: str
     threat: str
-    host: str
+    host: list
     action: str
     time_frame: str
 
-whatif_sends = [Whatif_send(command='', intent_type='', threat='', host='', action='', time_frame='')]
+whatif_sends = [Whatif_send(command='', intent_type='', threat='', host=[], action='', time_frame='')]
 
 @app.get("/whatif_sends")
 def get_whatif_send():
@@ -133,13 +133,13 @@ class Whatif_receive(BaseModel):
     command: str
     intent_type: str
     threat: str
-    host: str
+    host: list
     action: str
     time_frame: str
     what_if_response: str
 
 
-whatif_receives = [Whatif_receive(command='', intent_type='', threat='', host='', action='', time_frame='', what_if_response='')]
+whatif_receives = [Whatif_receive(command='', intent_type='', threat='', host=[], action='', time_frame='', what_if_response='')]
 
 @app.get("/whatif_receives")
 def get_whatif_receive():
