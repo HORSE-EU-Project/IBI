@@ -16,3 +16,4 @@ PyInquirer
 fastapi
 uvicorn
 pydantic
+Elasticsearch
