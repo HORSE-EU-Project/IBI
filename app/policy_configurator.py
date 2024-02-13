@@ -154,7 +154,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 store_intent.store_intent_fun(stored_intents_url, base_data)
                 del base_data["priority"]
                 base_data["command"] = 'add'
-                base_data["victim_host"] = base_data["host"]
+                base_data["attacked_host"] = base_data["host"]
                 del base_data["host"]
                 base_data["mitigation_host"] = 'Gateway'
                 #send workflows to workflow api
@@ -172,7 +172,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             store_intent.store_intent_fun(stored_intents_url, base_data)
             del base_data["priority"]
             base_data["command"] = 'add'
-            base_data["victim_host"] = base_data["host"]
+            base_data["attacked_host"] = base_data["host"]
             del base_data["host"]
             base_data["mitigation_host"] = 'Gateway'
             # send workflows to workflow api
