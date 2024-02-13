@@ -64,13 +64,13 @@ class Workflow(BaseModel):
     command: str
     intent_type: str
     threat: str
-    victim_host: str
+    attacked_host: str
     mitigation_host: str
     action: str
     duration: str
     intent_id: str
 
-workflows = [Workflow(command='', intent_type='', threat='', victim_host='',
+workflows = [Workflow(command='', intent_type='', threat='', attacked_host='',
                       mitigation_host='', action='', duration='', intent_id='')]
 
 workflow_endpoint = parameters['to_send_workflow']
