@@ -4,8 +4,6 @@ from elasticsearch import Elasticsearch
 def empty_fun():
     with open('/code/app/config.yml') as f:
         parameters = yaml.safe_load(f)
-    host = parameters['ip']
-    port = parameters['port']
     elastic_host = parameters['elasticsearch_ip']
     elastic_port = parameters['elasticsearch_port']
     elasticsearch_url = "http://" + elastic_host + ":" + elastic_port
@@ -20,12 +18,12 @@ def empty_fun():
         es.indices.refresh(index="stored_intents")
         resp = es.search(index="stored_intents", size=100, query={"match_all": {}})
         total = resp['hits']['total']['value']
-        print('total: ', total)
+        #print('total: ', total)
         if total != 0:
             id_arr = []
             for hit in resp['hits']['hits']:
                 id_arr.append(hit["_id"])
-            print('id arr: ', id_arr)
+            #print('id arr: ', id_arr)
             for id in id_arr:
                 es.delete(index="stored_intents", id=id)
 
@@ -39,12 +37,12 @@ def empty_fun():
         es.indices.refresh(index="awaiting_intents")
         resp = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
         total = resp['hits']['total']['value']
-        print('total: ', total)
+        #print('total: ', total)
         if total != 0:
             id_arr = []
             for hit in resp['hits']['hits']:
                 id_arr.append(hit["_id"])
-            print('id arr: ', id_arr)
+            #print('id arr: ', id_arr)
             for id in id_arr:
                 es.delete(index="awaiting_intents", id=id)
 
