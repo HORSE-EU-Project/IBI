@@ -6,7 +6,7 @@ def delete_intents_fun(intent_id, workflow_url):
         "command": "delete",
         "intent_type": "",
         "threat": "",
-        "victim_host": "",
+        "attacked_host": "",
         "mitigation_host": "",
         "action": "",
         "duration": "",
