@@ -10,7 +10,7 @@ MarkupSafe==2.1.4
 requests==2.31.0
 urllib3==2.1.0
 Werkzeug==3.0.1
-pandas==2.2.0
+pandas
 PyInquirer==1.0.3
 fastapi==0.109.0
 uvicorn==0.27.0.post1
