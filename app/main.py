@@ -7,6 +7,8 @@ from elasticsearch import Elasticsearch
 import whatif_loop
 import yaml
 import empty_intent_store
+import warnings
+warnings.filterwarnings('ignore')
 
 with open('/code/app/config.yml') as f:
     parameters = yaml.safe_load(f)
