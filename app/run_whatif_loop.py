@@ -9,3 +9,4 @@ def run_whatif_loop_fun():
     es = Elasticsearch(elasticsearch_url)
     whatif_send_url = config.whatif_send_url
     whatif_loop.whatif_loop_fun(es, whatif_send_url)
+

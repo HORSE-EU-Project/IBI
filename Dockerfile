@@ -10,3 +10,4 @@ COPY ./app /code/app
 
 #CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
 CMD ["python3", "./app/main.py"]
+#CMD ["bash", "./app/bash_run.sh"]

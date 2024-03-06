@@ -171,3 +171,4 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
 
 
 
+

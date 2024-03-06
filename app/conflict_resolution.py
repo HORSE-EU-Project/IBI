@@ -54,3 +54,4 @@ def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url, elasticsear
         else:
             print('ok')
 
+

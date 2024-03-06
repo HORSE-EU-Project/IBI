@@ -42,3 +42,4 @@ def empty_fun():
             print('id arr: ', id_arr)
             for id in id_arr:
                 es.delete(index="awaiting_intents", id=id)
+

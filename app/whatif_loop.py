@@ -102,3 +102,4 @@ def del_whatif_fun(policy_dict):
             delete_intents_elasticsearch.delete_intents_elasticsearch_fun(elasticsearch_url, resp['hits']['hits'][ind]['_id'],
                                                         "awaiting_intents")
 
+

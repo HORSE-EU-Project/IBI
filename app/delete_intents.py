@@ -27,3 +27,4 @@ def select_delete_fun(to_delete):
                 # delete intent on elasticsearch
                 delete_intents_elasticsearch.delete_intents_elasticsearch_fun(elasticsearch_url,
                                                                         resp['hits']['hits'][ind]['_id'], "stored_intents")
+
