@@ -4,11 +4,14 @@
   'port': '7777',
   
   #ip and port where elasticsearch runs on your system
-  'elasticsearch_ip': '127.0.0.1',
+  'elasticsearch_ip': '172.21.0.1',
   'elasticsearch_port': '9200',
   
   
   #API ENDPOINTS
+  #API ENDPOINTS
+  'stored_intents_url': 'http://172.21.0.1:7777/stored_intents',
+  'intents_url': 'http://172.21.0.1:7777/intents',
   
   #PROVISIONED BY THE IBI
   #eg API endpoint for sending intents: "http://172.21.0.1:7777/intents"
@@ -29,5 +32,10 @@
    
   
   #to clear existing intent store if you want, otherwise, set it as 'false'
-  'clear_intent_store': 'true'
+  'clear_intent_store': 'true',
+
+  #directories and files
+  'templates_directory': 'templates',
+  'static_directory': 'static',
+  'policy_store_file': 'policy_store.csv'
 }
