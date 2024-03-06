@@ -19,12 +19,14 @@
 
 1. Install Docker and its dependencies.
 
-2. Clone the project and cd into the directory of the project, then run:
+2. Install Elasticsearch.
+
+3. Clone the project and cd into the directory of the project, then run:
     ```
     sudo docker build -t ibi_horse .
     ```
 
-3. After the build, run:
+4. After the build, run:
     ```
     sudo docker run --network host ibi_horse
     ```
