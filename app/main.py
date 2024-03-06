@@ -1,36 +1,49 @@
+from multiprocessing import Process
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import uvicorn
 import intent_manager
 import delete_intents
-from elasticsearch import Elasticsearch
 import whatif_loop
-import yaml
 import empty_intent_store
+import run_whatif_loop
 import warnings
+from flask import Flask, request, render_template
+from fastapi.middleware.wsgi import WSGIMiddleware
+from fastapi.staticfiles import StaticFiles
+import config
+import get_intents_script
+
+
 warnings.filterwarnings('ignore')
 
-with open('/code/app/config.yml') as f:
-    parameters = yaml.safe_load(f)
-host = parameters['ip']
-port = parameters['port']
-elastic_host = parameters['elasticsearch_ip']
-elastic_port = parameters['elasticsearch_port']
-elasticsearch_url = "http://" + elastic_host + ":" + elastic_port
-es = Elasticsearch(elasticsearch_url)
-
-#whatif_send_url = "http://" + host + ":" + port + parameters['to_send_whatif']
-whatif_receive_url = "http://" + host + ":" + port + parameters['to_receive_whatif']
-whatif_send_url = parameters['san_api_url']
+parameters = config.parameters
+host = config.host
+port = config.port
+intents_url = config.intents_url
+stored_intents_url = config.stored_intents_url
 
 #clears the existing intent store if you chose that in the config file
 if parameters['clear_intent_store'] == 'true':
     empty_intent_store.empty_fun()
     print('cleared')
 
-#CREATE THE APIs FIRST
+templates_directory = config.templates_directory
+#flask app
+flask_app = Flask(__name__,template_folder=templates_directory)
+
+#fastAPI app
 app = FastAPI()
+
+#CREATE THE APIs FIRST
 print('creating APIs')
+
+@app.get('/')
+def first_page():
+    to_return = {
+        'gui_endpoint': '/gui',
+    }
+    return to_return
 
 #API for receiving intents from the DTE
 class Intent(BaseModel):
@@ -151,7 +164,7 @@ def add_whatif_receive(whatif_receive: Whatif_receive):
 def replace_whatif_receive(whatif_receive: Whatif_receive):
     whatif_receives.clear()
     whatif_receives.append(whatif_receive)
-    whatif_loop.whatif_receive_fun(whatif_receive, host)
+    whatif_loop.whatif_receive_fun(whatif_receive)
     return whatif_receive
 
 
@@ -217,5 +230,61 @@ def delete_stored_intent(idx: int):
     return {"message": "intent deleted"}
 
 
-if __name__ == "__main__":
+
+#FLASK
+
+@flask_app.route('/')
+def main():
+    return render_template("index.html")
+
+@flask_app.route('/index.html')
+def Home():
+    return render_template("index.html")
+
+@flask_app.route('/ml_reco.html')
+def ml_reco():
+    return render_template("ml_reco.html")
+
+@flask_app.route('/intents.html')
+def intents_html():
+    stored_intents_arr = get_intents_script.get_intent_fun(stored_intents_url)
+    items = stored_intents_arr[0].items()
+    keys = [key for key, value in items]
+    headings = tuple(keys)
+    data = ()
+    for intent in stored_intents_arr:
+        values = list(intent.values())
+        tup = tuple(values)
+        data += (tup,)
+    return render_template("intents.html", headings=headings,
+                           data=data)
+
+@flask_app.route('/', methods =["GET", "POST"])
+def intent_html():
+    if request.method == "POST":
+        import extract_command
+        intent = request.get_data(as_text=True)[7:]
+        intent = intent.replace("+", " ")
+        intent = extract_command.extract_command_fun(intent)
+        return render_template('index.html', output_text='The command entered: {}'.format(intent))
+
+
+app.mount("/gui", WSGIMiddleware(flask_app))
+static_directory = config.static_directory
+app.mount("/static", StaticFiles(directory=static_directory), name="static")
+
+def task():
     uvicorn.run("main:app", host=host, port=int(port), reload=True)
+
+def sched():
+    run_whatif_loop.run_whatif_loop_fun()
+
+if __name__ == "__main__":
+    p1 = Process(target = task)
+    p2 = Process(target = sched)
+    p1.start()
+    p2.start()
+    p1.join()
+    p2.join()
+
+
