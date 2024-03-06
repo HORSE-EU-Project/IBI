@@ -7,8 +7,7 @@ import send_workflows
 import store_intent
 from elasticsearch import Elasticsearch
 import whatif_loop
-
-#es = Elasticsearch('http://172.21.0.1:9200')
+import config
 
 def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                        stored_intents_url, elasticsearch_url):
@@ -16,7 +15,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
     #create an empty policy dictionary where to store the matched policy at first
     policy_dict = {}
     #the policy store in dataframe
-    df_policy = pd.read_csv('/code/app/policy_store.csv')
+    df_policy = pd.read_csv(config.policy_store_directory)
 
     #populate the policy dictionary
     #it would contain the intent type, threat, host, duration, action to take and priority value of policy
@@ -85,6 +84,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
     # if mitigation then proceed, but if prevention then send what-if question to the SAN
     if policy_dict['intent_type'] == 'mitigation':
         print('proceeding with intent')
+        whatif_loop.del_whatif_fun(policy_dict)
         policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url, policy_dict)
     elif policy_dict['intent_type'] == 'prevention':
         return whatif_loop.whatif_send_fun(policy_dict, whatif_send_url)
@@ -95,8 +95,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
 
     # extract the hosts in the policy_dict
     intent_host_arr = policy_dict['host']
-    #print('intent host arr: ', intent_host_arr)
-    #print(' ')
+
     intent_index = es.exists(index="stored_intents", id="1")
     if intent_index == True:
         resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
@@ -122,8 +121,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                      'intent_id': str(intent_id),
                      'priority': str(policy_dict['priority'])
                      }
-        #print('original base data: ', base_data)
-        #print(' ')
+
         intent_index = es.exists(index="stored_intents", id="1")
         if intent_index == True:
             resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
@@ -131,14 +129,10 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             exist = 0
             for hit in resp1['hits']['hits']:
                 id_arr.append(hit["_id"])
-                #print('hit id: ', hit["_id"])
-                #print(' ')
                 if hit['_source']['host'] == intent_host_arr[j] and \
                         hit['_source']['threat'] == policy_dict['threat'] and \
                             int(policy_dict['priority']) >= int(hit['_source']['priority']):
                     exist += 1
-                    #print('host with bigger policy dict priority: ', hit['_source']['host'])
-                    #print(' ')
                     host_existing.append(intent_host_arr[j])
 
             if exist == 0:
@@ -146,9 +140,6 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 total = resp1['hits']['total']['value']
                 id = total + 1
                 es.index(index="stored_intents", id=id, document=base_data)
-                #print('intent for exist = 0: ', resp2['result'])
-                #print('base data for exist = 0: ', base_data)
-                #print(' ')
 
                 # send the policies as intents to be stored on the stored_intents api
                 store_intent.store_intent_fun(stored_intents_url, base_data)
@@ -165,8 +156,6 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             total = resp1['hits']['total']['value']
             base_data['id'] = total + 1
             es.index(index="stored_intents", id=base_data['id'], document=base_data)
-            #print('intent for else: ', resp2['result'])
-            #print('base data for else: ', base_data)
 
             # send the policies as intents to be stored on the stored_intents api
             store_intent.store_intent_fun(stored_intents_url, base_data)
@@ -179,9 +168,6 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             send_workflows.send_workflow_fun(workflow_url, base_data)
             time.sleep(1)
 
-
-    #print('policy dict: ', policy_dict)
-    #print('host existing: ', host_existing)
 
 
 
