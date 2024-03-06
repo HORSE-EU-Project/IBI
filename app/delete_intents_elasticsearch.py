@@ -15,7 +15,8 @@ def delete_intents_elasticsearch_fun(elasticsearch_url, id_to_delete, index):
     id_change = 0
     for source, id in zip(source_arr, id_arr):
         new_doc = source
-        new_doc['id'] = id_change + 1
+        if index != 'awaiting_intents':
+            new_doc['id'] = id_change + 1
         id_change += 1
         new_source_arr.append(new_doc)
         es.update(index=index, id=id, doc=new_doc)
@@ -26,7 +27,4 @@ def delete_intents_elasticsearch_fun(elasticsearch_url, id_to_delete, index):
         es.delete(index=index, id=hit["_id"])
 
     for i in range(len(new_source_arr)):
-        es.index(index=index, id=new_source_arr[i]["id"], document=new_source_arr[i])
-
-    #print('elasticsearch delete and reset completed')
-    #print('')
+        es.index(index=index, id=str(i+1), document=new_source_arr[i])
