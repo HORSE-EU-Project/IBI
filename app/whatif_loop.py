@@ -95,11 +95,17 @@ def whatif_receive_fun(whatif_receive):
                                                         "awaiting_intents")
 
 def del_whatif_fun(policy_dict):
-    resp = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
-    for ind in range(len(resp['hits']['hits'])):
-        hit1 = resp['hits']['hits'][ind]['_source']
-        if hit1['threat'] == policy_dict['threat'] and hit1['host'] == policy_dict['host']:
-            delete_intents_elasticsearch.delete_intents_elasticsearch_fun(elasticsearch_url, resp['hits']['hits'][ind]['_id'],
-                                                        "awaiting_intents")
+    int_ind = False
+    for i in list(range(100)):
+        intent_index = es.exists(index="awaiting_intents", id=str(i))
+        if intent_index == True:
+            int_ind = True
+    if int_ind == True:
+        resp = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
+        for ind in range(len(resp['hits']['hits'])):
+            hit1 = resp['hits']['hits'][ind]['_source']
+            if hit1['threat'] == policy_dict['threat'] and hit1['host'] == policy_dict['host']:
+                delete_intents_elasticsearch.delete_intents_elasticsearch_fun(elasticsearch_url, resp['hits']['hits'][ind]['_id'],
+                                                            "awaiting_intents")
 
 
