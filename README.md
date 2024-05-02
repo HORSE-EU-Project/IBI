@@ -64,7 +64,3 @@
     python app/main.py
     ```
 
-# Dockerfile
-    TODO: Update docker file
-    TODO: Create a docker file for development (Dockerfile.dev)
-    TODO: Create a docker file for deploy (Dockerfile.prod)
