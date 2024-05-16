@@ -15,7 +15,11 @@
     ```
 
 
-# Steps to run the IBI
+# Steps to run the IBI (needs update to use ES as docker)
+
+> [!WARNING]
+> Deprecated. It uses a local installation of ElasticSearch.
+> Please use the instructions below.
 
 1. Install Docker and its dependencies.
 
@@ -31,36 +35,64 @@
     sudo docker run --network host ibi_horse
     ```
 
-# Run Development Environment with Docker
-1. Pull the Python Image from Docker Hub
-    ```
-    docker pull python:3.8.10
-    docker pull docker.elastic.co/elasticsearch/elasticsearch:8.13.2
-    ```
+# Run HORSE IBI for development
 
-2. Create a dedicated Docker Network for ElasticSearch
+## Create a dedicated Docker Network for ElasticSearch
     ```
     docker network create elastic
     ```
 
-3. Run ElastiSearch container (no need to run it locally)
+## Pull ElastichSearch image and run it
     ```
+    docker pull docker.elastic.co/elasticsearch/elasticsearch:8.13.2
     docker run --name es01 --rm -it --net elastic -p 9200:9200 -p 9300:9300 -m 1GB -e "discovery.type=single-node" -e "xpack.security.enabled=false" docker.elastic.co/elasticsearch/elasticsearch:8.13.2
     ```
-   
-4. Run HORSE IBI Software
-    4.1. One-line command
+
+    > [!NOTE]
+    > Keep the ElastichSearch running and do not clode the terminal
+
+
+## Run the HORSE IBI App
+
+### **Open a new terminal** and navigate to the Project folder
+    In a new terminal window (assuming the project is at `~/devel/horse-ibi/`)
+    ```
+    cd ~/devel/horse-ibi/
+    ```
+
+### Pull the Python Image from Docker Hub
+    ```
+    docker pull python:3.8.10
+
+    ```
+### Run HORSE IBI Software
+    
+    #### Option 1: One-line command
     ```
      sudo docker run --name horse-ibi --rm -it --net elastic -p 7777:7777 --mount src=`pwd`,target=/code,type=bind -w /code python:3.8.10 sh -c "pip install -r requirements.txt && python app/main.py"
     ```
 
-    4.2. For debugging and info
+    > [!NOTE]
+    > Edit the files in your local directory (e.g., `~/devel/horse-ibi/`) and it will be updates in the running docker container
+
+    #### Option 2: Multiple commands for debugging and info
+    
+    1. Run the Docker container
     ```
     sudo docker run --name horse-ibi --rm -it --net elastic -p 7777:7777 --mount src=`pwd`,target=/code,type=bind -w /code python:3.8.10 sh
     ```
-    From inside the container
+    
+    2. Runt the app from the container command line:
     ```
     pip install -r requirements.txt
     python app/main.py
     ```
 
+    > [!NOTE]
+    > Edit the files in your local directory (e.g., `~/devel/horse-ibi/`) and it will be updates in the running docker container
+
+
+# Using the service
+
+- The API is available at your local IP address (or localhost), on port 7777.
+- The Elastic Search Instance is exposted at port 9200, also at your local IP (or localhost).
