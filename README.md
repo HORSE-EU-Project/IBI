@@ -48,8 +48,8 @@
     docker run --name es01 --rm -it --net elastic -p 9200:9200 -p 9300:9300 -m 1GB -e "discovery.type=single-node" -e "xpack.security.enabled=false" docker.elastic.co/elasticsearch/elasticsearch:8.13.2
     ```
 
-    > [!NOTE]
-    > Keep the ElastichSearch running and do not clode the terminal
+> [!NOTE]
+> Keep the ElastichSearch running and do not clode the terminal
 
 
 ## Run the HORSE IBI App
@@ -72,8 +72,8 @@
      sudo docker run --name horse-ibi --rm -it --net elastic -p 7777:7777 --mount src=`pwd`,target=/code,type=bind -w /code python:3.8.10 sh -c "pip install -r requirements.txt && python app/main.py"
     ```
 
-    > [!NOTE]
-    > Edit the files in your local directory (e.g., `~/devel/horse-ibi/`) and it will be updates in the running docker container
+> [!NOTE]
+> Edit the files in your local directory (e.g., `~/devel/horse-ibi/`) and it will be updates in the running docker container
 
     #### Option 2: Multiple commands for debugging and info
     
@@ -88,8 +88,8 @@
     python app/main.py
     ```
 
-    > [!NOTE]
-    > Edit the files in your local directory (e.g., `~/devel/horse-ibi/`) and it will be updates in the running docker container
+> [!NOTE]
+> Edit the files in your local directory (e.g., `~/devel/horse-ibi/`) and it will be updates in the running docker container
 
 
 # Using the service
