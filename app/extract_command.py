@@ -7,13 +7,13 @@ stored_intents_url = config.stored_intents_url
 
 def extract_command_fun(command):
     command = command.split()
-    print('command: ', command)
+    #print('command: ', command)
     if 'delete' in command:
         to_delete_dict = {}
         to_delete = stored_intents_url + '/' + command[2]
         requests.delete(to_delete)
         to_delete_dict['command'] = 'delete_intent'
-        to_delete_dict['id'] = command[2]
+        to_delete_dict['intent_id'] = command[2]
         return to_delete_dict
     elif 'add' in command:
         intent_dict = {}
@@ -25,7 +25,8 @@ def extract_command_fun(command):
             error_output = 'invalid intent_type' + command[2]
             return error_output
 
-        if command[3] != 'ddos' and command[3] != 'dos_sig' and command[3] != 'api_vul':
+        if command[3] != 'ddos_ntp' and command[3] != 'ddos_dns' and command[3] != 'ddos_pfcp' and command[
+            3] != 'dos_sig' and command[3] != 'api_vul':
             error_output = 'invalid threat' + command[3]
             return error_output
         else:
@@ -33,7 +34,7 @@ def extract_command_fun(command):
 
         intent_dict['host'] = command[5:]
         intent_dict['duration'] = int(command[4])
-        print('intent dict b4 send: ', intent_dict)
+        #print('intent dict b4 send: ', intent_dict)
         requests.put(intents_url, json=intent_dict)
         intent_dict['command'] = 'add_intent'
         return intent_dict

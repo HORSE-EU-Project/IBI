@@ -15,7 +15,7 @@ def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url, elasticsear
             if stored_intents_arr[ind]['host'] == intent_host_arr[i] and \
                     stored_intents_arr[ind]['threat'] == policy_dict['threat'] and \
                     int(policy_dict['priority']) < int(stored_intents_arr[ind]['priority']):
-                url_to_delete = stored_intents_url + "/" + str(stored_intents_arr[ind]['id'])
+                url_to_delete = stored_intents_url + "/" + str(stored_intents_arr[ind]['intent_id'])
                 requests.delete(url_to_delete)
                 conflict_res = True
                 print('a conflict resolved for host: ', stored_intents_arr[ind]['host'])

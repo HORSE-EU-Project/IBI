@@ -4,4 +4,4 @@ import requests
 def store_intent_fun(stored_intents_url, intent):
     requests.post(stored_intents_url, json=intent)
     #print(response.json())
-    print('stored intent: ', intent)
+    #print('stored intent: ', intent)

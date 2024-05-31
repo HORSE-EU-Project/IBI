@@ -68,21 +68,33 @@ def whatif_receive_fun(whatif_receive):
     stored_intents_url = config.stored_intents_url
     whatif_answer = {}
     if whatif_receive.what_if_response == 'ok':
-        print('proceeding with intent')
-        whatif_answer['command'] = 'add'
-        whatif_answer['intent_type'] = whatif_receive.intent_type
-        whatif_answer['threat'] = whatif_receive.threat
-        whatif_answer['host'] = whatif_receive.host
-        whatif_answer['action'] = whatif_receive.action
-        whatif_answer['duration'] = whatif_receive.duration
-        whatif_answer['id'] = whatif_receive.id
-        whatif_answer['what_if_response'] = whatif_receive.what_if_response
-        df_policy = pd.read_csv(config.policy_store_directory)
-        for ind in df_policy.index:
-            if df_policy['action'][ind] == whatif_answer['action']:
-                whatif_answer['priority'] = df_policy['priority'][ind]
-        policy_configurator.policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url,
-                                                      whatif_answer)
+        intent_index = es.exists(index="awaiting_intents", id=1)
+        if intent_index == True:
+            resp1 = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
+            id_arr = []
+            source_arr = []
+            for hit in resp1['hits']['hits']:
+                id_arr.append(hit["_id"])
+                source_arr.append(hit["_source"])
+            for source, id in zip(source_arr, id_arr):
+                whatif_question = source
+                if whatif_question['id'] == whatif_receive.id:
+                    # and \ whatif_question['threat'] == whatif_receive.threat and \
+                    #    whatif_question['host'] == whatif_receive.host
+                    whatif_answer['command'] = 'add'
+                    whatif_answer['intent_type'] = whatif_question['intent_type']
+                    whatif_answer['threat'] = whatif_question['threat']
+                    whatif_answer['host'] = whatif_question['host']
+                    whatif_answer['action'] = whatif_question['action']
+                    whatif_answer['duration'] = whatif_question['duration']
+                    whatif_answer['id'] = whatif_receive.id
+                    whatif_answer['what_if_response'] = whatif_receive.what_if_response
+                    df_policy = pd.read_csv(config.policy_store_directory)
+                    for ind in df_policy.index:
+                        if df_policy['action'][ind] == whatif_answer['action']:
+                            whatif_answer['priority'] = df_policy['priority'][ind]
+                    policy_configurator.policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url,
+                                                                  whatif_answer)
     else:
         print('not proceeding with intent')
     resp = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
@@ -95,11 +107,17 @@ def whatif_receive_fun(whatif_receive):
                                                         "awaiting_intents")
 
 def del_whatif_fun(policy_dict):
-    resp = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
-    for ind in range(len(resp['hits']['hits'])):
-        hit1 = resp['hits']['hits'][ind]['_source']
-        if hit1['threat'] == policy_dict['threat'] and hit1['host'] == policy_dict['host']:
-            delete_intents_elasticsearch.delete_intents_elasticsearch_fun(elasticsearch_url, resp['hits']['hits'][ind]['_id'],
-                                                        "awaiting_intents")
+    int_ind = False
+    for i in list(range(100)):
+        intent_index = es.exists(index="awaiting_intents", id=str(i))
+        if intent_index == True:
+            int_ind = True
+    if int_ind == True:
+        resp = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
+        for ind in range(len(resp['hits']['hits'])):
+            hit1 = resp['hits']['hits'][ind]['_source']
+            if hit1['threat'] == policy_dict['threat'] and hit1['host'] == policy_dict['host']:
+                delete_intents_elasticsearch.delete_intents_elasticsearch_fun(elasticsearch_url, resp['hits']['hits'][ind]['_id'],
+                                                            "awaiting_intents")
 
 

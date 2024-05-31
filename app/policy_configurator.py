@@ -25,18 +25,56 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
     policy_dict['duration'] = intent_dict_main['duration']
     #empty action list to store all actions for a particular threat and intent_type
     action_list = []
+    priority_list = []
     #add the action and priority to the policy dict, for now, a corresponding action to an intent is selected randomly
     #the higher the priority value of a policy, the less the preference for that policy
     #the policy with the highest preference has priority value of 1
     if intent_dict_main['intent_type'] == 'mitigation':
-        if intent_dict_main['threat'] == 'ddos':
+        '''if intent_dict_main['threat'] == 'ddos':
             for ind in df_policy.index:
                 if df_policy['intent_type'][ind] == 'mitigation' and df_policy['threat'][ind] == 'ddos':
                     action_list.append(df_policy['action'][ind])
             policy_dict['action'] = random.choice(action_list)
             for ind in df_policy.index:
                 if df_policy['action'][ind] == policy_dict['action']:
+                    policy_dict['priority'] = df_policy['priority'][ind]'''
+        if intent_dict_main['threat'] == 'ddos_ntp':
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'mitigation' and df_policy['threat'][ind] == 'ddos_ntp':
+                    action_list.append(df_policy['action'][ind])
+                    priority_list.append(df_policy['priority'][ind])
+            #policy_dict['action'] = random.choice(action_list)
+            chosen_priority = min(priority_list)
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'mitigation' and df_policy['threat'][ind] == 'ddos_ntp' \
+                        and df_policy['priority'][ind] == chosen_priority:
                     policy_dict['priority'] = df_policy['priority'][ind]
+                    policy_dict['action'] = df_policy['action'][ind]
+        elif intent_dict_main['threat'] == 'ddos_dns':
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'mitigation' and df_policy['threat'][ind] == 'ddos_dns':
+                    action_list.append(df_policy['action'][ind])
+                    priority_list.append(df_policy['priority'][ind])
+            #policy_dict['action'] = random.choice(action_list)
+            chosen_priority = min(priority_list)
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'mitigation' and df_policy['threat'][ind] == 'ddos_dns' \
+                        and df_policy['priority'][ind] == chosen_priority:
+                    policy_dict['priority'] = df_policy['priority'][ind]
+                    policy_dict['action'] = df_policy['action'][ind]
+        elif intent_dict_main['threat'] == 'ddos_pfcp':
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'mitigation' and df_policy['threat'][ind] == 'ddos_pfcp':
+                    action_list.append(df_policy['action'][ind])
+                    priority_list.append(df_policy['priority'][ind])
+            #policy_dict['action'] = random.choice(action_list)
+            chosen_priority = min(priority_list)
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'mitigation' and df_policy['threat'][ind] == 'ddos_pfcp' \
+                        and df_policy['priority'][ind] == chosen_priority:
+                    policy_dict['priority'] = df_policy['priority'][ind]
+                    policy_dict['action'] = df_policy['action'][ind]
+
         elif intent_dict_main['threat'] == 'dos_sig':
             for ind in df_policy.index:
                 if df_policy['intent_type'][ind] == 'mitigation' and df_policy['threat'][ind] == 'dos_sig':
@@ -55,14 +93,51 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                     policy_dict['priority'] = df_policy['priority'][ind]
 
     elif intent_dict_main['intent_type'] == 'prevention':
-        if intent_dict_main['threat'] == 'ddos':
+        '''if intent_dict_main['threat'] == 'ddos':
             for ind in df_policy.index:
                 if df_policy['intent_type'][ind] == 'prevention' and df_policy['threat'][ind] == 'ddos':
                     action_list.append(df_policy['action'][ind])
             policy_dict['action'] = random.choice(action_list)
             for ind in df_policy.index:
                 if df_policy['action'][ind] == policy_dict['action']:
+                    policy_dict['priority'] = df_policy['priority'][ind]'''
+        if intent_dict_main['threat'] == 'ddos_ntp':
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'prevention' and df_policy['threat'][ind] == 'ddos_ntp':
+                    action_list.append(df_policy['action'][ind])
+                    priority_list.append(df_policy['priority'][ind])
+            # policy_dict['action'] = random.choice(action_list)
+            chosen_priority = min(priority_list)
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'prevention' and df_policy['threat'][ind] == 'ddos_ntp' \
+                        and df_policy['priority'][ind] == chosen_priority:
                     policy_dict['priority'] = df_policy['priority'][ind]
+                    policy_dict['action'] = df_policy['action'][ind]
+        elif intent_dict_main['threat'] == 'ddos_dns':
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'prevention' and df_policy['threat'][ind] == 'ddos_dns':
+                    action_list.append(df_policy['action'][ind])
+                    priority_list.append(df_policy['priority'][ind])
+            # policy_dict['action'] = random.choice(action_list)
+            chosen_priority = min(priority_list)
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'prevention' and df_policy['threat'][ind] == 'ddos_dns' \
+                        and df_policy['priority'][ind] == chosen_priority:
+                    policy_dict['priority'] = df_policy['priority'][ind]
+                    policy_dict['action'] = df_policy['action'][ind]
+        elif intent_dict_main['threat'] == 'ddos_pfcp':
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'prevention' and df_policy['threat'][ind] == 'ddos_pfcp':
+                    action_list.append(df_policy['action'][ind])
+                    priority_list.append(df_policy['priority'][ind])
+            # policy_dict['action'] = random.choice(action_list)
+            chosen_priority = min(priority_list)
+            for ind in df_policy.index:
+                if df_policy['intent_type'][ind] == 'prevention' and df_policy['threat'][ind] == 'ddos_pfcp' \
+                        and df_policy['priority'][ind] == chosen_priority:
+                    policy_dict['priority'] = df_policy['priority'][ind]
+                    policy_dict['action'] = df_policy['action'][ind]
+
         elif intent_dict_main['threat'] == 'dos_sig':
             for ind in df_policy.index:
                 if df_policy['intent_type'][ind] == 'prevention' and df_policy['threat'][ind] == 'dos_sig':
@@ -152,11 +227,11 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 send_workflows.send_workflow_fun(workflow_url, base_data)
                 time.sleep(1)
         else:
-            resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
-            total = resp1['hits']['total']['value']
-            base_data['id'] = total + 1
-            es.index(index="stored_intents", id=base_data['id'], document=base_data)
-
+            #resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
+            #total = resp1['hits']['total']['value']
+            #base_data['id'] = total + 1
+            #es.index(index="stored_intents", id=base_data['id'], document=base_data)
+            es.index(index="stored_intents", id=str(1), document=base_data)
             # send the policies as intents to be stored on the stored_intents api
             store_intent.store_intent_fun(stored_intents_url, base_data)
             del base_data["priority"]
@@ -164,6 +239,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             base_data["attacked_host"] = base_data["host"]
             del base_data["host"]
             base_data["mitigation_host"] = 'Gateway'
+            #del base_data["id"]
             # send workflows to workflow api
             send_workflows.send_workflow_fun(workflow_url, base_data)
             time.sleep(1)

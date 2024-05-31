@@ -13,7 +13,7 @@ from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 import config
 import get_intents_script
-
+import logging
 
 warnings.filterwarnings('ignore')
 
@@ -31,7 +31,8 @@ if parameters['clear_intent_store'] == 'true':
 templates_directory = config.templates_directory
 #flask app
 flask_app = Flask(__name__,template_folder=templates_directory)
-
+# Disable request logging
+#flask_app.logger.setLevel(logging.ERROR)
 #fastAPI app
 app = FastAPI()
 
@@ -210,24 +211,30 @@ def replace_stored_intent(stored_intent: Stored_intent):
 
 del_stored_intents_endpoint = stored_intents_endpoint + "/{idx}"
 @app.delete(del_stored_intents_endpoint)
-def delete_stored_intent(idx: int):
+def delete_stored_intent(idx: str):
     global to_delete_ind
+    to_delete_ind = 'no_index'
     for i in range(len(stored_intents)):
-        if stored_intents[i].id == idx:
+        if stored_intents[i].intent_id == idx:
             to_delete_ind = i
-    to_delete = {}
-    to_delete['intent_type'] = stored_intents[to_delete_ind].intent_type
-    to_delete['threat'] = stored_intents[to_delete_ind].threat
-    to_delete['host'] = stored_intents[to_delete_ind].host
-    to_delete['action'] = stored_intents[to_delete_ind].action
-    to_delete['duration'] = stored_intents[to_delete_ind].duration
-    to_delete['intent_id'] = stored_intents[to_delete_ind].intent_id
-    to_delete['priority'] = stored_intents[to_delete_ind].priority
-    delete_intents.select_delete_fun(to_delete)
-    del stored_intents[to_delete_ind]
-    for i in range(len(stored_intents)):
-        stored_intents[i].id = i + 1
-    return {"message": "intent deleted"}
+    if to_delete_ind != 'no_index':
+        to_delete = {}
+        to_delete['intent_type'] = stored_intents[to_delete_ind].intent_type
+        to_delete['threat'] = stored_intents[to_delete_ind].threat
+        to_delete['host'] = stored_intents[to_delete_ind].host
+        to_delete['action'] = stored_intents[to_delete_ind].action
+        to_delete['duration'] = stored_intents[to_delete_ind].duration
+        to_delete['intent_id'] = stored_intents[to_delete_ind].intent_id
+        to_delete['priority'] = stored_intents[to_delete_ind].priority
+        delete_intents.select_delete_fun(to_delete)
+        del stored_intents[to_delete_ind]
+        for i in range(len(stored_intents)):
+            stored_intents[i].id = i + 1
+        to_delete_ind = 'no_index'
+        return {"message": "intent deleted"}
+    else:
+        #print('invalid delete request')
+        return {"message": "invalid delete request"}
 
 
 
@@ -261,20 +268,50 @@ def intents_html():
 
 @flask_app.route('/', methods =["GET", "POST"])
 def intent_html():
+    stored_intents_arr = get_intents_script.get_intent_fun(stored_intents_url)
+    intents_ids = []
+    for intent in stored_intents_arr:
+        intents_ids.append(intent['intent_id'])
+    #print('intents ids: ', intents_ids)
+    #global intent
+    if request.method == "POST":
+        import extract_command
+        #intent = request.form.get("intent")
+        intent = request.get_data(as_text=True)[7:]
+        intent = intent.replace("+", " ")
+        intent = extract_command.extract_command_fun(intent)
+        #print('extracted intent: ', intent)
+        if intent['command'] == 'delete_intent':
+            intent_presence = 0
+            for i in range(len(intents_ids)):
+                if intents_ids[i] == intent['intent_id']:
+                    intent_presence = 1
+            if intent_presence == 0:
+                return render_template('index.html', output_text='Incorrect Intent ID. Intent not found')
+            else:
+                return render_template('index.html', output_text='The command entered: {}'.format(intent))
+        else:
+            return render_template('index.html', output_text='The command entered: {}'.format(intent))
+
+'''def intent_html():
     if request.method == "POST":
         import extract_command
         intent = request.get_data(as_text=True)[7:]
         intent = intent.replace("+", " ")
         intent = extract_command.extract_command_fun(intent)
         return render_template('index.html', output_text='The command entered: {}'.format(intent))
-
+'''
 
 app.mount("/gui", WSGIMiddleware(flask_app))
 static_directory = config.static_directory
 app.mount("/static", StaticFiles(directory=static_directory), name="static")
 
 def task():
+    #uvicorn_url = 'http://' + host + ':' + port
+    #print('App hosted on ', uvicorn_url)
+    #uvicorn.run("main:app", host=host, port=int(port), reload=True, log_level='critical')
     uvicorn.run("main:app", host=host, port=int(port), reload=True)
+
 
 def sched():
     run_whatif_loop.run_whatif_loop_fun()

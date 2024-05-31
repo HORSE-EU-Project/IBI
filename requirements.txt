@@ -19,3 +19,4 @@ pydantic
 Elasticsearch
 pyyaml
 psutil
+mysql.connector
