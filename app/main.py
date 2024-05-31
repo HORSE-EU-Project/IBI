@@ -11,6 +11,7 @@ import warnings
 from flask import Flask, request, render_template
 from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 import config
 import get_intents_script
 import logging
@@ -41,10 +42,9 @@ print('creating APIs')
 
 @app.get('/')
 def first_page():
-    to_return = {
-        'gui_endpoint': '/gui',
-    }
-    return to_return
+    # If the user reaches the root document, it redirects the user to
+    # the GUI
+    return RedirectResponse("/gui")
 
 #API for receiving intents from the DTE
 class Intent(BaseModel):
@@ -255,6 +255,7 @@ def ml_reco():
 @flask_app.route('/intents.html')
 def intents_html():
     stored_intents_arr = get_intents_script.get_intent_fun(stored_intents_url)
+    
     items = stored_intents_arr[0].items()
     keys = [key for key, value in items]
     headings = tuple(keys)

@@ -232,6 +232,10 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             #base_data['id'] = total + 1
             #es.index(index="stored_intents", id=base_data['id'], document=base_data)
             es.index(index="stored_intents", id=str(1), document=base_data)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13ab2891cda0054305eda6acf2dc1aaa8e5e0593
             # send the policies as intents to be stored on the stored_intents api
             store_intent.store_intent_fun(stored_intents_url, base_data)
             del base_data["priority"]
