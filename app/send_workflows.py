@@ -45,8 +45,6 @@ def send_workflow_fun_2(workflow_url, workflow):
     response_for_new_action = requests.post(f"{workflow_url}/actions", headers=headers_for_action_post, json=workflow)
     #print(response.json())
     #print('sent data: ', workflow)
-
-    #print('SENT DATA: ', workflow)
     to_output = 'sent data: ' + str(workflow)
     with colors.pretty_output(colors.BOLD, colors.FG_GREEN) as out:
         out.write(to_output)
