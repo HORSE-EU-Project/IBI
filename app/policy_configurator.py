@@ -224,7 +224,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 del base_data["host"]
                 base_data["mitigation_host"] = 'Gateway'
                 #send workflows to workflow api
-                send_workflows.send_workflow_fun(workflow_url, base_data)
+                send_workflows.send_workflow_fun_2(workflow_url, base_data)
                 time.sleep(1)
         else:
             #resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
@@ -232,10 +232,6 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             #base_data['id'] = total + 1
             #es.index(index="stored_intents", id=base_data['id'], document=base_data)
             es.index(index="stored_intents", id=str(1), document=base_data)
-<<<<<<< HEAD
-=======
-
->>>>>>> 13ab2891cda0054305eda6acf2dc1aaa8e5e0593
             # send the policies as intents to be stored on the stored_intents api
             store_intent.store_intent_fun(stored_intents_url, base_data)
             del base_data["priority"]
@@ -245,7 +241,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             base_data["mitigation_host"] = 'Gateway'
             #del base_data["id"]
             # send workflows to workflow api
-            send_workflows.send_workflow_fun(workflow_url, base_data)
+            send_workflows.send_workflow_fun_2(workflow_url, base_data)
             time.sleep(1)
 
 
