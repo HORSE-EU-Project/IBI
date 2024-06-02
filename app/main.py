@@ -23,11 +23,25 @@ host = config.host
 port = config.port
 intents_url = config.intents_url
 stored_intents_url = config.stored_intents_url
+qos_intents_url = config.qos_intents_url
+stored_qos_intents_url = config.stored_qos_intents_url
 
 #clears the existing intent store if you chose that in the config file
 if parameters['clear_intent_store'] == 'true':
     empty_intent_store.empty_fun()
     print('cleared')
+
+'''print(parameters['qos_requirements'])
+# Turns a dictionary into a class
+class my_object:
+    def __init__(self, d=None):
+        if d is not None:
+            for key, value in d.items():
+                setattr(self, key, value)
+def execute_qos():
+    for i in range(len(parameters['qos_requirements'])):
+        print(parameters['qos_requirements'][i])
+        intent_manager.execute_intent_manager_qos(my_object(parameters['qos_requirements'][i]), host)'''
 
 templates_directory = config.templates_directory
 #flask app
@@ -42,6 +56,7 @@ print('creating APIs')
 
 @app.get('/')
 def first_page():
+    #execute_qos()
     # If the user reaches the root document, it redirects the user to
     # the GUI
     return RedirectResponse("/gui")
@@ -58,11 +73,13 @@ intents = [Intent(intent_type='', threat='', host=[], duration=0)]
 intent_endpoint = parameters['to_enter_intents']
 @app.get(intent_endpoint)
 def get_intents():
+    #execute_qos()
     return intents
 
 @app.post(intent_endpoint, status_code=201)
 def add_intent(intent: Intent):
     intents.append(intent)
+    #execute_qos()
     return intent
 
 @app.put(intent_endpoint)
@@ -71,8 +88,41 @@ def replace_intent(intent: Intent):
     intents.append(intent)
     #calls the intent manager function
     intent.duration = str(intent.duration)
-    intent_manager.execute_intent_manager(intent, host)
+    #execute_qos()
+    intent_manager.execute_intent_manager(intent)
     return intent
+
+
+#API for receiving QOS intents that should not be violated
+class qos_Intent(BaseModel):
+    intent_type: str
+    name: str
+    value: float
+    host: list
+
+qos_intents = [qos_Intent(intent_type='', name='', value=0.0, host=[])]
+
+qos_intent_endpoint = parameters['to_enter_qos_intents']
+@app.get(qos_intent_endpoint)
+def get_qos_intents():
+    #execute_qos()
+    return qos_intents
+
+@app.post(qos_intent_endpoint, status_code=201)
+def add_qos_intent(qos_intent: qos_Intent):
+    qos_intents.append(qos_intent)
+    #execute_qos()
+    return qos_intent
+
+@app.put(qos_intent_endpoint)
+def replace_qos_intent(qos_intent: qos_Intent):
+    qos_intents.clear()
+    qos_intents.append(qos_intent)
+    #calls the intent manager function
+    qos_intent.value = float(qos_intent.value)
+    #execute_qos()
+    intent_manager.execute_intent_manager_qos(qos_intent)
+    return qos_intent
 
 
 #API for sending workflows to the RTR
@@ -192,6 +242,7 @@ stored_intents = [Stored_intent(id=0, intent_type='', threat='', host='', action
 stored_intents_endpoint = parameters['to_view_or_delete_intents']
 @app.get(stored_intents_endpoint)
 def get_stored_intent():
+    #execute_qos()
     return stored_intents
 
 @app.post(stored_intents_endpoint, status_code=201)
@@ -238,6 +289,71 @@ def delete_stored_intent(idx: str):
 
 
 
+#API for storing and deleting existing QOS intents
+def _find_next_id_qos():
+    if len(stored_qos_intents) == 0:
+        next_id = 1
+    else:
+        next_id = max(stored_qos_intent.id for stored_qos_intent in stored_qos_intents) + 1
+    return next_id
+class Stored_qos_intent(BaseModel):
+    id: int = Field(default_factory=_find_next_id_qos, alias="id")
+    intent_type: str
+    name: str
+    value: float
+    host: str
+    qos_intent_id: str
+
+stored_qos_intents = [Stored_qos_intent(id=0, intent_type='', name='', value=0.0,
+                                    host='', qos_intent_id='')]
+
+stored_qos_intents_endpoint = parameters['to_view_or_delete_qos_intents']
+@app.get(stored_qos_intents_endpoint)
+def get_stored_qos_intent():
+    #execute_qos()
+    return stored_qos_intents
+
+@app.post(stored_qos_intents_endpoint, status_code=201)
+def add_stored_qos_intent(stored_qos_intent: Stored_qos_intent):
+    if _find_next_id_qos() == 1:
+        stored_qos_intents.clear()
+        stored_qos_intents.append(stored_qos_intent)
+    else:
+        stored_qos_intents.append(stored_qos_intent)
+    return stored_qos_intent
+
+@app.put(stored_qos_intents_endpoint)
+def replace_stored_qos_intent(stored_qos_intent: Stored_qos_intent):
+    stored_qos_intents.clear()
+    stored_qos_intents.append(stored_qos_intent)
+    return stored_qos_intent
+
+del_stored_qos_intents_endpoint = stored_qos_intents_endpoint + "/{idx}"
+@app.delete(del_stored_qos_intents_endpoint)
+def delete_stored_qos_intent(idx: str):
+    global to_delete_ind
+    to_delete_ind = 'no_index'
+    for i in range(len(stored_qos_intents)):
+        if stored_qos_intents[i].qos_intent_id == idx:
+            to_delete_ind = i
+    if to_delete_ind != 'no_index':
+        to_delete = {}
+        to_delete['intent_type'] = stored_qos_intents[to_delete_ind].intent_type
+        to_delete['name'] = stored_qos_intents[to_delete_ind].name
+        to_delete['value'] = stored_qos_intents[to_delete_ind].value
+        to_delete['host'] = stored_qos_intents[to_delete_ind].host
+        to_delete['qos_intent_id'] = stored_qos_intents[to_delete_ind].qos_intent_id
+        delete_intents.select_delete_fun_qos(to_delete)
+        del stored_qos_intents[to_delete_ind]
+        for i in range(len(stored_qos_intents)):
+            stored_qos_intents[i].id = i + 1
+        to_delete_ind = 'no_index'
+        return {"message": "qos intent deleted"}
+    else:
+        #print('invalid delete request')
+        return {"message": "invalid delete request"}
+
+
 #FLASK
 
 @flask_app.route('/')
@@ -267,12 +383,27 @@ def intents_html():
     return render_template("intents.html", headings=headings,
                            data=data)
 
+@flask_app.route('/qos_intents.html')
+def qos_intents_html():
+    stored_qos_intents_arr = get_intents_script.get_intent_fun(stored_qos_intents_url)
+
+    items = stored_qos_intents_arr[0].items()
+    keys = [key for key, value in items]
+    headings = tuple(keys)
+    data = ()
+    for intent in stored_qos_intents_arr:
+        values = list(intent.values())
+        tup = tuple(values)
+        data += (tup,)
+    return render_template("qos_intents.html", headings=headings,
+                           data=data)
+
 @flask_app.route('/', methods =["GET", "POST"])
 def intent_html():
-    stored_intents_arr = get_intents_script.get_intent_fun(stored_intents_url)
+    stored_qos_intents_arr = get_intents_script.get_intent_fun(stored_qos_intents_url)
     intents_ids = []
-    for intent in stored_intents_arr:
-        intents_ids.append(intent['intent_id'])
+    for intent in stored_qos_intents_arr:
+        intents_ids.append(intent['qos_intent_id'])
     #print('intents ids: ', intents_ids)
     #global intent
     if request.method == "POST":
@@ -285,23 +416,15 @@ def intent_html():
         if intent['command'] == 'delete_intent':
             intent_presence = 0
             for i in range(len(intents_ids)):
-                if intents_ids[i] == intent['intent_id']:
+                if intents_ids[i] == intent['qos_intent_id']:
                     intent_presence = 1
             if intent_presence == 0:
-                return render_template('index.html', output_text='Incorrect Intent ID. Intent not found')
+                return render_template('index.html', output_text='Incorrect QOS Intent ID. QOS Intent not found')
             else:
                 return render_template('index.html', output_text='The command entered: {}'.format(intent))
         else:
             return render_template('index.html', output_text='The command entered: {}'.format(intent))
 
-'''def intent_html():
-    if request.method == "POST":
-        import extract_command
-        intent = request.get_data(as_text=True)[7:]
-        intent = intent.replace("+", " ")
-        intent = extract_command.extract_command_fun(intent)
-        return render_template('index.html', output_text='The command entered: {}'.format(intent))
-'''
 
 app.mount("/gui", WSGIMiddleware(flask_app))
 static_directory = config.static_directory
@@ -316,6 +439,7 @@ def task():
 
 def sched():
     run_whatif_loop.run_whatif_loop_fun()
+
 
 if __name__ == "__main__":
     p1 = Process(target = task)

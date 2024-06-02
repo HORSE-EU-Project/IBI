@@ -6,12 +6,12 @@
   #ip and port where elasticsearch runs on your system
   'elasticsearch_ip': '172.21.0.1',
   'elasticsearch_port': '9200',
-  
-  
-  #API ENDPOINTS
+
   #API ENDPOINTS
   'stored_intents_url': 'http://172.21.0.1:7777/stored_intents',
   'intents_url': 'http://172.21.0.1:7777/intents',
+  'stored_qos_intents_url': 'http://172.21.0.1:7777/stored_qos_intents',
+  'qos_intents_url': 'http://172.21.0.1:7777/qos_intents',
   
   #PROVISIONED BY THE IBI
   #eg API endpoint for sending intents: "http://172.21.0.1:7777/intents"
@@ -21,6 +21,10 @@
   'to_receive_whatif': '/whatif_receives',
   #the stored_intents API is for viewing and deleting existing intents
   'to_view_or_delete_intents': '/stored_intents',
+  #the API for sending intents is where the DTE sends intents
+  'to_enter_qos_intents': '/qos_intents',
+  #the stored_intents API is for viewing and deleting existing intents
+  'to_view_or_delete_qos_intents': '/stored_qos_intents',
   
   #PROVISIONED BY OTHER MODULES
   #the API for sending workflow is the API for sending workflows to RTR
@@ -37,5 +41,51 @@
   #directories and files
   'templates_directory': 'templates',
   'static_directory': 'static',
-  'policy_store_file': 'policy_store.csv'
+  'policy_store_file': 'policy_store.csv',
+
+  #attack types, mitigation actions and hosts
+  'ddos_ntp': {
+    'monlist_disable': 'ntp_server',
+    'ntp_service_switch_off': 'ntp_server',
+    'absorb_traffic': 'R2',
+    'server_handover': 'ntp_server',
+    'firewall_spoofing_detection': 'firewalls',
+    'upgrade_software': 'all_nodes',
+    'investigations_report': 'request_to_network_admin'
+  },
+  'ddos_dns': {
+    'dns_service_disable': 'dns_server',
+    'absorb_traffic': 'R2',
+    'server_handover': 'dns_server',
+    'firewall_spoofing_detection': 'firewalls',
+    'rate_limiting': 'dns_server',
+    'investigations_report': 'request_to_network_admin'
+  },
+  'ddos_pfcp': {
+    'sba_function_disable': 'orchestrator',
+    'new_ns_slice_creation': 'OSS',
+    'rate_limiting': 'SMF',
+    'investigations_report': 'request_to_network_admin'
+  },
+
+  #examples of operator's qos requirements definition
+  'qos_requirements': [{
+    'intent_type': 'qos_ntp',
+    'name': 'reliability',
+    'value': 0.9,
+    'host': ['192.164.56.20', '192.164.58.34']
+  },
+  {
+    'intent_type': 'qos_dns',
+    'name': 'latency',
+    'value': 0.2,
+    'host': [ '192.164.56.20', '192.164.58.34' ]
+  },
+  {
+    'intent_type': 'qos_pfcp',
+    'name': 'bandwidth',
+    'value': 5000,
+    'host': [ '192.164.56.20', '192.164.58.34' ]
+  }]
+
 }

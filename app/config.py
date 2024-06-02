@@ -17,7 +17,15 @@ whatif_send_url = parameters['san_api_url']
 workflow_url = parameters['rtr_api_url']
 intents_url = parameters['intents_url']
 stored_intents_url = parameters['stored_intents_url']
+qos_intents_url = parameters['qos_intents_url']
+stored_qos_intents_url = parameters['stored_qos_intents_url']
 
 templates_directory = files_directory + parameters['templates_directory']
 static_directory = files_directory + parameters['static_directory']
 policy_store_directory = files_directory + parameters['policy_store_file']
+
+ddos_ntp = parameters['ddos_ntp']
+ddos_dns = parameters['ddos_dns']
+ddos_pfcp = parameters['ddos_pfcp']
+
+qos_requirements = parameters['qos_requirements']

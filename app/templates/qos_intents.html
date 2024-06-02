@@ -248,6 +248,8 @@
 
 
 
+
+
                 <!-- WHERE PAGE STARTS xxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxx  xxxxxxxxxxxxx-->
 
 
@@ -261,7 +263,7 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">ML-Recommended Intents</h1>
+                    <h1 class="h3 mb-2 text-gray-800">Existing QOS Intents</h1>
                     <!--<p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
                         For more information about DataTables, please visit the <a target="_blank"
                             href="https://datatables.net">official DataTables documentation</a>.</p>
@@ -274,6 +276,7 @@
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <!--<table cellspacing="5">-->
                                     <tr>
                                         {% for header in headings %}
                                         <th>{{ header }}</th>
@@ -287,6 +290,33 @@
                                     </tr>
                                     {% endfor %}
 
+
+                                    <!--<thead>
+                                        <tr>
+                                            {% for header in headings %}
+                                            <th>{{ header }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>-->
+                                    <!--<tfoot>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Intent Type</th>
+                                            <th>Threat</th>
+                                            <th>Host</th>
+                                            <th>Expectation</th>
+                                            <th>Time (min)</th>
+                                        </tr>
+                                    </tfoot> -->
+                                    <!--<tbody>
+                                        {% for row in data %}
+                                        <tr>
+                                            {% for cell in row %}
+                                            <td>{{ cell }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>-->
                                 </table>
                             </div>
                         </div>
@@ -304,7 +334,6 @@
 
 
             <!-- WHERE PAGE ENDS xxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxx  xxxxxxxxxxxxx-->
-
 
 
 
@@ -371,6 +400,7 @@
     <!-- Page level custom scripts -->
     <script src="../static/js/demo/chart-area-demo.js"></script>
     <script src="../static/js/demo/chart-pie-demo.js"></script>
+
 
 
 </body>

@@ -4,16 +4,18 @@ import config
 # the various APIs to be connected to
 intents_url = config.intents_url
 stored_intents_url = config.stored_intents_url
+qos_intents_url = config.qos_intents_url
+stored_qos_intents_url = config.stored_qos_intents_url
 
 def extract_command_fun(command):
     command = command.split()
     #print('command: ', command)
     if 'delete' in command:
         to_delete_dict = {}
-        to_delete = stored_intents_url + '/' + command[2]
+        to_delete = stored_qos_intents_url + '/' + command[2]
         requests.delete(to_delete)
         to_delete_dict['command'] = 'delete_intent'
-        to_delete_dict['intent_id'] = command[2]
+        to_delete_dict['qos_intent_id'] = command[2]
         return to_delete_dict
     elif 'add' in command:
         intent_dict = {}
@@ -37,6 +39,31 @@ def extract_command_fun(command):
         #print('intent dict b4 send: ', intent_dict)
         requests.put(intents_url, json=intent_dict)
         intent_dict['command'] = 'add_intent'
+        return intent_dict
+    elif 'qos' in command:
+        intent_dict = {}
+        if command[2] != 'qos_ntp' and command[2] != 'qos_dns' and command[2] != 'qos_pfcp':
+            error_output = 'invalid service_type' + command[2]
+            return error_output
+        else:
+            intent_dict['intent_type'] = command[2]
+        if command[3] == 'rel':
+            intent_dict['name'] = 'reliability'
+        elif command[3] == 'bw':
+            intent_dict['name'] = 'bandwidth'
+        elif command[3] == 'lat':
+            intent_dict['name'] = 'latency'
+        else:
+            error_output = 'invalid qos name' + command[2]
+            return error_output
+        intent_dict['value'] = float(command[4])
+        intent_dict['host'] = command[5:]
+        #print('intent dict b4 send: ', intent_dict)
+        requests.put(qos_intents_url, json=intent_dict)
+        intent_dict['service_type'] = intent_dict['intent_type']
+        del intent_dict['intent_type']
+        intent_dict['command'] = 'add_qos_intent'
+        print(intent_dict)
         return intent_dict
     else:
         return 'invalid command'

@@ -81,8 +81,15 @@
             <!-- Nav Item - Tables -->
             <li class="nav-item">
                 <a class="nav-link" href="intents.html">
+                <!--<a class="nav-link" href="http://172.21.0.1:7777/stored_intents">-->
                     <i class="fas fa-fw fa-table"></i>
-                    <span>View Existing Intents</span></a>
+                    <span>View Security Intents</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="qos_intents.html">
+                <!--<a class="nav-link" href="http://172.21.0.1:7777/stored_intents">-->
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>View QOS Intents</span></a>
             </li>
 
             <!-- Divider -->
@@ -276,8 +283,6 @@
                                 <ul>
                                   <li>add intent command format: ibi add intent_type threat duration host(s)</li>
                                     <br>
-                                  <li>delete intent command format: ibi delete intent_id</li>
-                                    <br>
                                   <li>intent_type examples: prevention (pre), mitigation (mit)</li>
                                     <br>
                                   <li>threat examples: DDoS (ddos_ntp or ddos_dns or ddos_pfcp), DoS-Signaling (dos_sig), API vulnerability (api_vul)</li>
@@ -285,6 +290,12 @@
                                   <li>duration example (seconds): 600</li>
                                     <br>
                                   <li>host(s) examples: 192.168.56.4 192.168.56.21</li>
+                                    <br>
+                                  <li>define QOS: ibi qos service_type qos_name value host(s) eg ibi qos qos_ntp rel 1.0 192.168.56.4</li>
+                                    <br>
+                                  <li>qos_name examples: reliability (rel), bandwdith (bw), latency (lat)</li>
+                                    <br>
+                                  <li>delete QOS intent: ibi delete qos_intent_id</li>
                                 </ul>
                                 <!--<table>
                                     {% for row in data %}
@@ -388,7 +399,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; IBI 2023</span>
+                        <span>Copyright &copy; IBI 2024</span>
                     </div>
                 </div>
             </footer>

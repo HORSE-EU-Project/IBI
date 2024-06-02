@@ -13,4 +13,4 @@ def delete_intents_fun(intent_id, workflow_url):
         "intent_id": intent_id
     }
     #print('delete dict: ', delete_dict)
-    send_workflows.send_workflow_fun(workflow_url, delete_dict)
+    send_workflows.send_workflow_fun_2(workflow_url, delete_dict)
