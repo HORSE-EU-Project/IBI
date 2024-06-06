@@ -1,0 +1,38 @@
+version: '3'
+
+# IBI Network for communication between the IBI-API and ElasticSearch
+networks:
+    ibi-network:
+      driver: bridge
+      name: ibi-network
+
+services:
+  ibi-api:
+    container_name: ibi-api
+    build: .
+    ports:
+      - "7777:7777"
+    depends_on:
+      es01:
+        condition: service_healthy
+    networks:
+      - ibi-network
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
+    container_name: es01
+    restart: always
+    environment:
+        - "discovery.type=single-node"
+        - "xpack.security.enabled=false"
+        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+        - ibi-network
