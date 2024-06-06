@@ -6,6 +6,7 @@ networks:
 
 services:
   ibi-api:
+    build: .
     container_name: ibi-api
     ports:
       - "7777:7777"
