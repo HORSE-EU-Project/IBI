@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import config
 import get_intents_script
+import connect_rtr
 import logging
 
 warnings.filterwarnings('ignore')
@@ -25,6 +26,13 @@ intents_url = config.intents_url
 stored_intents_url = config.stored_intents_url
 qos_intents_url = config.qos_intents_url
 stored_qos_intents_url = config.stored_qos_intents_url
+workflow_url = config.workflow_url
+
+#if connection to rtr is set to true in the config file, then the user registers and logs in
+if parameters['to_connect_to_rtr'] == 'true':
+    connect_rtr.register_rtr(workflow_url)
+    #access_token = connect_rtr.login_rtr(workflow_url)
+    print('cleared')
 
 #clears the existing intent store if you chose that in the config file
 if parameters['clear_intent_store'] == 'true':
@@ -89,7 +97,7 @@ def replace_intent(intent: Intent):
     #calls the intent manager function
     intent.duration = str(intent.duration)
     #execute_qos()
-    intent_manager.execute_intent_manager(intent)
+    intent_manager.execute_intent_manager(intent, access_token)
     return intent
 
 
@@ -215,7 +223,7 @@ def add_whatif_receive(whatif_receive: Whatif_receive):
 def replace_whatif_receive(whatif_receive: Whatif_receive):
     whatif_receives.clear()
     whatif_receives.append(whatif_receive)
-    whatif_loop.whatif_receive_fun(whatif_receive)
+    whatif_loop.whatif_receive_fun(whatif_receive, access_token)
     return whatif_receive
 
 

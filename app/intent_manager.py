@@ -2,7 +2,7 @@ import policy_configurator
 from elasticsearch import Elasticsearch
 import config
 
-def execute_intent_manager(intent):
+def execute_intent_manager(intent, access_token):
     #stores the intents retrieved from the intent api
     retrieved_intents_arr = []
     print('intent manager started - waiting for intent')
@@ -28,10 +28,10 @@ def execute_intent_manager(intent):
             retrieved_intents_arr.append(intent_dict_main)
             if intent_dict_main['intent_type'] == 'mitigation':
                 policy_configurator.policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
-                                                            stored_intents_url, elasticsearch_url)
+                                                            stored_intents_url, elasticsearch_url, access_token)
             elif intent_dict_main['intent_type'] == 'prevention':
                 whatif_question = policy_configurator.policy_configurator_fun(intent_dict_main, workflow_url,
-                                                        whatif_send_url, stored_intents_url, elasticsearch_url)
+                                                        whatif_send_url, stored_intents_url, elasticsearch_url, access_token)
                 intent_index = es.exists(index="awaiting_intents", id=1)
                 if intent_index == True:
                     resp1 = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
@@ -47,10 +47,10 @@ def execute_intent_manager(intent):
         retrieved_intents_arr.append(intent_dict_main)
         if intent_dict_main['intent_type'] == 'mitigation':
             policy_configurator.policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
-                           stored_intents_url, elasticsearch_url)
+                           stored_intents_url, elasticsearch_url, access_token)
         elif intent_dict_main['intent_type'] == 'prevention':
             whatif_question = policy_configurator.policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
-                                                                          stored_intents_url, elasticsearch_url)
+                                                                          stored_intents_url, elasticsearch_url, access_token)
             intent_index = es.exists(index="awaiting_intents", id=1)
             if intent_index == True:
                 resp1 = es.search(index="awaiting_intents", size=100, query={"match_all": {}})

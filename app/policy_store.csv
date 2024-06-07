@@ -6,11 +6,11 @@ mitigation,ddos_ntp,server_handover,4,4,latency
 mitigation,ddos_ntp,firewall_spoofing_detection,5,5,no_constraint
 mitigation,ddos_ntp,upgrade_software,6,6,latency
 mitigation,ddos_ntp,investigations_report,7,7,no_constraint
-mitigation,ddos_dns,dns_service_disable,1,1,reliability
+mitigation,ddos_dns,Shut down/disable DNS server,1,1,reliability
 mitigation,ddos_dns,absorb_traffic,2,2,no_constraint
-mitigation,ddos_dns,rate_limiting,3,3,bandwidth
+mitigation,ddos_dns,Reduce/set the number of requests to the dns server to 40/s for port 53, protocol udp,3,3,bandwidth
 mitigation,ddos_dns,server_handover,4,4,latency
-mitigation,ddos_dns,firewall_spoofing_detection,5,5,no_constraint
+mitigation,ddos_dns,Block potentially spoofed packets with destination 10.0.0.6 in interface eth1,5,5,no_constraint
 mitigation,ddos_dns,investigations_report,6,6,no_constraint
 mitigation,ddos_pfcp,sba_function_disable,1,1,reliability
 mitigation,ddos_pfcp,rate_limiting,2,2,bandwidth
@@ -28,7 +28,7 @@ prevention,ddos_ntp,monlist_disable,1,1,no_constraint
 prevention,ddos_ntp,firewall_spoofing_detection,2,2,no_constraint
 prevention,ddos_ntp,upgrade_software,3,3,latency
 prevention,ddos_ntp,investigations_report,4,4,no_constraint
-prevention,ddos_dns,firewall_spoofing_detection,5,5,no_constraint
+prevention,ddos_dns,Block potentially spoofed packets with destination 10.0.0.6 in interface eth1,5,5,no_constraint
 prevention,ddos_dns,investigations_report,6,6,no_constraint
 prevention,ddos_pfcp,new_ns_slice_creation,1,1,latency
 prevention,ddos_pfcp,investigations_report,2,2,no_constraint

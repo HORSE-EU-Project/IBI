@@ -11,7 +11,7 @@ import config
 import get_intents_script
 
 def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
-                       stored_intents_url, elasticsearch_url):
+                       stored_intents_url, elasticsearch_url, access_token):
     global policy_dict
     stored_qos_intents_url = config.stored_qos_intents_url
     #create an empty policy dictionary where to store the matched policy at first
@@ -236,12 +236,12 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
     if policy_dict['intent_type'] == 'mitigation':
         print('proceeding with intent')
         whatif_loop.del_whatif_fun(policy_dict)
-        policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url, policy_dict)
+        policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url, policy_dict, access_token)
     elif policy_dict['intent_type'] == 'prevention':
         return whatif_loop.whatif_send_fun(policy_dict, whatif_send_url)
 
 def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url,
-                              policy_dict):
+                              policy_dict, access_token):
     es = Elasticsearch(elasticsearch_url)
 
     # extract the hosts in the policy_dict
@@ -298,6 +298,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 base_data["command"] = 'add'
                 base_data["attacked_host"] = base_data["host"]
                 del base_data["host"]
+                base_data["duration"] = int(base_data["duration"])
                 if base_data['threat'] == 'ddos_ntp':
                     base_data["mitigation_host"] = config.ddos_ntp[base_data['action']]
                 elif base_data['threat'] == 'ddos_dns':
@@ -306,7 +307,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                     base_data["mitigation_host"] = config.ddos_pfcp[base_data['action']]
                 #base_data["mitigation_host"] = 'Gateway'
                 #send workflows to workflow api
-                send_workflows.send_workflow_fun_2(workflow_url, base_data)
+                send_workflows.send_workflow_fun_2(workflow_url, base_data, access_token, base_data["attacked_host"])
                 time.sleep(1)
         else:
             #resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
@@ -320,6 +321,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             base_data["command"] = 'add'
             base_data["attacked_host"] = base_data["host"]
             del base_data["host"]
+            base_data["duration"] = int(base_data["duration"])
             if base_data['threat'] == 'ddos_ntp':
                 base_data["mitigation_host"] = config.ddos_ntp[base_data['action']]
             elif base_data['threat'] == 'ddos_dns':
@@ -329,7 +331,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
             # base_data["mitigation_host"] = 'Gateway'
             #del base_data["id"]
             # send workflows to workflow api
-            send_workflows.send_workflow_fun_2(workflow_url, base_data)
+            send_workflows.send_workflow_fun_2(workflow_url, base_data, access_token, base_data["attacked_host"])
             time.sleep(1)
 
 def policy_configurator_fun_qos(policy_dict, workflow_url, stored_qos_intents_url,

@@ -1,6 +1,8 @@
 import requests
 import colors
+import config
 
+parameters = config.parameters
 #the function used to send workflow or data to an api
 def send_workflow_fun(workflow_url, workflow):
     requests.put(workflow_url, json=workflow)
@@ -11,8 +13,19 @@ def send_workflow_fun(workflow_url, workflow):
         out.write(to_output)
 
 #the function used to send workflow or data to RTR api
-def send_workflow_fun_2(workflow_url, workflow):
+def send_workflow_fun_2(workflow_url, workflow, access_token, attack):
     #requests.put(workflow_url, json=workflow)
+    '''workflow_2 = {
+        'intent_type': 'mitigation',
+        'threat': 'ddos_ntp',
+        'action': 'ntp_service_switch_off',
+        'duration': 400,
+        'intent_id': '6IZFFUI',
+        'command': 'add',
+        'attacked_host': attack,
+        'mitigation_host': 'ntp_server'
+    }'''
+
     ###################### LOGIN REQUESTS ######################
     headers = {
         'accept': 'application/json',
@@ -21,8 +34,8 @@ def send_workflow_fun_2(workflow_url, workflow):
 
     data = {
         'grant_type': '',
-        'username': 'user1',
-        'password': 'user1',
+        'username': parameters['rtr_username'],
+        'password': parameters['rtr_password'],
         'scope': '',
         'client_id': '',
         'client_secret': ''
@@ -42,7 +55,7 @@ def send_workflow_fun_2(workflow_url, workflow):
         'Authorization': f'Bearer {access_token}'
     }
 
-    response_for_new_action = requests.post(f"{workflow_url}/actions", headers=headers_for_action_post, json=workflow)
+    requests.post(f"{workflow_url}/actions", headers=headers_for_action_post, json=workflow)
     #print(response.json())
     #print('sent data: ', workflow)
     to_output = 'sent data: ' + str(workflow)

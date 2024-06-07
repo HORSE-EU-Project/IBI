@@ -29,7 +29,11 @@
   #PROVISIONED BY OTHER MODULES
   #the API for sending workflow is the API for sending workflows to RTR
   'to_send_workflow': '/workflows',
-  'rtr_api_url': 'http://172.21.0.1:7777/workflows',
+  'rtr_api_url': 'http://0.0.0.0:8000',
+  'rtr_username': 'user3',
+  'rtr_password': 'user3',
+  'rtr_email': 'user3@gmail.com',
+  'to_connect_to_rtr': 'true',
   #the send_whatif API is the API for sending what-if questions to the SAN
   'to_send_whatif': '/whatif_sends',
   'san_api_url': 'http://172.21.0.1:7777/whatif_sends',
@@ -49,15 +53,15 @@
     'ntp_service_switch_off': 'ntp_server',
     'absorb_traffic': 'R2',
     'server_handover': 'ntp_server',
-    'firewall_spoofing_detection': 'firewalls',
-    'upgrade_software': 'all_nodes',
+    'firewall_spoofing_detection': 'R2',
+    'upgrade_software': 'ntp_server',
     'investigations_report': 'request_to_network_admin'
   },
   'ddos_dns': {
     'dns_service_disable': 'dns_server',
     'absorb_traffic': 'R2',
     'server_handover': 'dns_server',
-    'firewall_spoofing_detection': 'firewalls',
+    'firewall_spoofing_detection': 'R2',
     'rate_limiting': 'dns_server',
     'investigations_report': 'request_to_network_admin'
   },
@@ -86,6 +90,20 @@
     'name': 'bandwidth',
     'value': 5000,
     'host': [ '192.164.56.20', '192.164.58.34' ]
-  }]
+  }],
+
+  #TOPOLOGY
+  'hosts': {
+    'dns_c1': '192.168.56.11',
+    'dns_c2': '192.168.56.12',
+    'dns_c3': '192.168.56.13',
+    'dns_c4': '192.168.56.14',
+  }
+
+
+
+
+
+
 
 }
