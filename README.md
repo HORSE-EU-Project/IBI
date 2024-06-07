@@ -1,98 +1,47 @@
-# Installing and managing requirements with venv
+# Intent-Based Interface
 
-1. Create a new virtual environment (.venv) (Only required for the first time)
-   ```
-   $ python3 -m venv .venv
-   ```
-    1.1. Install the required python packages
+The IBI is a software prototype developed within the scope of 
+[HORSE project](ibi-api). The main goal of the module is to match intents that 
+represent the desired state of the system or network and apply policies to 
+achieve those states or, in other words, to fulfill the intents. Currently, the 
+IBI can receive intents encoded as JSON files through a RESTful API or a 
+graphical user interface (GUI). The receives security intents that could be 
+mitigation or prevention intents regarding threats affecting the network. Within 
+the IBI, the intents are processed and matched with the policies that are sent 
+to the [RTR module](https://github.com/HORSE-EU-Project/RTR).
+
+## Installation
+
+- Download the application code:
     ```
-    pip install -r requirements.txt
+    git clone https://github.com/HORSE-EU-Project/IBI.git
     ```
-
-2. Activate the virtual environment
+- Change the current directory to IBI.
     ```
-    $ source .venv/bin/activate
+    cd IBI
+
+- Build and run the software as Docker container:
+  - Production environment
     ```
-
-
-# Steps to run the IBI (needs update to use ES as docker)
-
-> [!WARNING]
-> Deprecated. It uses a local installation of ElasticSearch.
-> Please use the instructions below.
-
-1. Install Docker and its dependencies.
-
-2. Install Elasticsearch.
-
-3. Clone the project and cd into the directory of the project, then run:
+    docker compose -f docker-compose.prod.yml build
+    docker compose -f docker-compose.prod.yml up
     ```
-    sudo docker build -t ibi_horse .
+  - Development environment
     ```
-
-4. After the build, run:
-    ```
-    sudo docker run --network host ibi_horse
+    docker compose -f docker-compose.dev.yml build 
+    docker compose -f docker-compose.dev.yml up
     ```
 
-# Run HORSE IBI for development
-
-## Create a dedicated Docker Network for ElasticSearch
+- Stop the execution of the software:
+  - Production environment
     ```
-    docker network create elastic
+    docker compose -f docker-compose.prod.yml down
     ```
-
-## Pull ElastichSearch image and run it
+  - Development environment
     ```
-    docker pull docker.elastic.co/elasticsearch/elasticsearch:8.13.2
-    docker run --name es01 --rm -it --net elastic -p 9200:9200 -p 9300:9300 -m 1GB -e "discovery.type=single-node" -e "xpack.security.enabled=false" docker.elastic.co/elasticsearch/elasticsearch:8.13.2
+    docker compose -f docker-compose.dev.yml down
     ```
 
-> [!NOTE]
-> Keep the ElastichSearch running and do not clode the terminal
-
-
-## Run the HORSE IBI App
-
-### **Open a new terminal** and navigate to the Project folder
-    In a new terminal window (assuming the project is at `~/devel/horse-ibi/`)
-    ```
-    cd ~/devel/horse-ibi/
-    ```
-
-### Pull the Python Image from Docker Hub
-    ```
-    docker pull python:3.8.10
-
-    ```
-### Run HORSE IBI Software
-    
-    #### Option 1: One-line command
-    ```
-     sudo docker run --name horse-ibi --rm -it --net elastic -p 7777:7777 --mount src=`pwd`,target=/code,type=bind -w /code python:3.8.10 sh -c "pip install -r requirements.txt && python app/main.py"
-    ```
-
-> [!NOTE]
-> Edit the files in your local directory (e.g., `~/devel/horse-ibi/`) and it will be updates in the running docker container
-
-    #### Option 2: Multiple commands for debugging and info
-    
-    1. Run the Docker container
-    ```
-    sudo docker run --name horse-ibi --rm -it --net elastic -p 7777:7777 --mount src=`pwd`,target=/code,type=bind -w /code python:3.8.10 sh
-    ```
-    
-    2. Runt the app from the container command line:
-    ```
-    pip install -r requirements.txt
-    python app/main.py
-    ```
-
-> [!NOTE]
-> Edit the files in your local directory (e.g., `~/devel/horse-ibi/`) and it will be updates in the running docker container
-
-
-# Using the service
-
+# Accessing the service
 - The API is available at your local IP address (or localhost), on port 7777.
-- The Elastic Search Instance is exposted at port 9200, also at your local IP (or localhost).
+- The ElasticSearch Instance is exposted at port 9200 and 9300, also at your local IP (or localhost).
