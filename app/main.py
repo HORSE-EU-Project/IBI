@@ -16,6 +16,7 @@ import config
 import get_intents_script
 import connect_rtr
 import logging
+import requests
 
 warnings.filterwarnings('ignore')
 
@@ -293,6 +294,13 @@ def delete_stored_intent(idx: str):
         for i in range(len(stored_intents)):
             stored_intents[i].id = i + 1
         to_delete_ind = 'no_index'
+        stored_intents_arr = get_intents_script.get_intent_fun(stored_intents_url)
+        if len(stored_intents_arr) == 0:
+            
+            base_data = {'id': 0, 'intent_type': '', 'threat': '', 'host': '', 'action': '', 'duration': '',
+                     'intent_id': '', 'priority': ''}
+            
+            requests.post(stored_intents_url, json=base_data)
         return {"message": "intent deleted"}
     else:
         #print('invalid delete request')
@@ -359,6 +367,12 @@ def delete_stored_qos_intent(idx: str):
         for i in range(len(stored_qos_intents)):
             stored_qos_intents[i].id = i + 1
         to_delete_ind = 'no_index'
+        stored_qos_intents_arr = get_intents_script.get_intent_fun(stored_qos_intents_url)
+        if len(stored_qos_intents_arr) == 0:
+            
+            base_data = {'id': 0, 'intent_type': '', 'name': '', 'value': 0.0,
+                                        'host': '', 'qos_intent_id': ''}
+            requests.post(stored_qos_intents_url, json=base_data)
         return {"message": "qos intent deleted"}
     else:
         #print('invalid delete request')
