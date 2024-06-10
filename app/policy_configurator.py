@@ -9,9 +9,10 @@ from elasticsearch import Elasticsearch
 import whatif_loop
 import config
 import get_intents_script
+import find_interface
 
 def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
-                       stored_intents_url, elasticsearch_url, access_token):
+                       stored_intents_url, elasticsearch_url):
     global policy_dict
     stored_qos_intents_url = config.stored_qos_intents_url
     #create an empty policy dictionary where to store the matched policy at first
@@ -60,6 +61,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                         and df_policy['priority'][ind] == chosen_priority:
                     policy_dict['priority'] = df_policy['priority'][ind]
                     policy_dict['action'] = df_policy['action'][ind]
+                    policy_dict['rtr_action'] = df_policy['rtr_action'][ind]
 
         elif intent_dict_main['threat'] == 'ddos_dns':
             problem_constraints = []
@@ -87,6 +89,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                         and df_policy['priority'][ind] == chosen_priority:
                     policy_dict['priority'] = df_policy['priority'][ind]
                     policy_dict['action'] = df_policy['action'][ind]
+                    policy_dict['rtr_action'] = df_policy['rtr_action'][ind]
 
         elif intent_dict_main['threat'] == 'ddos_pfcp':
             problem_constraints = []
@@ -114,6 +117,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                         and df_policy['priority'][ind] == chosen_priority:
                     policy_dict['priority'] = df_policy['priority'][ind]
                     policy_dict['action'] = df_policy['action'][ind]
+                    policy_dict['rtr_action'] = df_policy['rtr_action'][ind]
 
         elif intent_dict_main['threat'] == 'dos_sig':
             for ind in df_policy.index:
@@ -159,6 +163,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                         and df_policy['priority'][ind] == chosen_priority:
                     policy_dict['priority'] = df_policy['priority'][ind]
                     policy_dict['action'] = df_policy['action'][ind]
+                    policy_dict['rtr_action'] = df_policy['rtr_action'][ind]
 
         elif intent_dict_main['threat'] == 'ddos_dns':
             problem_constraints = []
@@ -186,6 +191,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                         and df_policy['priority'][ind] == chosen_priority:
                     policy_dict['priority'] = df_policy['priority'][ind]
                     policy_dict['action'] = df_policy['action'][ind]
+                    policy_dict['rtr_action'] = df_policy['rtr_action'][ind]
 
         elif intent_dict_main['threat'] == 'ddos_pfcp':
             problem_constraints = []
@@ -213,6 +219,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                         and df_policy['priority'][ind] == chosen_priority:
                     policy_dict['priority'] = df_policy['priority'][ind]
                     policy_dict['action'] = df_policy['action'][ind]
+                    policy_dict['rtr_action'] = df_policy['rtr_action'][ind]
 
         elif intent_dict_main['threat'] == 'dos_sig':
             for ind in df_policy.index:
@@ -236,12 +243,12 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
     if policy_dict['intent_type'] == 'mitigation':
         print('proceeding with intent')
         whatif_loop.del_whatif_fun(policy_dict)
-        policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url, policy_dict, access_token)
+        policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url, policy_dict)
     elif policy_dict['intent_type'] == 'prevention':
         return whatif_loop.whatif_send_fun(policy_dict, whatif_send_url)
 
 def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url,
-                              policy_dict, access_token):
+                              policy_dict):
     es = Elasticsearch(elasticsearch_url)
 
     # extract the hosts in the policy_dict
@@ -261,37 +268,120 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
     host_existing = []
     #the id of each intent would have 7 digits
     id_digits = 7
-    for j in range(len(intent_host_arr)):
-        intent_id = ''.join(random.choices(string.ascii_uppercase +
-                                     string.digits, k=id_digits))
-        base_data = {'intent_type': policy_dict['intent_type'],
-                     'threat': policy_dict['threat'],
-                     'host': intent_host_arr[j],
-                     'action': policy_dict['action'],
-                     'duration': policy_dict['duration'],
-                     'intent_id': str(intent_id),
-                     'priority': str(policy_dict['priority'])
-                     }
 
-        intent_index = es.exists(index="stored_intents", id="1")
-        if intent_index == True:
-            resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
-            id_arr = []
-            exist = 0
-            for hit in resp1['hits']['hits']:
-                id_arr.append(hit["_id"])
-                if hit['_source']['host'] == intent_host_arr[j] and \
-                        hit['_source']['threat'] == policy_dict['threat'] and \
-                            int(policy_dict['priority']) >= int(hit['_source']['priority']):
-                    exist += 1
-                    host_existing.append(intent_host_arr[j])
+    def send_store(protocol):
+        global mitigation_host
+        for j in range(len(intent_host_arr)):
 
-            if exist == 0:
+            intent_id = ''.join(random.choices(string.ascii_uppercase +
+                                         string.digits, k=id_digits))
+            base_data = {'intent_type': policy_dict['intent_type'],
+                         'threat': policy_dict['threat'],
+                         'host': intent_host_arr[j],
+                         'action': policy_dict['action'],
+                         'duration': policy_dict['duration'],
+                         'intent_id': str(intent_id),
+                         'priority': str(policy_dict['priority'])
+                         }
+            if base_data['threat'] == 'ddos_ntp':
+                mitigation_host = config.ddos_ntp[base_data['action']]
+            elif base_data['threat'] == 'ddos_dns':
+                mitigation_host = config.ddos_dns[base_data['action']]
+            elif base_data['threat'] == 'ddos_pfcp':
+                mitigation_host = config.ddos_pfcp[base_data['action']]
+            #mitigation_host_ip = config.hosts[base_data["mitigation_host"]]
+            #base_data["mitigation_host"] = mitigation_host_ip
+            found_interface = find_interface.find_interface_fun(base_data['host'], mitigation_host)
+
+            intent_index = es.exists(index="stored_intents", id="1")
+            if intent_index == True:
                 resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
-                total = resp1['hits']['total']['value']
-                id = total + 1
-                es.index(index="stored_intents", id=id, document=base_data)
+                id_arr = []
+                exist = 0
+                for hit in resp1['hits']['hits']:
+                    id_arr.append(hit["_id"])
+                    if hit['_source']['host'] == intent_host_arr[j] and \
+                            hit['_source']['threat'] == policy_dict['threat'] and \
+                                int(policy_dict['priority']) >= int(hit['_source']['priority']):
+                        exist += 1
+                        host_existing.append(intent_host_arr[j])
 
+                if exist == 0:
+                    if base_data['action'] == 'firewall_spoofing_detection':
+                        interface_name = found_interface
+                        destination_host = base_data['host']
+                        base_data['action'] = policy_dict['rtr_action'].replace("destination_host", destination_host)
+                        base_data['action'] = base_data['action'].replace("interface_name", interface_name)
+                    if base_data['action'] == 'dns_service_disable':
+                        base_data['action'] = policy_dict['rtr_action']
+                        print('policy dict rtr action: ', policy_dict['rtr_action'])
+                    if base_data['action'] == 'rate_limiting':
+                        protocol_name = protocol
+                        base_data['action'] = policy_dict['rtr_action'].replace("protocol_name", protocol_name)
+                    #send to elasticsearch index
+                    resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
+                    total = resp1['hits']['total']['value']
+                    id = total + 1
+                    es.index(index="stored_intents", id=id, document=base_data)
+                    # send the policies as intents to be stored on the stored_intents api
+                    store_intent.store_intent_fun(stored_intents_url, base_data)
+                    del base_data["priority"]
+                    base_data["command"] = 'add'
+                    base_data["attacked_host"] = base_data["host"]
+                    del base_data["host"]
+                    base_data["duration"] = int(base_data["duration"])
+                    mitigation_host_ip = config.hosts[mitigation_host]
+                    base_data["mitigation_host"] = mitigation_host_ip
+                    #base_data["mitigation_host"] = 'Gateway'
+                    #send workflows to workflow api
+                    send_workflows.send_workflow_fun_2(workflow_url, base_data)
+                    #if policy_dict['action'] == 'rate_limiting':
+                    #    send_store('udp')
+                    time.sleep(1)
+
+                elif exist != 0 and policy_dict['action'] == 'rate_limiting':
+                    protocol_name = 'tcp'
+                    base_data['action'] = policy_dict['rtr_action'].replace("protocol_name", protocol_name)
+                    second_intent_id = ''.join(random.choices(string.ascii_uppercase +
+                                                       string.digits, k=id_digits))
+                    base_data['intent_id'] = second_intent_id
+                    #send to elasticsearch index
+                    resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
+                    total = resp1['hits']['total']['value']
+                    id = total + 1
+                    es.index(index="stored_intents", id=id, document=base_data)
+                    # send the policies as intents to be stored on the stored_intents api
+                    store_intent.store_intent_fun(stored_intents_url, base_data)
+                    del base_data["priority"]
+                    base_data["command"] = 'add'
+                    base_data["attacked_host"] = base_data["host"]
+                    del base_data["host"]
+                    base_data["duration"] = int(base_data["duration"])
+                    mitigation_host_ip = config.hosts[mitigation_host]
+                    base_data["mitigation_host"] = mitigation_host_ip
+                    #base_data["mitigation_host"] = 'Gateway'
+                    #send workflows to workflow api
+                    send_workflows.send_workflow_fun_2(workflow_url, base_data)
+                    time.sleep(1)
+            else:
+                #resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
+                #total = resp1['hits']['total']['value']
+                #base_data['id'] = total + 1
+                #es.index(index="stored_intents", id=base_data['id'], document=base_data)
+
+                if base_data['action'] == 'firewall_spoofing_detection':
+                    interface_name = found_interface
+                    destination_host = base_data['host']
+                    base_data['action'] = policy_dict['rtr_action'].replace("destination_host", destination_host)
+                    base_data['action'] = base_data['action'].replace("interface_name", interface_name)
+                if base_data['action'] == 'rate_limiting':
+                    protocol_name = protocol
+                    base_data['action'] = policy_dict['rtr_action'].replace("protocol_name", protocol_name)
+                if base_data['action'] == 'dns_service_disable':
+                    base_data['action'] = policy_dict['rtr_action']
+                    print('policy dict rtr action: ', policy_dict['rtr_action'])
+                #send to elasticsearch index
+                es.index(index="stored_intents", id=str(1), document=base_data)
                 # send the policies as intents to be stored on the stored_intents api
                 store_intent.store_intent_fun(stored_intents_url, base_data)
                 del base_data["priority"]
@@ -299,40 +389,19 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 base_data["attacked_host"] = base_data["host"]
                 del base_data["host"]
                 base_data["duration"] = int(base_data["duration"])
-                if base_data['threat'] == 'ddos_ntp':
-                    base_data["mitigation_host"] = config.ddos_ntp[base_data['action']]
-                elif base_data['threat'] == 'ddos_dns':
-                    base_data["mitigation_host"] = config.ddos_dns[base_data['action']]
-                elif base_data['threat'] == 'ddos_pfcp':
-                    base_data["mitigation_host"] = config.ddos_pfcp[base_data['action']]
-                #base_data["mitigation_host"] = 'Gateway'
-                #send workflows to workflow api
-                send_workflows.send_workflow_fun_2(workflow_url, base_data, access_token, base_data["attacked_host"])
+                mitigation_host_ip = config.hosts[mitigation_host]
+                base_data["mitigation_host"] = mitigation_host_ip
+                # base_data["mitigation_host"] = 'Gateway'
+                #del base_data["id"]
+                # send workflows to workflow api
+                send_workflows.send_workflow_fun_2(workflow_url, base_data)
                 time.sleep(1)
-        else:
-            #resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
-            #total = resp1['hits']['total']['value']
-            #base_data['id'] = total + 1
-            #es.index(index="stored_intents", id=base_data['id'], document=base_data)
-            es.index(index="stored_intents", id=str(1), document=base_data)
-            # send the policies as intents to be stored on the stored_intents api
-            store_intent.store_intent_fun(stored_intents_url, base_data)
-            del base_data["priority"]
-            base_data["command"] = 'add'
-            base_data["attacked_host"] = base_data["host"]
-            del base_data["host"]
-            base_data["duration"] = int(base_data["duration"])
-            if base_data['threat'] == 'ddos_ntp':
-                base_data["mitigation_host"] = config.ddos_ntp[base_data['action']]
-            elif base_data['threat'] == 'ddos_dns':
-                base_data["mitigation_host"] = config.ddos_dns[base_data['action']]
-            elif base_data['threat'] == 'ddos_pfcp':
-                base_data["mitigation_host"] = config.ddos_pfcp[base_data['action']]
-            # base_data["mitigation_host"] = 'Gateway'
-            #del base_data["id"]
-            # send workflows to workflow api
-            send_workflows.send_workflow_fun_2(workflow_url, base_data, access_token, base_data["attacked_host"])
-            time.sleep(1)
+    protocols_arr = ['udp', 'tcp']
+    if policy_dict['action'] == 'rate_limiting':
+        for protocol in protocols_arr:
+            send_store(protocol)
+    else:
+        send_store('no_value')
 
 def policy_configurator_fun_qos(policy_dict, workflow_url, stored_qos_intents_url,
                                                                 elasticsearch_url):

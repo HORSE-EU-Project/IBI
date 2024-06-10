@@ -33,3 +33,6 @@ ddos_dns = parameters['ddos_dns']
 ddos_pfcp = parameters['ddos_pfcp']
 
 qos_requirements = parameters['qos_requirements']
+
+hosts = parameters['hosts']
+links = parameters['links']

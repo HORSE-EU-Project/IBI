@@ -63,7 +63,7 @@ def whatif_loop_fun(es, whatif_send_url):
 
 #when a what-if answer is received from the SAN
 #the IBI proceeds with the intent if the response from the SAN is acceptable
-def whatif_receive_fun(whatif_receive, access_token):
+def whatif_receive_fun(whatif_receive):
     import policy_configurator
     stored_intents_url = config.stored_intents_url
     whatif_answer = {}
@@ -94,7 +94,7 @@ def whatif_receive_fun(whatif_receive, access_token):
                         if df_policy['action'][ind] == whatif_answer['action']:
                             whatif_answer['priority'] = df_policy['priority'][ind]
                     policy_configurator.policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url,
-                                                                  whatif_answer, access_token)
+                                                                  whatif_answer)
     else:
         print('not proceeding with intent')
     resp = es.search(index="awaiting_intents", size=100, query={"match_all": {}})

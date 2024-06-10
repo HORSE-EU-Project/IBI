@@ -1,18 +1,18 @@
 {
   #your IP and port with which to provision your APIs
-  'ip': '172.21.0.1',
+  'ip': '0.0.0.0',
   'port': '7777',
 
   #ip and port where elasticsearch runs on your system
-  'elasticsearch_ip': '172.21.0.1',
+  'elasticsearch_ip': 'es01',
   'elasticsearch_port': '9200',
 
   #API ENDPOINTS
-  'stored_intents_url': 'http://172.21.0.1:7777/stored_intents',
-  'intents_url': 'http://172.21.0.1:7777/intents',
-  'stored_qos_intents_url': 'http://172.21.0.1:7777/stored_qos_intents',
-  'qos_intents_url': 'http://172.21.0.1:7777/qos_intents',
-  
+  'stored_intents_url': 'http://ibi-api:7777/stored_intents',
+  'intents_url': 'http://ibi-api:7777/intents',
+  'stored_qos_intents_url': 'http://ibi-api:7777/stored_qos_intents',
+  'qos_intents_url': 'http://ibi-api:7777/qos_intents',
+
   #PROVISIONED BY THE IBI
   #eg API endpoint for sending intents: "http://172.21.0.1:7777/intents"
   #the API for sending intents is where the DTE sends intents
@@ -25,7 +25,7 @@
   'to_enter_qos_intents': '/qos_intents',
   #the stored_intents API is for viewing and deleting existing intents
   'to_view_or_delete_qos_intents': '/stored_qos_intents',
-  
+
   #PROVISIONED BY OTHER MODULES
   #the API for sending workflow is the API for sending workflows to RTR
   'to_send_workflow': '/workflows',
@@ -37,9 +37,9 @@
 
   #the send_whatif API is the API for sending what-if questions to the SAN
   'to_send_whatif': '/whatif_sends',
-  'san_api_url': 'http://172.21.0.1:7777/whatif_sends',
-   
-  
+  'san_api_url': 'http://ibi-api:7777/whatif_sends',
+
+
   #to clear existing intent store if you want, otherwise, set it as 'false'
   'clear_intent_store': 'true',
 

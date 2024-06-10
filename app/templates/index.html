@@ -13,7 +13,7 @@
 
     <!-- Custom fonts for this template-->
     <link href="{{ url_for('static', filename='/vendor/fontawesome-free/css/all.min.css') }}"
-          rel="stylesheet" type="text/css">-->
+          rel="stylesheet" type="text/css">
 
     <link href="{{ url_for('static', filename='https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i') }}"
           rel="stylesheet">
@@ -283,19 +283,21 @@
                                 <ul>
                                   <li>add intent command format: ibi add intent_type threat duration host(s)</li>
                                     <br>
+                                  <li>delete intent: ibi delete intent_id</li>
+                                    <br>
                                   <li>intent_type examples: prevention (pre), mitigation (mit)</li>
                                     <br>
                                   <li>threat examples: DDoS (ddos_ntp or ddos_dns or ddos_pfcp), DoS-Signaling (dos_sig), API vulnerability (api_vul)</li>
                                     <br>
                                   <li>duration example (seconds): 600</li>
                                     <br>
-                                  <li>host(s) examples: 192.168.56.4 192.168.56.21</li>
+                                  <li>host(s) examples: 192.168.56.14 192.168.56.21</li>
                                     <br>
                                   <li>define QOS: ibi qos service_type qos_name value host(s) eg ibi qos qos_ntp rel 1.0 192.168.56.4</li>
                                     <br>
                                   <li>qos_name examples: reliability (rel), bandwdith (bw), latency (lat)</li>
                                     <br>
-                                  <li>delete QOS intent: ibi delete qos_intent_id</li>
+                                  <li>delete QOS intent: ibi delete qos qos_intent_id</li>
                                 </ul>
                                 <!--<table>
                                     {% for row in data %}

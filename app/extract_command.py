@@ -10,12 +10,20 @@ stored_qos_intents_url = config.stored_qos_intents_url
 def extract_command_fun(command):
     command = command.split()
     #print('command: ', command)
-    if 'delete' in command:
+    if 'delete' in command and 'qos' in command:
         to_delete_dict = {}
-        to_delete = stored_qos_intents_url + '/' + command[2]
+        to_delete = stored_qos_intents_url + '/' + command[3]
         requests.delete(to_delete)
         to_delete_dict['command'] = 'delete_intent'
-        to_delete_dict['qos_intent_id'] = command[2]
+        to_delete_dict['qos_intent_id'] = command[3]
+        to_delete_dict['qos'] = command[2]
+        return to_delete_dict
+    elif 'delete' in command and 'qos' not in command:
+        to_delete_dict = {}
+        to_delete = stored_intents_url + '/' + command[2]
+        requests.delete(to_delete)
+        to_delete_dict['command'] = 'delete_intent'
+        to_delete_dict['intent_id'] = command[2]
         return to_delete_dict
     elif 'add' in command:
         intent_dict = {}
@@ -40,7 +48,7 @@ def extract_command_fun(command):
         requests.put(intents_url, json=intent_dict)
         intent_dict['command'] = 'add_intent'
         return intent_dict
-    elif 'qos' in command:
+    elif 'qos' in command and 'delete' not in command:
         intent_dict = {}
         if command[2] != 'qos_ntp' and command[2] != 'qos_dns' and command[2] != 'qos_pfcp':
             error_output = 'invalid service_type' + command[2]
