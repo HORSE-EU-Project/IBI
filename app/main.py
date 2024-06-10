@@ -29,31 +29,19 @@ qos_intents_url = config.qos_intents_url
 stored_qos_intents_url = config.stored_qos_intents_url
 workflow_url = config.workflow_url
 
-access_token = ""
+#access_token = ""
 
 #if connection to rtr is set to true in the config file, then the user registers and logs in
 if parameters['to_connect_to_rtr'] == 'true':
     connect_rtr.register_rtr(workflow_url)
     # access_token = connect_rtr.login_rtr(workflow_url)
 
-    print('cleared')
+#    print('cleared')
 
 #clears the existing intent store if you chose that in the config file
 if parameters['clear_intent_store'] == 'true':
     empty_intent_store.empty_fun()
     print('cleared')
-
-'''print(parameters['qos_requirements'])
-# Turns a dictionary into a class
-class my_object:
-    def __init__(self, d=None):
-        if d is not None:
-            for key, value in d.items():
-                setattr(self, key, value)
-def execute_qos():
-    for i in range(len(parameters['qos_requirements'])):
-        print(parameters['qos_requirements'][i])
-        intent_manager.execute_intent_manager_qos(my_object(parameters['qos_requirements'][i]), host)'''
 
 templates_directory = config.templates_directory
 #flask app
@@ -474,36 +462,7 @@ def qos_intents_html():
     return render_template("qos_intents.html", headings=headings,
                            data=data)
 
-#no error intent_html
-'''@flask_app.route('/', methods =["GET", "POST"])
-def intent_html():
-    stored_qos_intents_arr = get_intents_script.get_intent_fun(stored_qos_intents_url)
-    intents_ids = []
-    for intent in stored_qos_intents_arr:
-        intents_ids.append(intent['qos_intent_id'])
-    #print('intents ids: ', intents_ids)
-    #global intent
-    if request.method == "POST":
-        import extract_command
-        #intent = request.form.get("intent")
-        intent = request.get_data(as_text=True)[7:]
-        intent = intent.replace("+", " ")
-        intent = extract_command.extract_command_fun(intent)
-        #print('extracted intent: ', intent)
-        if intent['command'] == 'delete_intent':
-            intent_presence = 0
-            for i in range(len(intents_ids)):
-                if intents_ids[i] == intent['qos_intent_id']:
-                    intent_presence = 1
-            if intent_presence == 0:
-                return render_template('index.html', output_text='Incorrect QOS Intent ID. QOS Intent not found')
-            else:
-                return render_template('index.html', output_text='The command entered: {}'.format(intent))
-        else:
-            return render_template('index.html', output_text='The command entered: {}'.format(intent))'''
 
-
-#intent_html giving error
 @flask_app.route('/', methods =["GET", "POST"])
 def intent_html():
     stored_qos_intents_arr = get_intents_script.get_intent_fun(stored_qos_intents_url)
@@ -553,72 +512,6 @@ def intent_html():
         else:
             return render_template('index.html', output_text='The command entered is: {}'.format(intent))
 
-#not needed
-'''elif intent['command'] == 'delete_intent' and 'qos' not in list(intent.keys()):
-            stored_intents_arr = get_intents_script.get_intent_fun(stored_intents_url)
-            intents_ids = []
-            for stored_intent in stored_intents_arr:
-                intents_ids.append(stored_intent['intent_id'])
-            print('intent ids: ', intents_ids)
-            intent_presence = 0
-            for i in range(len(intents_ids)):
-                if intents_ids[i] == intent['intent_id']:
-                    intent_presence += 1
-            print('intent_presence: ', intent_presence)
-            if intent_presence == 0:
-                return render_template('index.html', output_text='Incorrect Intent ID. Intent not found')
-            else:
-                return render_template('index.html', output_text='The command entered inside: {}'.format(intent))'''
-#needed
-'''@flask_app.route('/', methods =["GET", "POST"])
-def intent_html():
-    stored_intents_arr = get_intents_script.get_intent_fun(stored_intents_url)
-    intents_ids = []
-    for stored_intent in stored_intents_arr:
-        intents_ids.append(stored_intent['intent_id'])
-    print('intent ids: ', intents_ids)
-    #global intent
-    if request.method == "POST":
-        import extract_command
-        #intent = request.form.get("intent")
-        intent = request.get_data(as_text=True)[7:]
-        intent = intent.replace("+", " ")
-        intent = extract_command.extract_command_fun(intent)
-        print('extracted intent: ', intent)
-        print('intent keys: ', list(intent.keys()))
-        print('intent command: ', intent['command'])
-        if 'qos' in list(intent.keys()):
-            print('yes for qos')
-        else:
-            print('no for qos')
-        
-        #not needed
-        if intent['command'] == 'delete_intent':
-            intent_presence = 0
-            for i in range(len(intents_ids)):
-                if intents_ids[i] == intent['qos_intent_id']:
-                    intent_presence += 1
-            print('intent_presence: ', intent_presence)
-            if intent_presence == 0:
-                return render_template('index.html', output_text='Incorrect QOS Intent ID. QOS Intent not found')
-            else:
-                return render_template('index.html', output_text='The command entered inside: {}'.format(intent))
-        
-        #needed
-        if intent['command'] == 'delete_intent' and 'qos' not in list(intent.keys()):
-
-            intent_presence = 0
-            for i in range(len(intents_ids)):
-                if intents_ids[i] == intent['intent_id']:
-                    intent_presence += 1
-            print('intent_presence: ', intent_presence)
-            if intent_presence == 0:
-                return render_template('index.html', output_text='Incorrect Intent ID. Intent not found')
-            else:
-                return render_template('index.html', output_text='The command entered inside: {}'.format(intent))
-
-        elif intent['command'] != 'delete_intent' and 'qos' not in list(intent.keys()):
-            return render_template('index.html', output_text='The command entered is wahala dey: {}'.format(intent))'''
 
 app.mount("/gui", WSGIMiddleware(flask_app))
 static_directory = config.static_directory
