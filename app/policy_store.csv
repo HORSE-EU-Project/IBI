@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 intent_type,threat,action,priority,local_priority,constraint,rtr_action
 mitigation,ddos_ntp,ntp_service_switch_off,1,1,reliability,ntp_service_switch_off
 mitigation,ddos_ntp,absorb_traffic,2,2,no_constraint,absorb_traffic
@@ -41,47 +40,3 @@ prevention,api_vul,action_23,23,23,no_constraint,action_23
 prevention,api_vul,action_24,24,24,no_constraint,action_24
 prevention,api_vul,action_25,25,25,no_constraint,action_25
 prevention,api_vul,action_26,26,26,no_constraint,action_26
-=======
-intent_type,threat,action,priority,local_priority,constraint
-mitigation,ddos_ntp,ntp_service_switch_off,1,1,reliability
-mitigation,ddos_ntp,absorb_traffic,2,2,no_constraint
-mitigation,ddos_ntp,monlist_disable,3,3,no_constraint
-mitigation,ddos_ntp,server_handover,4,4,latency
-mitigation,ddos_ntp,firewall_spoofing_detection,5,5,no_constraint
-mitigation,ddos_ntp,upgrade_software,6,6,latency
-mitigation,ddos_ntp,investigations_report,7,7,no_constraint
-mitigation,ddos_dns,Shut down/disable DNS server,1,1,reliability
-mitigation,ddos_dns,absorb_traffic,5,2,no_constraint
-mitigation,ddos_dns,Reduce/set the number of requests to the dns server to 40/s for port 53 protocol udp,2,3,bandwidth
-mitigation,ddos_dns,server_handover,4,4,latency
-mitigation,ddos_dns,Block potentially spoofed packets with destination 10.0.0.6 in interface eth1,3,5,no_constraint
-mitigation,ddos_dns,investigations_report,6,6,no_constraint
-mitigation,ddos_pfcp,sba_function_disable,1,1,reliability
-mitigation,ddos_pfcp,rate_limiting,2,2,bandwidth
-mitigation,ddos_pfcp,new_ns_slice_creation,3,3,latency
-mitigation,ddos_pfcp,investigations_report,4,4,no_constraint
-mitigation,dos_sig,action_6,6,6,no_constraint
-mitigation,dos_sig,action_7,7,7,no_constraint
-mitigation,dos_sig,action_8,8,8,no_constraint
-mitigation,dos_sig,action_9,9,9,no_constraint
-mitigation,api_vul,action_10,10,10,no_constraint
-mitigation,api_vul,action_11,11,11,no_constraint
-mitigation,api_vul,action_12,12,12,no_constraint
-mitigation,api_vul,action_13,13,13,no_constraint
-prevention,ddos_ntp,monlist_disable,1,1,no_constraint
-prevention,ddos_ntp,firewall_spoofing_detection,2,2,no_constraint
-prevention,ddos_ntp,upgrade_software,3,3,latency
-prevention,ddos_ntp,investigations_report,4,4,no_constraint
-prevention,ddos_dns,Block potentially spoofed packets with destination 10.0.0.6 in interface eth1,5,5,no_constraint
-prevention,ddos_dns,investigations_report,6,6,no_constraint
-prevention,ddos_pfcp,new_ns_slice_creation,1,1,latency
-prevention,ddos_pfcp,investigations_report,2,2,no_constraint
-prevention,dos_sig,action_19,19,19,no_constraint
-prevention,dos_sig,action_20,20,20,no_constraint
-prevention,dos_sig,action_21,21,21,no_constraint
-prevention,dos_sig,action_22,22,22,no_constraint
-prevention,api_vul,action_23,23,23,no_constraint
-prevention,api_vul,action_24,24,24,no_constraint
-prevention,api_vul,action_25,25,25,no_constraint
-prevention,api_vul,action_26,26,26,no_constraint
->>>>>>> 7a10c4dce6b9546ba7bf7b3e0e916e5295be88a3
