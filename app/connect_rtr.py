@@ -3,6 +3,7 @@ import requests
 import json
 
 parameters = config.parameters
+
 #the function used to register a user on the RTR api
 def register_rtr(workflow_url):
     #requests.put(workflow_url, json=workflow)
@@ -17,6 +18,7 @@ def register_rtr(workflow_url):
         'email': parameters['rtr_email'],
         'password': parameters['rtr_password'],
     }
+    print(reg_data)
     # POST REGISTRATION REQUEST
     requests.post(f"{workflow_url}/register", headers=reg_headers, data=json.dumps(reg_data))
 

@@ -12,7 +12,7 @@
   'intents_url': 'http://172.21.0.1:7777/intents',
   'stored_qos_intents_url': 'http://172.21.0.1:7777/stored_qos_intents',
   'qos_intents_url': 'http://172.21.0.1:7777/qos_intents',
-  
+
   #PROVISIONED BY THE IBI
   #eg API endpoint for sending intents: "http://172.21.0.1:7777/intents"
   #the API for sending intents is where the DTE sends intents
@@ -25,24 +25,21 @@
   'to_enter_qos_intents': '/qos_intents',
   #the stored_intents API is for viewing and deleting existing intents
   'to_view_or_delete_qos_intents': '/stored_qos_intents',
-  
+
   #PROVISIONED BY OTHER MODULES
   #the API for sending workflow is the API for sending workflows to RTR
   'to_send_workflow': '/workflows',
   'rtr_api_url': 'http://0.0.0.0:8000',
-  'rtr_username': 'user2',
-  'rtr_password': 'user2',
-  'rtr_email': 'user2@gmail.com',
+  'rtr_username': 'user3',
+  'rtr_password': 'user3',
+  'rtr_email': 'user3@gmail.com',
   'to_connect_to_rtr': 'true',
-<<<<<<< HEAD
 
-=======
->>>>>>> 7a10c4dce6b9546ba7bf7b3e0e916e5295be88a3
   #the send_whatif API is the API for sending what-if questions to the SAN
   'to_send_whatif': '/whatif_sends',
   'san_api_url': 'http://172.21.0.1:7777/whatif_sends',
-   
-  
+
+
   #to clear existing intent store if you want, otherwise, set it as 'false'
   'clear_intent_store': 'true',
 
@@ -62,19 +59,11 @@
     'investigations_report': 'request_to_network_admin'
   },
   'ddos_dns': {
-<<<<<<< HEAD
     'dns_service_disable': 'dns_s',
     'absorb_traffic': 'r2',
     'server_handover': 'dns_s',
     'firewall_spoofing_detection': 'r2',
     'rate_limiting': 'dns_s',
-=======
-    'Shut down/disable DNS server': 'dns_server',
-    'absorb_traffic': 'R2',
-    'server_handover': 'dns_server',
-    'Block potentially spoofed packets with destination 10.0.0.6 in interface eth1': 'R2',
-    'Reduce/set the number of requests to the dns server to 40/s for port 53 protocol udp': 'dns_server',
->>>>>>> 7a10c4dce6b9546ba7bf7b3e0e916e5295be88a3
     'investigations_report': 'request_to_network_admin'
   },
   'ddos_pfcp': {
@@ -272,6 +261,12 @@
       z_int: eth1
     }
   ],
+
+
+
+
+
+
 
 
 

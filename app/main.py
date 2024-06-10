@@ -29,10 +29,13 @@ qos_intents_url = config.qos_intents_url
 stored_qos_intents_url = config.stored_qos_intents_url
 workflow_url = config.workflow_url
 
+access_token = ""
+
 #if connection to rtr is set to true in the config file, then the user registers and logs in
 if parameters['to_connect_to_rtr'] == 'true':
     connect_rtr.register_rtr(workflow_url)
-    #access_token = connect_rtr.login_rtr(workflow_url)
+    # access_token = connect_rtr.login_rtr(workflow_url)
+
     print('cleared')
 
 #clears the existing intent store if you chose that in the config file
@@ -134,6 +137,7 @@ def replace_qos_intent(qos_intent: qos_Intent):
     return qos_intent
 
 
+<<<<<<< HEAD
 #API for sending workflows to the RTR
 '''class Workflow(BaseModel):
     command: str
@@ -144,25 +148,45 @@ def replace_qos_intent(qos_intent: qos_Intent):
     action: str
     duration: str
     intent_id: str
+=======
+# #API for sending workflows to the RTR
+# class Workflow(BaseModel):
+#     command: str
+#     intent_type: str
+#     threat: str
+#     attacked_host: str
+#     mitigation_host: str
+#     action: str
+#     duration: str
+#     intent_id: str
+>>>>>>> 7a10c4dce6b9546ba7bf7b3e0e916e5295be88a3
 
-workflows = [Workflow(command='', intent_type='', threat='', attacked_host='',
-                      mitigation_host='', action='', duration='', intent_id='')]
+# workflows = [Workflow(command='', intent_type='', threat='', attacked_host='',
+#                       mitigation_host='', action='', duration='', intent_id='')]
 
-workflow_endpoint = parameters['to_send_workflow']
-@app.get(workflow_endpoint)
-def get_workflow():
-    return workflows
+# workflow_endpoint = parameters['to_send_workflow']
+# @app.get(workflow_endpoint)
+# def get_workflow():
+#     return workflows
 
-@app.post(workflow_endpoint, status_code=201)
-def add_workflow(workflow: Workflow):
-    workflows.append(workflow)
-    return workflow
+# @app.post(workflow_endpoint, status_code=201)
+# def add_workflow(workflow: Workflow):
+#     workflows.append(workflow)
+#     return workflow
 
+<<<<<<< HEAD
 @app.put(workflow_endpoint)
 def replace_workflow(workflow: Workflow):
     workflows.clear()
     workflows.append(workflow)
     return workflow'''
+=======
+# @app.put(workflow_endpoint)
+# def replace_workflow(workflow: Workflow):
+#     workflows.clear()
+#     workflows.append(workflow)
+#     return workflow
+>>>>>>> 7a10c4dce6b9546ba7bf7b3e0e916e5295be88a3
 
 
 #API for sending what-if question to the SAN
@@ -294,10 +318,17 @@ def delete_stored_intent(idx: str):
         to_delete_ind = 'no_index'
         stored_intents_arr = get_intents_script.get_intent_fun(stored_intents_url)
         if len(stored_intents_arr) == 0:
+<<<<<<< HEAD
             #items = stored_intents_arr[0].items()
             base_data = {'id': 0, 'intent_type': '', 'threat': '', 'host': '', 'action': '', 'duration': '',
                      'intent_id': '', 'priority': ''}
             #store_intent.store_intent_fun(stored_intents_url, base_data)
+=======
+            
+            base_data = {'id': 0, 'intent_type': '', 'threat': '', 'host': '', 'action': '', 'duration': '',
+                     'intent_id': '', 'priority': ''}
+            
+>>>>>>> 7a10c4dce6b9546ba7bf7b3e0e916e5295be88a3
             requests.post(stored_intents_url, json=base_data)
         return {"message": "intent deleted"}
     else:
@@ -367,7 +398,11 @@ def delete_stored_qos_intent(idx: str):
         to_delete_ind = 'no_index'
         stored_qos_intents_arr = get_intents_script.get_intent_fun(stored_qos_intents_url)
         if len(stored_qos_intents_arr) == 0:
+<<<<<<< HEAD
             #items = stored_qos_intents_arr[0].items()
+=======
+            
+>>>>>>> 7a10c4dce6b9546ba7bf7b3e0e916e5295be88a3
             base_data = {'id': 0, 'intent_type': '', 'name': '', 'value': 0.0,
                                         'host': '', 'qos_intent_id': ''}
             requests.post(stored_qos_intents_url, json=base_data)
@@ -420,7 +455,15 @@ def qos_intents_html():
         items = dict(id=0, intent_type='', name='', value=0.0,
                      host='', qos_intent_id='').items()
 
+<<<<<<< HEAD
     #items = stored_qos_intents_arr[0].items()
+=======
+    if len(stored_qos_intents_arr) > 0:
+        items = stored_qos_intents_arr[0].items()
+    else:
+        items = dict(id=0, intent_type='', name='', value=0.0,
+                                    host='', qos_intent_id='').items()
+>>>>>>> 7a10c4dce6b9546ba7bf7b3e0e916e5295be88a3
     keys = [key for key, value in items]
     headings = tuple(keys)
     data = ()
