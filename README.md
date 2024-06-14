@@ -26,11 +26,22 @@ to the [RTR module](https://github.com/HORSE-EU-Project/RTR).
     docker compose -f docker-compose.prod.yml build
     docker compose -f docker-compose.prod.yml up
     ```
+> The production environment takes the current snapshot of the files in the
+> current directory, creates a container image with the files and runs the 
+> created image (further changes in the local files will only be applied to the
+> container image when the image is rebuilt.)
+
   - Development environment
     ```
     docker compose -f docker-compose.dev.yml build 
     docker compose -f docker-compose.dev.yml up
     ```
+
+> The development environment does not copy files to a Docker image. Instead, 
+> it maps (binds) the filesystem from the local folder to the docker app. It is 
+> useful for development, because changes in the local file system are 
+> automatically applied to the containerized application (in other words, you do 
+> not need to rebuild the docker image to see the changes).
 
 - Stop the execution of the software:
   - Production environment
