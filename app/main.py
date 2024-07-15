@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import uvicorn
 import intent_manager
+import alert_box
 import delete_intents
 import whatif_loop
 import empty_intent_store
@@ -61,7 +62,39 @@ def first_page():
     # the GUI
     return RedirectResponse("/gui")
 
-#API for receiving intents from the DTE
+#API for receiving alerts from the DTE
+class Alert(BaseModel):
+    alert_type: str
+    threat: str
+    host: list
+    duration: int
+
+alerts = [Alert(alert_type='', threat='', host=[], duration=0)]
+
+alert_endpoint = parameters['to_enter_alerts']
+@app.get(alert_endpoint)
+def get_alerts():
+    #execute_qos()
+    return alerts
+
+@app.post(alert_endpoint, status_code=201)
+def add_alert(alert: Alert):
+    alerts.append(alert)
+    #execute_qos()
+    return alert
+
+@app.put(alert_endpoint)
+def replace_alert(alert: Alert):
+    alerts.clear()
+    alerts.append(alert)
+    #calls the intent manager function
+    alert.duration = str(alert.duration)
+    #execute_qos()
+    alert_box.execute_alert_box(alert)
+    return alert
+
+
+#API for receiving intents
 class Intent(BaseModel):
     intent_type: str
     threat: str
@@ -98,9 +131,10 @@ class qos_Intent(BaseModel):
     intent_type: str
     name: str
     value: float
+    unit: str
     host: list
 
-qos_intents = [qos_Intent(intent_type='', name='', value=0.0, host=[])]
+qos_intents = [qos_Intent(intent_type='', name='', value=0.0, unit='', host=[])]
 
 qos_intent_endpoint = parameters['to_enter_qos_intents']
 @app.get(qos_intent_endpoint)
@@ -129,13 +163,18 @@ class Whatif_send(BaseModel):
     command: str
     intent_type: str
     threat: str
-    host: list
+    host: str
     action: str
     duration: str
     id: str
+    kpi_measured: str
+    prevention_host: str
+    #interface: str
+    #host_references: dict
 
-whatif_sends = [Whatif_send(command='', intent_type='', threat='', host=[],
-            action='', duration='', id='')]
+whatif_sends = [Whatif_send(command='', intent_type='', threat='', host='',
+            action='', duration='', id='', kpi_measured='', prevention_host='')]
+                            #interface='', host_references={})]
 
 whatif_sends_endpoint = parameters['to_send_whatif']
 @app.get(whatif_sends_endpoint)
@@ -153,9 +192,37 @@ def replace_whatif_send(whatif_send: Whatif_send):
     whatif_sends.append(whatif_send)
     return whatif_send
 
-
 #API for receiving what-if answer from the SAN
 class Whatif_receive(BaseModel):
+    id: str
+    host: str
+    kpi_measured: str
+    kpi_value: str
+    kpi_unit: str
+
+
+whatif_receives = [Whatif_receive(id='', host='', kpi_measured='', kpi_value='',
+                                  kpi_unit='')]
+
+whatif_receives_endpoint = parameters['to_receive_whatif']
+@app.get(whatif_receives_endpoint)
+def get_whatif_receive():
+    return whatif_receives
+
+@app.post(whatif_receives_endpoint, status_code=201)
+def add_whatif_receive(whatif_receive: Whatif_receive):
+    whatif_receives.append(whatif_receive)
+    return whatif_receive
+
+@app.put(whatif_receives_endpoint)
+def replace_whatif_receive(whatif_receive: Whatif_receive):
+    whatif_receives.clear()
+    whatif_receives.append(whatif_receive)
+    whatif_loop.whatif_receive_fun(whatif_receive)
+    return whatif_receive
+
+#API for receiving what-if answer from the SAN
+'''class Whatif_receive(BaseModel):
     command: str
     intent_type: str
     threat: str
@@ -184,7 +251,7 @@ def replace_whatif_receive(whatif_receive: Whatif_receive):
     whatif_receives.clear()
     whatif_receives.append(whatif_receive)
     whatif_loop.whatif_receive_fun(whatif_receive)
-    return whatif_receive
+    return whatif_receive'''
 
 
 #API for storing and deleting existing intents
@@ -275,11 +342,12 @@ class Stored_qos_intent(BaseModel):
     intent_type: str
     name: str
     value: float
+    unit: str
     host: str
     qos_intent_id: str
 
 stored_qos_intents = [Stored_qos_intent(id=0, intent_type='', name='', value=0.0,
-                                    host='', qos_intent_id='')]
+                                    unit='', host='', qos_intent_id='')]
 
 stored_qos_intents_endpoint = parameters['to_view_or_delete_qos_intents']
 @app.get(stored_qos_intents_endpoint)
@@ -315,6 +383,7 @@ def delete_stored_qos_intent(idx: str):
         to_delete['intent_type'] = stored_qos_intents[to_delete_ind].intent_type
         to_delete['name'] = stored_qos_intents[to_delete_ind].name
         to_delete['value'] = stored_qos_intents[to_delete_ind].value
+        to_delete['unit'] = stored_qos_intents[to_delete_ind].unit
         to_delete['host'] = stored_qos_intents[to_delete_ind].host
         to_delete['qos_intent_id'] = stored_qos_intents[to_delete_ind].qos_intent_id
         delete_intents.select_delete_fun_qos(to_delete)
@@ -325,7 +394,7 @@ def delete_stored_qos_intent(idx: str):
         stored_qos_intents_arr = get_intents_script.get_intent_fun(stored_qos_intents_url)
         if len(stored_qos_intents_arr) == 0:
             base_data = {'id': 0, 'intent_type': '', 'name': '', 'value': 0.0,
-                                        'host': '', 'qos_intent_id': ''}
+                                    'unit': '', 'host': '', 'qos_intent_id': ''}
             requests.post(stored_qos_intents_url, json=base_data)
         return {"message": "qos intent deleted"}
     else:
