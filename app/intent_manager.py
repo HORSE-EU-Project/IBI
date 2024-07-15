@@ -26,20 +26,21 @@ def execute_intent_manager(intent):
     #if l != 0:
     #    if retrieved_intents_arr[l-1] != intent_dict_main:
     #        retrieved_intents_arr.append(intent_dict_main)
-    if intent_dict_main['intent_type'] == 'mitigation':
+    if intent_dict_main['intent_type'] == 'mitigation' or intent_dict_main['intent_type'] == 'prevention':
         policy_configurator.policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                                                     stored_intents_url, elasticsearch_url)
-    elif intent_dict_main['intent_type'] == 'prevention':
-        whatif_question = policy_configurator.policy_configurator_fun(intent_dict_main, workflow_url,
-                                                whatif_send_url, stored_intents_url, elasticsearch_url)
-        intent_index = es.exists(index="awaiting_intents", id=1)
+    #elif intent_dict_main['intent_type'] == 'prevention':
+    #    policy_configurator.policy_configurator_fun(intent_dict_main, workflow_url,
+    #                                          whatif_send_url, stored_intents_url, elasticsearch_url)
+        #MOVED TO WHAT IF SEND FUN
+        '''intent_index = es.exists(index="awaiting_intents", id=1)
         if intent_index == True:
             resp1 = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
             total = resp1['hits']['total']['value']
             id = total + 1
             es.index(index="awaiting_intents", id=id, document=whatif_question)
         else:
-            es.index(index="awaiting_intents", id=1, document=whatif_question)
+            es.index(index="awaiting_intents", id=1, document=whatif_question)'''
     else:
         print('incorrect intent type')
 
@@ -60,6 +61,7 @@ def execute_intent_manager_qos(intent):
     intent_dict_main['intent_type'] = intent.intent_type
     intent_dict_main['name'] = intent.name
     intent_dict_main['value'] = intent.value
+    intent_dict_main['unit'] = intent.unit
     intent_dict_main['host'] = intent.host
 
 
