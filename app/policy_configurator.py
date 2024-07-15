@@ -14,6 +14,7 @@ import find_interface
 def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
                        stored_intents_url, elasticsearch_url):
     global policy_dict
+    global mitigation_host
     stored_qos_intents_url = config.stored_qos_intents_url
     #create an empty policy dictionary where to store the matched policy at first
     policy_dict = {}
@@ -245,12 +246,58 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
         whatif_loop.del_whatif_fun(policy_dict)
         policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url, policy_dict)
     elif policy_dict['intent_type'] == 'prevention':
+        if policy_dict['threat'] == 'ddos_ntp':
+            mitigation_host = config.ddos_ntp[policy_dict['action']]
+        elif policy_dict['threat'] == 'ddos_dns':
+            mitigation_host = config.ddos_dns[policy_dict['action']]
+        elif policy_dict['threat'] == 'ddos_pfcp':
+            mitigation_host = config.ddos_pfcp[policy_dict['action']]
+        print('POLICY DICT HOST: ', policy_dict['host'])
+        host_interface_arr = []
+        host_references = []
+        interface_arr = []
+        for i in range(len(policy_dict['host'])):
+            ref_dict = {}
+            print('POLICY DICT HOST [i]: ', policy_dict['host'][i])
+            found_interface = find_interface.find_interface_fun(policy_dict['host'][i], mitigation_host)
+            #del base_data["priority"]
+            #base_data["command"] = 'add'
+            #policy_dict["attacked_host"] = policy_dict["host"]
+            #del policy_dict["host"]
+            #policy_dict["duration"] = int(policy_dict["duration"])
+            mitigation_host_ip = config.hosts[mitigation_host]
+            xf = found_interface + '--' + mitigation_host
+            ref_dict["attacked_host"] = policy_dict['host'][i]
+            ref_dict["prevention_ref"] = xf
+            #ref_dict[policy_dict['host'][i]] = xf
+            print('host interface combined: ', xf)
+            host_interface_arr.append(found_interface + '--' + mitigation_host)
+            interface_arr.append(found_interface)
+            host_references.append(ref_dict)
+        policy_dict["prevention_host"] = host_interface_arr
+        print("host references: ", host_references)
+        policy_dict["host_references"] = host_references
+        policy_dict["interface"] = interface_arr
+        kpi = ""
+        for ind in df_policy.index:
+            if df_policy['intent_type'][ind] == policy_dict['intent_type'] and df_policy['threat'][ind] == policy_dict['threat'] \
+                    and df_policy['action'][ind] == policy_dict['action']:
+                kpi = df_policy['constraint'][ind]
+        policy_dict['kpi_measured'] = kpi
+        #policy_dict["interface"] = found_interface
+        #policy_dict["host"] = list(policy_dict['host'][i].split(" "))
+        #whatif_loop.whatif_send_fun(policy_dict, whatif_send_url)
         return whatif_loop.whatif_send_fun(policy_dict, whatif_send_url)
 
 def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url,
                               policy_dict):
     es = Elasticsearch(elasticsearch_url)
-
+    df_policy = pd.read_csv(config.policy_store_directory)
+    if policy_dict['intent_type'] == 'prevention':
+        for ind in df_policy.index:
+            if df_policy['intent_type'][ind] == 'prevention' and df_policy['threat'][ind] == policy_dict['threat'] \
+                    and policy_dict['action'] == df_policy['action'][ind]:
+                policy_dict['rtr_action'] = df_policy['rtr_action'][ind]
     # extract the hosts in the policy_dict
     intent_host_arr = policy_dict['host']
 
@@ -331,7 +378,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                     del base_data["host"]
                     base_data["duration"] = int(base_data["duration"])
                     mitigation_host_ip = config.hosts[mitigation_host]
-                    base_data["mitigation_host"] = mitigation_host_ip
+                    base_data["mitigation_host"] = mitigation_host
                     #base_data["mitigation_host"] = 'Gateway'
                     #send workflows to workflow api
                     send_workflows.send_workflow_fun_2(workflow_url, base_data)
@@ -358,7 +405,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                     del base_data["host"]
                     base_data["duration"] = int(base_data["duration"])
                     mitigation_host_ip = config.hosts[mitigation_host]
-                    base_data["mitigation_host"] = mitigation_host_ip
+                    base_data["mitigation_host"] = mitigation_host
                     #base_data["mitigation_host"] = 'Gateway'
                     #send workflows to workflow api
                     send_workflows.send_workflow_fun_2(workflow_url, base_data)
@@ -390,7 +437,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 del base_data["host"]
                 base_data["duration"] = int(base_data["duration"])
                 mitigation_host_ip = config.hosts[mitigation_host]
-                base_data["mitigation_host"] = mitigation_host_ip
+                base_data["mitigation_host"] = mitigation_host
                 # base_data["mitigation_host"] = 'Gateway'
                 #del base_data["id"]
                 # send workflows to workflow api
@@ -430,6 +477,7 @@ def policy_configurator_fun_qos(policy_dict, workflow_url, stored_qos_intents_ur
         base_data = {'intent_type': policy_dict['intent_type'],
                      'name': policy_dict['name'],
                      'value': policy_dict['value'],
+                     'unit': policy_dict['unit'],
                      'host': intent_host_arr[j],
                      'qos_intent_id': str(qos_intent_id),
                      }
