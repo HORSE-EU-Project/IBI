@@ -24,14 +24,14 @@ mitigation,api_vul,action_10,10,10,no_constraint,action_10
 mitigation,api_vul,action_11,11,11,no_constraint,action_11
 mitigation,api_vul,action_12,12,12,no_constraint,action_12
 mitigation,api_vul,action_13,13,13,no_constraint,action_13
-prevention,ddos_ntp,monlist_disable,1,1,no_constraint,monlist_disable
-prevention,ddos_ntp,firewall_spoofing_detection,2,2,no_constraint,firewall_spoofing_detection
-prevention,ddos_ntp,upgrade_software,3,3,latency,upgrade_software
-prevention,ddos_ntp,investigations_report,4,4,no_constraint,investigations_report
-prevention,ddos_dns,firewall_spoofing_detection,5,5,no_constraint,Block potentially spoofed packets with destination destination_host in interface interface_name
-prevention,ddos_dns,investigations_report,6,6,no_constraint,investigations_report
-prevention,ddos_pfcp,new_ns_slice_creation,1,1,latency,new_ns_slice_creation
-prevention,ddos_pfcp,investigations_report,2,2,no_constraint,investigations_report
+prevention,ddos_ntp,monlist_disable,11,11,no_constraint,monlist_disable
+prevention,ddos_ntp,firewall_spoofing_detection,12,12,no_constraint,firewall_spoofing_detection
+prevention,ddos_ntp,upgrade_software,13,13,latency,upgrade_software
+prevention,ddos_ntp,investigations_report,14,14,no_constraint,investigations_report
+prevention,ddos_dns,firewall_spoofing_detection,11,11,no_constraint,Block potentially spoofed packets with destination destination_host in interface interface_name
+prevention,ddos_dns,investigations_report,12,12,no_constraint,investigations_report
+prevention,ddos_pfcp,new_ns_slice_creation,11,11,latency,new_ns_slice_creation
+prevention,ddos_pfcp,investigations_report,12,12,no_constraint,investigations_report
 prevention,dos_sig,action_19,19,19,no_constraint,action_19
 prevention,dos_sig,action_20,20,20,no_constraint,action_20
 prevention,dos_sig,action_21,21,21,no_constraint,action_21
