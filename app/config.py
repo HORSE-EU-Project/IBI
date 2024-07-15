@@ -16,6 +16,7 @@ whatif_receive_url = "http://" + host + ":" + port + parameters['to_receive_what
 whatif_send_url = parameters['san_api_url']
 workflow_url = parameters['rtr_api_url']
 intents_url = parameters['intents_url']
+alerts_url = parameters['alerts_url']
 stored_intents_url = parameters['stored_intents_url']
 qos_intents_url = parameters['qos_intents_url']
 stored_qos_intents_url = parameters['stored_qos_intents_url']
