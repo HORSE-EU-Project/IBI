@@ -125,19 +125,19 @@
     'intent_type': 'qos_ntp',
     'name': 'reliability',
     'value': 0.9,
-    'host': ['192.164.56.20', '192.164.58.34']
+    'host': ['dns-s', 'dns-c1']
   },
   {
     'intent_type': 'qos_dns',
     'name': 'latency',
     'value': 0.2,
-    'host': [ '192.164.56.20', '192.164.58.34' ]
+    'host': ['dns-s', 'dns-c1']
   },
   {
     'intent_type': 'qos_pfcp',
     'name': 'bandwidth',
     'value': 5000,
-    'host': [ '192.164.56.20', '192.164.58.34' ]
+    'host': ['dns-s', 'dns-c1']
   }],
 
   #TOPOLOGY
