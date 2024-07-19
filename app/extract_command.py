@@ -65,7 +65,7 @@ def extract_command_fun(command):
             error_output = 'invalid qos name' + command[2]
             return error_output
         intent_dict['value'] = float(command[4])
-        intent_dict['unit'] = command[5]
+        intent_dict['unit'] = str(command[5])
         intent_dict['host'] = command[6:]
         #print('intent dict b4 send: ', intent_dict)
         requests.put(qos_intents_url, json=intent_dict)
