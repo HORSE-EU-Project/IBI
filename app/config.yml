@@ -125,18 +125,63 @@
     'intent_type': 'qos_ntp',
     'name': 'reliability',
     'value': 0.9,
+    'unit': '1',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_ntp',
+    'name': 'reliability',
+    'value': 90,
+    'unit': '%',
     'host': ['dns-s', 'dns-c1']
   },
   {
     'intent_type': 'qos_dns',
     'name': 'latency',
     'value': 0.2,
+    'unit': 'ms',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_dns',
+    'name': 'latency',
+    'value': 0.15,
+    'unit': 'μs',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_dns',
+    'name': 'latency',
+    'value': 1.0,
+    'unit': 's',
     'host': ['dns-s', 'dns-c1']
   },
   {
     'intent_type': 'qos_pfcp',
     'name': 'bandwidth',
     'value': 5000,
+    'unit': 'mbps',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_pfcp',
+    'name': 'bandwidth',
+    'value': 24,
+    'unit': 'gbps',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_pfcp',
+    'name': 'bandwidth',
+    'value': 60000,
+    'unit': 'kbps',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_pfcp',
+    'name': 'bandwidth',
+    'value': 859000,
+    'unit': 'bps',
     'host': ['dns-s', 'dns-c1']
   }],
 
