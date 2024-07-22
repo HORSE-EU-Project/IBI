@@ -1,0 +1,366 @@
+{
+  #your IP and port with which to provision your APIs
+  'ip': '0.0.0.0',
+  'port': '7777',
+
+  #ip and port where elasticsearch runs on your system
+  'elasticsearch_ip': 'es01',
+  'elasticsearch_port': '9200',
+
+  #API ENDPOINTS
+  'stored_intents_url': 'http://ibi-api:7777/stored_intents',
+  'intents_url': 'http://ibi-api:7777/intents',
+  'alerts_url': 'http://ibi-api:7777/alerts',
+  'stored_qos_intents_url': 'http://ibi-api:7777/stored_qos_intents',
+  'qos_intents_url': 'http://ibi-api:7777/qos_intents',
+
+  #PROVISIONED BY THE IBI
+  #eg API endpoint for sending intents: "http://172.21.0.1:7777/intents"
+  #the API for sending alerts is where the DTE sends alerts
+  'to_enter_alerts': '/alerts',
+  #the API for sending intents
+  'to_enter_intents': '/intents',
+  #the receive_whatif API is the API for receiving what-if answers from the SAN
+  'to_receive_whatif': '/whatif_receives',
+  #the stored_intents API is for viewing and deleting existing intents
+  'to_view_or_delete_intents': '/stored_intents',
+  #the API for sending intents is where the DTE sends intents
+  'to_enter_qos_intents': '/qos_intents',
+  #the stored_intents API is for viewing and deleting existing intents
+  'to_view_or_delete_qos_intents': '/stored_qos_intents',
+
+  #PROVISIONED BY OTHER MODULES
+  #the API for sending workflow is the API for sending workflows to RTR
+  'to_send_workflow': '/workflows',
+  'rtr_api_url': 'http://rtr-api:8000',
+  'rtr_username': 'user1',
+  'rtr_password': 'user1',
+  'rtr_email': 'user1@gmail.com',
+  'to_connect_to_rtr': 'true',
+
+  #the send_whatif API is the API for sending what-if questions to the SAN
+  'to_send_whatif': '/whatif_sends',
+  'san_api_url': 'http://ibi-api:7777/whatif_sends',
+
+
+  #to clear existing intent store if you want, otherwise, set it as 'false'
+  'clear_intent_store': 'true',
+
+  #directories and files
+  'templates_directory': 'templates',
+  'static_directory': 'static',
+  'policy_store_file': 'policy_store.csv',
+
+  #attack types, mitigation actions and hosts
+  'ddos_ntp': {
+    'monlist_disable': 'ntp-s',
+    'ntp_service_switch_off': 'ntp-s',
+    'absorb_traffic': 'ceos2',
+    'server_handover': 'ntp-s',
+    'firewall_spoofing_detection': 'ceos2',
+    'upgrade_software': 'ntp-s',
+    'investigations_report': 'request_to_network_admin'
+  },
+  'ddos_dns': {
+    'dns_service_disable': 'dns-s',
+    'absorb_traffic': 'ceos2',
+    'server_handover': 'dns-s',
+    'firewall_spoofing_detection': 'ceos2',
+    'rate_limiting': 'dns-s',
+    'investigations_report': 'request_to_network_admin'
+  },
+  'ddos_pfcp': {
+    'sba_function_disable': 'orchestrator',
+    'new_ns_slice_creation': 'oss',
+    'rate_limiting': 'smf',
+    'investigations_report': 'request_to_network_admin'
+  },
+
+  ##examples of security intents
+  ##example 1 
+  #{
+    #"intent_type": "mitigation",
+    #"threat": "ddos_dns",
+    #"host": ['dns-c5'],
+    #"duration": 9650
+  #},
+  ##example 2
+  #{
+    #"intent_type": "mitigation",
+    #"threat": "ddos_dns",
+    #"host": ['dns-c1', 'dns-c2',
+    #'gnb', 'upf',
+    #'dns-c4'],
+    #"duration": 3000
+  #},
+  ##example 3
+  #{
+    #"intent_type": "prevention",
+    #"threat": "ddos_dns",
+    #"host": ['dns-c6', 'dns-c8'],
+    #"duration": 400
+  #},
+
+  ##examples of what-if responses to send back to IBI for the prevention intent (last one) above
+  ##for dns-c6 
+  #{
+    #"id": "ZX9TOSZNV",
+    #"host": 'dns-c6',
+    #"kpi_measured": "bandwidth",
+    #"kpi_value": "1000",
+    #"kpi_unit": "mbps"
+  #},
+  
+  ##for dns-c8
+  #{
+    #"id": "HTGFS9W9W",
+    #"host": 'dns-c8',
+    #"kpi_measured": "latency",
+    #"kpi_value": "0.5",
+    #"kpi_unit": "ms"
+  #},
+  
+  #examples of operator's qos requirements definition
+  'qos_requirements': [{
+    'intent_type': 'qos_ntp',
+    'name': 'reliability',
+    'value': 0.9,
+    'unit': '1',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_ntp',
+    'name': 'reliability',
+    'value': 90,
+    'unit': '%',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_dns',
+    'name': 'latency',
+    'value': 0.2,
+    'unit': 'ms',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_dns',
+    'name': 'latency',
+    'value': 0.15,
+    'unit': 'μs',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_dns',
+    'name': 'latency',
+    'value': 1.0,
+    'unit': 's',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_pfcp',
+    'name': 'bandwidth',
+    'value': 5000,
+    'unit': 'mbps',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_pfcp',
+    'name': 'bandwidth',
+    'value': 24,
+    'unit': 'gbps',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_pfcp',
+    'name': 'bandwidth',
+    'value': 60000,
+    'unit': 'kbps',
+    'host': ['dns-s', 'dns-c1']
+  },
+  {
+    'intent_type': 'qos_pfcp',
+    'name': 'bandwidth',
+    'value': 859000,
+    'unit': 'bps',
+    'host': ['dns-s', 'dns-c1']
+  }],
+
+  #TOPOLOGY
+  'hosts': {
+    'dns-c1': '',
+    'dns-c2': '',
+    'dns-c3': '',
+    'dns-c4': '',
+    'dns-c5': '',
+    'dns-c6': '',
+    'dns-c7': '',
+    'dns-c8': '',
+    'dns-c9': '',
+    'dns-c10': '',
+    'gnb': '',
+    'ceos1': '',
+    'ceos2': '',
+    'upf': '',
+    'dns-s': '',
+    'gateway': '',
+    'ausf': '',
+    'amf': '',
+    'smf': '',
+    'udm': '',
+    'nssf': '',
+    'udr': '',
+    'nrf': '',
+    'pcf': '',
+  },
+
+  'links': [
+    {
+      a_node: dns-c1,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth1
+    },
+    {
+      a_node: dns-c2,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth2
+    },
+    {
+      a_node: dns-c3,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth3
+    },
+    {
+      a_node: dns-c4,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth4
+    },
+    {
+      a_node: dns-c5,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth5
+    },
+    {
+      a_node: dns-c6,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth6
+    },
+    {
+      a_node: dns-c7,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth7
+    },
+    {
+      a_node: dns-c8,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth8
+    },
+    {
+      a_node: dns-c9,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth9
+    },
+    {
+      a_node: dns-c10,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth10
+    },
+    {
+      a_node: ceos1,
+      a_int: eth1,
+      z_node: gnb,
+      z_int: eth11
+    },
+    {
+      a_node: ceos1,
+      a_int: eth2,
+      z_node: r2,
+      z_int: eth1
+    },
+    {
+      a_node: ceos1,
+      a_int: eth3,
+      z_node: upf,
+      z_int: eth1
+    },
+    {
+      a_node: ceos2,
+      a_int: eth2,
+      z_node: dns_s,
+      z_int: eth1
+    },
+    {
+      a_node: ceos2,
+      a_int: eth3,
+      z_node: gateway,
+      z_int: eth1
+    },
+    {
+      a_node: ceos1,
+      a_int: eth4,
+      z_node: ausf,
+      z_int: eth1
+    },
+    {
+      a_node: ceos1,
+      a_int: eth4,
+      z_node: amf,
+      z_int: eth1
+    },
+    {
+      a_node: ceos1,
+      a_int: eth4,
+      z_node: smf,
+      z_int: eth1
+    },
+    {
+      a_node: ceos1,
+      a_int: eth4,
+      z_node: udm,
+      z_int: eth1
+    },
+    {
+      a_node: ceos1,
+      a_int: eth4,
+      z_node: nssf,
+      z_int: eth1
+    },
+    {
+      a_node: ceos1,
+      a_int: eth4,
+      z_node: udr,
+      z_int: eth1
+    },
+    {
+      a_node: ceos1,
+      a_int: eth4,
+      z_node: nrf,
+      z_int: eth1
+    },
+    {
+      a_node: ceos1,
+      a_int: eth4,
+      z_node: pcf,
+      z_int: eth1
+    }
+  ],
+
+
+
+
+
+
+
+
+
+
+}
