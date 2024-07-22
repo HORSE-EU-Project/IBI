@@ -34,7 +34,7 @@ def test_dte_input_2():
 def test_dte_input_3():
     # Data to send to IBI as input
     data =   {
-        "intent_type": "mitigation",
+        "intent_type": "prevention",
         "threat": "ddos_dns",
         "host": ['dns-c6', 'dns-c8'],
         "duration": 400
