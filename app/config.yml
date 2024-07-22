@@ -78,47 +78,47 @@
 
   #examples of security intents
   #example 1 
-  {
-    "intent_type": "mitigation",
-    "threat": "ddos_dns",
-    "host": ['dns-c5'],
-    "duration": 9650
-  },
-  #example 2
-  {
-    "intent_type": "mitigation",
-    "threat": "ddos_dns",
-    "host": ['dns-c1', 'dns-c2',
-    'gnb', 'upf',
-    'dns-c4'],
-    "duration": 3000
-  },
-  #example 3
-  {
-    "intent_type": "prevention",
-    "threat": "ddos_dns",
-    "host": ['dns-c6', 'dns-c8'],
-    "duration": 400
-  },
+  #{
+    #"intent_type": "mitigation",
+    #"threat": "ddos_dns",
+    #"host": ['dns-c5'],
+    #"duration": 9650
+  #},
+  ##example 2
+  #{
+    #"intent_type": "mitigation",
+    #"threat": "ddos_dns",
+    #"host": ['dns-c1', 'dns-c2',
+    #'gnb', 'upf',
+    #'dns-c4'],
+    #"duration": 3000
+  #},
+  ##example 3
+  #{
+    #"intent_type": "prevention",
+    #"threat": "ddos_dns",
+    #"host": ['dns-c6', 'dns-c8'],
+    #"duration": 400
+  #},
 
-  #examples of what-if responses to send back to IBI for the prevention intent (last one) above
-  #for dns-c6 
-  {
-    "id": "ZX9TOSZNV",
-    "host": 'dns-c6',
-    "kpi_measured": "bandwidth",
-    "kpi_value": "1000",
-    "kpi_unit": "mbps"
-  },
+  ##examples of what-if responses to send back to IBI for the prevention intent (last one) above
+  ##for dns-c6 
+  #{
+    #"id": "ZX9TOSZNV",
+    #"host": 'dns-c6',
+    #"kpi_measured": "bandwidth",
+    #"kpi_value": "1000",
+    #"kpi_unit": "mbps"
+  #},
   
-  #for dns-c8
-  {
-    "id": "HTGFS9W9W",
-    "host": 'dns-c8',
-    "kpi_measured": "latency",
-    "kpi_value": "0.5",
-    "kpi_unit": "ms"
-  },
+  ##for dns-c8
+  #{
+    #"id": "HTGFS9W9W",
+    #"host": 'dns-c8',
+    #"kpi_measured": "latency",
+    #"kpi_value": "0.5",
+    #"kpi_unit": "ms"
+  #},
   
   #examples of operator's qos requirements definition
   'qos_requirements': [{
@@ -283,7 +283,7 @@
     {
       a_node: ceos1,
       a_int: eth2,
-      z_node: r2,
+      z_node: ceos2,
       z_int: eth1
     },
     {
