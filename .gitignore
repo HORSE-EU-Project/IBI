@@ -172,3 +172,4 @@ cython_debug/
 # Vim
 # Vim specific files to ignore
 *.un~
+config/*.un~
