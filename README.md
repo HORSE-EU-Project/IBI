@@ -22,10 +22,19 @@ to the [RTR module](https://github.com/HORSE-EU-Project/RTR).
 
 - Build and run the software as Docker container:
   - Production environment
+    - Build the Docker Image
     ```
     docker compose -f docker-compose.prod.yml build
-    docker compose -f docker-compose.prod.yml up
     ```
+    - Create configuration file
+      ```
+      mkdir config
+      cp ./app/config.yml ./config/prod.yml
+      ```
+    - Run the Production Environment docker image:
+      ```
+      docker compose -f docker-compose.prod.yml up
+      ```
 > The production environment takes the current snapshot of the files in the
 > current directory, creates a container image with the files and runs the 
 > created image (further changes in the local files will only be applied to the
