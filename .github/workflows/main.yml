@@ -1,7 +1,0 @@
-# Workflow name
-name: CI
-# Trigger the workflow on every 'push' event
-on: [push]
-jobs:
-  build:
-    runs-on: 
