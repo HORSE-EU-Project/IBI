@@ -10,9 +10,9 @@ def send_qos_intent():
     # Data to send to IBI as input
     data = {
         "intent_type": "qos_dns",
-        "name": "reliability",
-        "value": 90,
-        "unit": "%",
+        "name": "latency",
+        "value": 0.2,
+        "unit": "ms",
         "host": ["dns-c2", "dns-c1"],
     }
     # Send a GET request to the "/items/" endpoint
@@ -22,5 +22,5 @@ def send_qos_intent():
 
 
 if __name__ == "__main__":
-    print("Sending QoS Intent (1) to IBI")
+    print("Sending QoS Intent (2) to IBI")
     send_qos_intent()

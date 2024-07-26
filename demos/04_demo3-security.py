@@ -3,17 +3,16 @@
 import requests
 import json
 
-BASE_URL = "http://localhost:7777/qos_intents"
+BASE_URL = "http://localhost:7777/intents"
 
 
 def send_qos_intent():
     # Data to send to IBI as input
     data = {
-        "intent_type": "qos_dns",
-        "name": "reliability",
-        "value": 90,
-        "unit": "%",
-        "host": ["dns-c2", "dns-c1"],
+        "intent_type": "mitigation",
+        "threat": "ddos_dns",
+        "host": ["dns-c1", "dns-c8"],
+        "duration": 2400,
     }
     # Send a GET request to the "/items/" endpoint
     response = requests.put(f"{BASE_URL}", json=data)
@@ -22,5 +21,5 @@ def send_qos_intent():
 
 
 if __name__ == "__main__":
-    print("Sending QoS Intent (1) to IBI")
+    print("Sending Security Intent (1) to IBI")
     send_qos_intent()
