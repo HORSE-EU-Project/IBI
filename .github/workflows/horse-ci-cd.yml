@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  EPEM_ENDPOINT: 10.208.211.11
+  EPEM_PORT: 5002
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,19 +39,25 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: Log in to GitHub Container Registry
-      run: echo "${{ secrets.GHCR_TOKEN }}" | docker login "${{ secrets.GHCR_URL }}" -u "${{ github.actor }}" --password-stdin
-
     - name: Set up Docker Compose
       run: |
         sudo apt-get update
         sudo apt-get install -y docker-compose
 
-    - name: Get docker-compose.gh.yaml from IBI
-      id: get-docker-compose
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GHCR_TOKEN }}" | docker login "${{ secrets.GHCR_URL }}" -u "${{ github.actor }}" --password-stdin
+
+    - name: Get docker-compose for IBI
+      id: get-docker-compose-ibi
       run: |
-        curl -o compose.yaml \
-        https://raw.githubusercontent.com/HORSE-EU-Project/IBI/HORSE/docker-compose.gh.yaml
+        curl -o compose-ibi.yaml -H "Authorization: Token ${{ secrets.GHCR_TOKEN }}" \
+        https://raw.githubusercontent.com/HORSE-EU-Project/IBI/main/docker-compose.gh.yml
+
+    # - name: Get docker-compose for RTR
+    #   id: get-docker-compose-rtr
+    #   run: |
+    #     curl -o compose-rtr.yaml -H "Authorization: Token ${{ secrets.GHCR_TOKEN }}" \
+    #     https://raw.githubusercontent.com/HORSE-EU-Project/IBI/main/docker-compose.gh.yml
     
     - name: Create shared-network
       run: docker network create shared-network
