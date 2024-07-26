@@ -3,6 +3,8 @@ networks:
     ibi-network:
       driver: bridge
       name: ibi-network
+    shared-network:
+      external: true
 
 services:
   ibi-api:
@@ -22,6 +24,7 @@ services:
         condition: service_healthy
     networks:
       - ibi-network
+      - shared-network
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
