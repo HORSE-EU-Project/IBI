@@ -266,12 +266,12 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
             #del policy_dict["host"]
             #policy_dict["duration"] = int(policy_dict["duration"])
             mitigation_host_ip = config.hosts[mitigation_host]
-            xf = found_interface + '--' + mitigation_host
+            xf = found_interface + '_' + mitigation_host
             ref_dict["attacked_host"] = policy_dict['host'][i]
             ref_dict["prevention_ref"] = xf
             #ref_dict[policy_dict['host'][i]] = xf
             print('host interface combined: ', xf)
-            host_interface_arr.append(found_interface + '--' + mitigation_host)
+            host_interface_arr.append(xf)
             interface_arr.append(found_interface)
             host_references.append(ref_dict)
         policy_dict["prevention_host"] = host_interface_arr
