@@ -8,7 +8,7 @@ mitigation,ddos_ntp,upgrade_software,6,6,latency,upgrade_software
 mitigation,ddos_ntp,investigations_report,7,7,no_constraint,investigations_report
 mitigation,ddos_dns,dns_service_disable,1,1,reliability,Shut down/disable DNS server
 mitigation,ddos_dns,absorb_traffic,4,4,no_constraint,absorb_traffic
-mitigation,ddos_dns,rate_limiting,2,2,bandwidth,Reduce/set the number of requests to the dns server to 40/s for port 53 protocol protocol_name
+mitigation,ddos_dns,rate_limiting,2,2,bandwidth,Reduce/set the number of requests to the dns server to rate_request for port 53 protocol protocol_name
 mitigation,ddos_dns,server_handover,5,5,latency,server_handover
 mitigation,ddos_dns,firewall_spoofing_detection,3,3,no_constraint,Block potentially spoofed packets with destination destination_host in interface interface_name
 mitigation,ddos_dns,investigations_report,6,6,no_constraint,investigations_report
