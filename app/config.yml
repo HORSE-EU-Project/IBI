@@ -75,7 +75,9 @@
     'rate_limiting': 'smf',
     'investigations_report': 'request_to_network_admin'
   },
-
+  
+  #requests for rate-limiting
+  'req/s': 40,
   #examples of security intents
   #example 1 
   #{
