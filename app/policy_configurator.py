@@ -271,6 +271,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
             ref_dict["prevention_ref"] = xf
             #ref_dict[policy_dict['host'][i]] = xf
             print('host interface combined: ', xf)
+            #host_interface_arr.append(found_interface + '_' + mitigation_host)
             host_interface_arr.append(xf)
             interface_arr.append(found_interface)
             host_references.append(ref_dict)
@@ -365,6 +366,9 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                     if base_data['action'] == 'rate_limiting':
                         protocol_name = protocol
                         base_data['action'] = policy_dict['rtr_action'].replace("protocol_name", protocol_name)
+                        base_data['action'] = policy_dict['rtr_action'].replace("rate_request", config.rate_req)
+                    # get current time in seconds
+                    base_data['actual_time'] = time.time()
                     #send to elasticsearch index
                     resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
                     total = resp1['hits']['total']['value']
@@ -376,6 +380,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                     base_data["command"] = 'add'
                     base_data["attacked_host"] = base_data["host"]
                     del base_data["host"]
+                    del base_data['actual_time']
                     base_data["duration"] = int(base_data["duration"])
                     mitigation_host_ip = config.hosts[mitigation_host]
                     base_data["mitigation_host"] = mitigation_host
@@ -386,12 +391,16 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                     #    send_store('udp')
                     time.sleep(1)
 
-                elif exist != 0 and policy_dict['action'] == 'rate_limiting':
+                #to do for TCP too
+                '''elif exist != 0 and policy_dict['action'] == 'rate_limiting':
                     protocol_name = 'tcp'
                     base_data['action'] = policy_dict['rtr_action'].replace("protocol_name", protocol_name)
+                    base_data['action'] = policy_dict['rtr_action'].replace("rate_request", config.rate_req)
                     second_intent_id = ''.join(random.choices(string.ascii_uppercase +
                                                        string.digits, k=id_digits))
                     base_data['intent_id'] = second_intent_id
+                    # get current time in seconds
+                    base_data['actual_time'] = time.time()
                     #send to elasticsearch index
                     resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
                     total = resp1['hits']['total']['value']
@@ -403,13 +412,14 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                     base_data["command"] = 'add'
                     base_data["attacked_host"] = base_data["host"]
                     del base_data["host"]
+                    del base_data['actual_time']
                     base_data["duration"] = int(base_data["duration"])
                     mitigation_host_ip = config.hosts[mitigation_host]
                     base_data["mitigation_host"] = mitigation_host
                     #base_data["mitigation_host"] = 'Gateway'
                     #send workflows to workflow api
                     send_workflows.send_workflow_fun_2(workflow_url, base_data)
-                    time.sleep(1)
+                    time.sleep(1)'''
             else:
                 #resp1 = es.search(index="stored_intents", size=100, query={"match_all": {}})
                 #total = resp1['hits']['total']['value']
@@ -424,9 +434,12 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 if base_data['action'] == 'rate_limiting':
                     protocol_name = protocol
                     base_data['action'] = policy_dict['rtr_action'].replace("protocol_name", protocol_name)
+                    base_data['action'] = policy_dict['rtr_action'].replace("rate_request", config.rate_req)
                 if base_data['action'] == 'dns_service_disable':
                     base_data['action'] = policy_dict['rtr_action']
                     print('policy dict rtr action: ', policy_dict['rtr_action'])
+                # get current time in seconds
+                base_data['actual_time'] = time.time()
                 #send to elasticsearch index
                 es.index(index="stored_intents", id=str(1), document=base_data)
                 # send the policies as intents to be stored on the stored_intents api
@@ -435,6 +448,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 base_data["command"] = 'add'
                 base_data["attacked_host"] = base_data["host"]
                 del base_data["host"]
+                del base_data['actual_time']
                 base_data["duration"] = int(base_data["duration"])
                 mitigation_host_ip = config.hosts[mitigation_host]
                 base_data["mitigation_host"] = mitigation_host
