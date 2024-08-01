@@ -443,7 +443,8 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 # send workflows to workflow api
                 send_workflows.send_workflow_fun_2(workflow_url, base_data)
                 time.sleep(1)
-    protocols_arr = ['udp', 'tcp']
+    #protocols_arr = ['udp', 'tcp']
+    protocols_arr = ['udp']
     if policy_dict['action'] == 'rate_limiting':
         for protocol in protocols_arr:
             send_store(protocol)
