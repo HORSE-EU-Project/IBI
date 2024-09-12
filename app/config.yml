@@ -77,7 +77,7 @@
   },
   
   #requests for rate-limiting
-  'req/s': '40/s',
+  'req/s': '40',
   #examples of security intents
   #example 1 
   #{
