@@ -18,6 +18,47 @@ stored_qos_intents_url = config.stored_qos_intents_url
 elasticsearch_url = config.elasticsearch_url
 es = Elasticsearch(elasticsearch_url)
 
+
+def to_send_DT(what_if_question):
+    # what to send to impact DT
+    # newly added
+    prevention_element = {}
+    prevention_element['node'] = what_if_question["prevention_host"]
+    prevention_element['interface'] = what_if_question["prevention_interface"]
+    #prevention_element['ref'] = what_if_question["prevention_host"] + '_' + what_if_question["prevention_interface"]
+    prevention_element['network'] = "*"
+    prevention_element['ref'] = prevention_element['node'] + '_' + prevention_element['interface']
+
+    action = {}
+    action['type'] = what_if_question['action']
+    action['value'] = ''
+    action['unit'] = ''
+    action['duration'] = str(what_if_question['duration'])
+    if what_if_question['action'] == 'rate_limiting':
+        action['value'] = config.rate_req
+        action['unit'] = 'requests-per-second'
+
+    attacked_element = {}
+    attacked_element['node'] = what_if_question["host"]
+    attacked_element['interface'] = what_if_question["attacked_interface"]
+
+    whatif_question_send = {}
+    what = {}
+    KPIs = {}
+    iff = {}
+    whatif_question_send['id'] = what_if_question['id']
+    whatif_question_send['topology_name'] = 'horse_ddos'
+    whatif_question_send['attack'] = what_if_question['threat']
+    KPIs['element'] = attacked_element
+    KPIs['metric'] = what_if_question['kpi_measured']
+    what['KPIs'] = KPIs
+    whatif_question_send['what_condition'] = what
+    iff['action'] = action
+    iff['element'] = prevention_element
+    whatif_question_send['if_condition'] = iff
+
+    return whatif_question_send
+
 def whatif_send_fun(policy_dict, whatif_send_url):
     sent_whatif = []
     # empty dict containing the elements of the what-if question which are the matched policy attributes
@@ -36,10 +77,15 @@ def whatif_send_fun(policy_dict, whatif_send_url):
         whatif_question['duration'] = str(policy_dict['duration'])
         whatif_question['id'] = whatif_id
         whatif_question['kpi_measured'] = policy_dict['kpi_measured']
-        whatif_question['prevention_host'] = policy_dict['prevention_host'][i]
+        whatif_question['prevention_host'] = policy_dict['prevention_host']
+        whatif_question['prevention_interface'] = policy_dict["prevention_interface"][i]
+        whatif_question['attacked_interface'] = policy_dict["attacked_interface"][i]
+
         #whatif_question['prevention_host'] = list(policy_dict['prevention_host'][i].split(" "))
         #whatif_question['interface'] = policy_dict['interface'][i]
         #whatif_question['host_references'] = policy_dict['host_references'][i]
+
+
 
         intent_index = es.exists(index="awaiting_intents", id=1)
         l = len(sent_whatif)
@@ -53,7 +99,7 @@ def whatif_send_fun(policy_dict, whatif_send_url):
             else:
                 es.index(index="awaiting_intents", id=1, document=whatif_question)
             # send what-if question to the what_if_send_url
-            send_workflows.send_workflow_fun(whatif_send_url, whatif_question)
+            send_workflows.send_workflow_fun(whatif_send_url, to_send_DT(whatif_question))
         elif l == 0:
             sent_whatif.append(whatif_question)
             if intent_index == True:
@@ -64,40 +110,10 @@ def whatif_send_fun(policy_dict, whatif_send_url):
             else:
                 es.index(index="awaiting_intents", id=1, document=whatif_question)
             # send what-if question to the what_if_send_url
-            send_workflows.send_workflow_fun(whatif_send_url, whatif_question)
+            send_workflows.send_workflow_fun(whatif_send_url, to_send_DT(whatif_question))
         time.sleep(1)
     #return whatif_question
 
-'''def whatif_send_fun(policy_dict, whatif_send_url):
-    sent_whatif = []
-    # empty dict containing the elements of the what-if question which are the matched policy attributes
-    whatif_question = {}
-    id_digits = 9
-    whatif_id = ''.join(random.choices(string.ascii_uppercase +
-                                       string.digits, k=id_digits))
-    print('intent type is prevention, sending what-if question')
-    whatif_question['command'] = 'send_what_if'
-    whatif_question['intent_type'] = policy_dict['intent_type']
-    whatif_question['threat'] = policy_dict['threat']
-    whatif_question['host'] = policy_dict['host']
-    whatif_question['action'] = policy_dict['action']
-    whatif_question['duration'] = str(policy_dict['duration'])
-    whatif_question['id'] = whatif_id
-    whatif_question['kpi_measured'] = policy_dict['kpi_measured']
-    whatif_question['prevention_host'] = policy_dict['prevention_host']
-    whatif_question['interface'] = policy_dict['interface']
-    whatif_question['host_references'] = policy_dict['host_references']     
-           
-    l = len(sent_whatif)
-    if l != 0 and whatif_question != sent_whatif[l-1]:
-        sent_whatif.append(whatif_question)
-        # send what-if question to the what_if_send_url
-        send_workflows.send_workflow_fun(whatif_send_url, whatif_question)
-    elif l == 0:
-        sent_whatif.append(whatif_question)
-        # send what-if question to the what_if_send_url
-        send_workflows.send_workflow_fun(whatif_send_url, whatif_question)
-    return whatif_question'''
 
 #the function runs through the awaiting intents elasticsearch index every 60 secs
 #and sends what-if questions to the SAN for the hosts in the awaiting intents index
@@ -115,7 +131,7 @@ def whatif_loop_fun(es, whatif_send_url):
             for source, id in zip(source_arr, id_arr):
                 whatif_question = source
                 whatif_question['command'] = 'send_what_if'
-                send_workflows.send_workflow_fun(whatif_send_url, whatif_question)
+                send_workflows.send_workflow_fun(whatif_send_url, to_send_DT(whatif_question))
         time.sleep(60)
 
 #when a what-if answer is received from the SAN
@@ -127,40 +143,45 @@ def whatif_receive_fun(whatif_receive):
     latency_unit_dict = {'s': 1, 'ms': 10^(-3), 'μs': 10^(-6)}
     reliability_unit_dict = {'1': 1, '%': 100}
     reject_whatif = 0
+    attacked_host = whatif_receive.what['KPIs']['element']['node']
+    kpi_measured = whatif_receive.what['KPIs']['metric']
+    value = whatif_receive.what['KPIs']['result']['value']
+    unit = whatif_receive.what['KPIs']['result']['unit']
+
     for i in range(len(stored_qos_intents_arr)):
-        for j in range(len(whatif_receive.host)):
-            if (whatif_receive.host[j] == stored_qos_intents_arr[i]['host'] and
-                    stored_qos_intents_arr[i]['name'] == whatif_receive.kpi_measured):
-                    #and \ stored_qos_intents_arr[i]['intent_type'] == 'qos_ntp'):
-                print('conflict with qos intent')
-                #real_kpi_val = whatif_receive['value'] * whatif_receive['']
-                if (whatif_receive.kpi_measured == 'bandwidth'):
-                    dict_key_list = list(bandwidth_unit_dict.keys())
-                    for key in dict_key_list:
-                        if (key == whatif_receive.unit):
-                            whatif_kpi_val = float(whatif_receive.value) * bandwidth_unit_dict[key]
-                            qos_kpi_val = stored_qos_intents_arr[i]['value'] * bandwidth_unit_dict[key]
-                            if qos_kpi_val > whatif_kpi_val:
-                                #what_if_response = 'ok'
-                                reject_whatif += 1
-                elif (whatif_receive.kpi_measured == 'latency'):
-                    dict_key_list = list(latency_unit_dict.keys())
-                    for key in dict_key_list:
-                        if (key == whatif_receive.unit):
-                            whatif_kpi_val = float(whatif_receive.value) * latency_unit_dict[key]
-                            qos_kpi_val = stored_qos_intents_arr[i]['value'] * latency_unit_dict[key]
-                            if qos_kpi_val < whatif_kpi_val:
-                                #what_if_response = 'ok'
-                                reject_whatif += 1
-                elif (whatif_receive.kpi_measured == 'reliability'):
-                    dict_key_list = list(reliability_unit_dict.keys())
-                    for key in dict_key_list:
-                        if (key == whatif_receive.unit):
-                            whatif_kpi_val = float(whatif_receive.value) * reliability_unit_dict[key]
-                            qos_kpi_val = stored_qos_intents_arr[i]['value'] * reliability_unit_dict[key]
-                            if qos_kpi_val > whatif_kpi_val:
-                                #what_if_response = 'ok'
-                                reject_whatif += 1
+        #for j in range(len(whatif_receive.host)):
+        if (attacked_host == stored_qos_intents_arr[i]['host'] and
+                stored_qos_intents_arr[i]['name'] == kpi_measured):
+                #and \ stored_qos_intents_arr[i]['intent_type'] == 'qos_ntp'):
+            print('conflict with qos intent')
+            #real_kpi_val = whatif_receive['value'] * whatif_receive['']
+            if (kpi_measured == 'bandwidth'):
+                dict_key_list = list(bandwidth_unit_dict.keys())
+                for key in dict_key_list:
+                    if (key == unit):
+                        whatif_kpi_val = float(value) * bandwidth_unit_dict[key]
+                        qos_kpi_val = stored_qos_intents_arr[i]['value'] * bandwidth_unit_dict[key]
+                        if qos_kpi_val > whatif_kpi_val:
+                            #what_if_response = 'ok'
+                            reject_whatif += 1
+            elif (kpi_measured == 'latency'):
+                dict_key_list = list(latency_unit_dict.keys())
+                for key in dict_key_list:
+                    if (key == unit):
+                        whatif_kpi_val = float(value) * latency_unit_dict[key]
+                        qos_kpi_val = stored_qos_intents_arr[i]['value'] * latency_unit_dict[key]
+                        if qos_kpi_val < whatif_kpi_val:
+                            #what_if_response = 'ok'
+                            reject_whatif += 1
+            elif (kpi_measured == 'reliability'):
+                dict_key_list = list(reliability_unit_dict.keys())
+                for key in dict_key_list:
+                    if (key == unit):
+                        whatif_kpi_val = float(value) * reliability_unit_dict[key]
+                        qos_kpi_val = stored_qos_intents_arr[i]['value'] * reliability_unit_dict[key]
+                        if qos_kpi_val > whatif_kpi_val:
+                            #what_if_response = 'ok'
+                            reject_whatif += 1
 
     if reject_whatif == 0:
         what_if_response = 'ok'
