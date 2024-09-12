@@ -160,21 +160,23 @@ def replace_qos_intent(qos_intent: qos_Intent):
 
 #API for sending what-if question to the SAN
 class Whatif_send(BaseModel):
-    command: str
-    intent_type: str
-    threat: str
-    host: str
-    action: str
-    duration: str
+    #command: str
     id: str
-    kpi_measured: str
-    prevention_host: str
+    topology_name: str
+    attack: str
+    what_condition: dict
+    if_condition: dict
+    #duration: str
+    #kpi_measured: str
+    #prevention_host: str
     #interface: str
     #host_references: dict
 
-whatif_sends = [Whatif_send(command='', intent_type='', threat='', host='',
-            action='', duration='', id='', kpi_measured='', prevention_host='')]
-                            #interface='', host_references={})]
+#whatif_sends = [Whatif_send(command='', intent_type='', threat='', host='',
+#            action='', duration='', id='', kpi_measured='', prevention_host='')]
+                           #interface='', host_references={})]
+whatif_sends = [Whatif_send(id='', topology_name='', attack='', what_condition={},
+            if_condition={})]
 
 whatif_sends_endpoint = parameters['to_send_whatif']
 @app.get(whatif_sends_endpoint)
@@ -183,6 +185,8 @@ def get_whatif_send():
 
 @app.post(whatif_sends_endpoint, status_code=201)
 def add_whatif_send(whatif_send: Whatif_send):
+    #whatif_send.what_condition = whatif_send.what-condition
+    #delattr(whatif_send, 'person_name')
     whatif_sends.append(whatif_send)
     return whatif_send
 
@@ -195,14 +199,18 @@ def replace_whatif_send(whatif_send: Whatif_send):
 #API for receiving what-if answer from the SAN
 class Whatif_receive(BaseModel):
     id: str
-    host: str
-    kpi_measured: str
-    kpi_value: str
-    kpi_unit: str
+    topology_name: str
+    attack: str
+    what: dict
+    #host: str
+    #kpi_measured: str
+    #kpi_value: str
+    #kpi_unit: str
 
 
-whatif_receives = [Whatif_receive(id='', host='', kpi_measured='', kpi_value='',
-                                  kpi_unit='')]
+#whatif_receives = [Whatif_receive(id='', host='', kpi_measured='', kpi_value='',
+#                                  kpi_unit='')]
+whatif_receives = [Whatif_receive(id='', topology_name='', attack='', what={})]
 
 whatif_receives_endpoint = parameters['to_receive_whatif']
 @app.get(whatif_receives_endpoint)
@@ -220,6 +228,7 @@ def replace_whatif_receive(whatif_receive: Whatif_receive):
     whatif_receives.append(whatif_receive)
     whatif_loop.whatif_receive_fun(whatif_receive)
     return whatif_receive
+
 
 #API for receiving what-if answer from the SAN
 '''class Whatif_receive(BaseModel):
@@ -515,18 +524,20 @@ def task():
     #uvicorn.run("main:app", host=host, port=int(port), reload=True, log_level='critical')
     uvicorn.run("main:app", host=host, port=int(port), reload=True)
 
-
 def sched():
-    run_whatif_loop.run_whatif_loop_fun()
+    run_loops.run_whatif_loop_fun()
+
+def sched_2():
+    run_loops.run_duration_check_loop()
 
 
 if __name__ == "__main__":
     p1 = Process(target = task)
     p2 = Process(target = sched)
+    p3 = Process(target=sched_2)
     p1.start()
     p2.start()
+    p3.start()
     p1.join()
     p2.join()
-
-
-
+    p3.join()
