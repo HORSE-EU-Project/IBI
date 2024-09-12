@@ -255,30 +255,39 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
         print('POLICY DICT HOST: ', policy_dict['host'])
         host_interface_arr = []
         host_references = []
-        interface_arr = []
+        prevention_interface_arr = []
+        attacked_interface_arr = []
+        prevention_host_interface_arr = []
+        attacked_host_interface_arr = []
         for i in range(len(policy_dict['host'])):
             ref_dict = {}
             print('POLICY DICT HOST [i]: ', policy_dict['host'][i])
-            found_interface = find_interface.find_interface_fun(policy_dict['host'][i], mitigation_host)
-            #del base_data["priority"]
-            #base_data["command"] = 'add'
-            #policy_dict["attacked_host"] = policy_dict["host"]
-            #del policy_dict["host"]
-            #policy_dict["duration"] = int(policy_dict["duration"])
-            mitigation_host_ip = config.hosts[mitigation_host]
-            xf = found_interface + '_' + mitigation_host
+            found_prevention_interface = find_interface.find_interface_fun(policy_dict['host'][i], mitigation_host)
+            found_attacked_interface = find_interface.find_interface_fun(mitigation_host, policy_dict['host'][i])
+            print('mitigation host: ', mitigation_host)
+            print('found prev interface: ', found_prevention_interface)
+            print('found attacked interface: ', found_attacked_interface)
+
+            prevention_interface_arr.append(found_prevention_interface)
+            attacked_interface_arr.append(found_attacked_interface)
+            #prevention_xf = mitigation_host + '_' + found_prevention_interface
+            #attacked_xf = policy_dict['host'][i] + '_' + found_attacked_interface
+
+            xf = found_prevention_interface + '_' + mitigation_host
             ref_dict["attacked_host"] = policy_dict['host'][i]
             ref_dict["prevention_ref"] = xf
             #ref_dict[policy_dict['host'][i]] = xf
             print('host interface combined: ', xf)
             #host_interface_arr.append(found_interface + '_' + mitigation_host)
             host_interface_arr.append(xf)
-            interface_arr.append(found_interface)
+
             host_references.append(ref_dict)
-        policy_dict["prevention_host"] = host_interface_arr
+        policy_dict["prevention_host_interface"] = host_interface_arr
         print("host references: ", host_references)
         policy_dict["host_references"] = host_references
-        policy_dict["interface"] = interface_arr
+        policy_dict["attacked_interface"] = attacked_interface_arr
+        policy_dict["prevention_interface"] = prevention_interface_arr
+        policy_dict["prevention_host"] = mitigation_host
         kpi = ""
         for ind in df_policy.index:
             if df_policy['intent_type'][ind] == policy_dict['intent_type'] and df_policy['threat'][ind] == policy_dict['threat'] \
@@ -366,7 +375,8 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                     if base_data['action'] == 'rate_limiting':
                         protocol_name = protocol
                         base_data['action'] = policy_dict['rtr_action'].replace("protocol_name", protocol_name)
-                        base_data['action'] = policy_dict['rtr_action'].replace("rate_request", config.rate_req)
+                        rate = config.rate_req + '/s'
+                        base_data['action'] = policy_dict['rtr_action'].replace("rate_request", rate)
                     # get current time in seconds
                     base_data['actual_time'] = time.time()
                     #send to elasticsearch index
@@ -434,7 +444,8 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                 if base_data['action'] == 'rate_limiting':
                     protocol_name = protocol
                     base_data['action'] = policy_dict['rtr_action'].replace("protocol_name", protocol_name)
-                    base_data['action'] = policy_dict['rtr_action'].replace("rate_request", config.rate_req)
+                    rate = config.rate_req + '/s'
+                    base_data['action'] = policy_dict['rtr_action'].replace("rate_request", rate)
                 if base_data['action'] == 'dns_service_disable':
                     base_data['action'] = policy_dict['rtr_action']
                     print('policy dict rtr action: ', policy_dict['rtr_action'])
