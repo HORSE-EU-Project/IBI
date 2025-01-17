@@ -1,0 +1,19 @@
+{
+  "id": "1235",
+  "topology_name": "horse_ddos",
+  "attack": "DDoS",
+  "what": {
+    "KPIs": {
+      "element": {
+        "node": "dns-s",
+        "interface": "*"
+      },
+      "metric": "avg-time-requests",
+      "result": {
+        "initial-value": "0.532",
+        "current-value": "0.022",
+        "unit": "seconds"
+      }
+    }
+  }
+}
