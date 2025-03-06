@@ -338,7 +338,9 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
                          'action': policy_dict['action'],
                          'duration': policy_dict['duration'],
                          'intent_id': str(intent_id),
-                         'priority': str(policy_dict['priority'])
+                         'priority': str(policy_dict['priority']),
+                         'status': 'pending',
+                         'info': 'to be enforced'
                          }
             if base_data['threat'] == 'ddos_ntp':
                 mitigation_host = config.ddos_ntp[base_data['action']]

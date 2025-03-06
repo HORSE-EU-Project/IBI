@@ -10,7 +10,9 @@ def delete_intents_fun(intent_id, workflow_url):
         "mitigation_host": "",
         "action": "",
         "duration": "",
-        "intent_id": intent_id
+        "intent_id": intent_id,
+        "status": "pending",
+        "info": "to be enforced"
     }
     #print('delete dict: ', delete_dict)
     send_workflows.send_workflow_fun_2(workflow_url, delete_dict)
