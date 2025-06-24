@@ -1,5 +1,4 @@
 from elasticsearch import Elasticsearch
-import send_workflows
 import time
 import random
 import string

@@ -1,4 +1,4 @@
-import send_workflows
+from integrations.external import RTR
 
 def delete_intents_fun(intent_id, workflow_url):
     #when an intent is deleted, a json containing the id of the intent is sent to the workflow api
@@ -15,4 +15,4 @@ def delete_intents_fun(intent_id, workflow_url):
         "info": "to be enforced"
     }
     #print('delete dict: ', delete_dict)
-    send_workflows.send_workflow_fun_2(workflow_url, delete_dict)
+    RTR().send_workflow(delete_dict)

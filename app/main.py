@@ -15,11 +15,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import config
 import get_intents_script
-import connect_rtr
-import logging
 import requests
-import json
 from elasticsearch import Elasticsearch
+from integrations.external import RTR
 
 
 warnings.filterwarnings('ignore')
@@ -36,11 +34,6 @@ workflow_url = config.workflow_url
 #access_token = ""
 
 #if connection to rtr is set to true in the config file, then the user registers and logs in
-if parameters['to_connect_to_rtr'] == 'true':
-    connect_rtr.register_rtr(workflow_url)
-    # access_token = connect_rtr.login_rtr(workflow_url)
-
-    print('cleared')
 
 #clears the existing intent store if you chose that in the config file
 if parameters['clear_intent_store'] == 'true':

@@ -3,7 +3,6 @@ import pandas as pd
 import random
 import string
 import conflict_resolution
-import send_workflows
 import store_intent
 from elasticsearch import Elasticsearch
 import whatif_loop
