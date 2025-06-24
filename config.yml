@@ -4,7 +4,7 @@
   'port': '7777',
 
   #ip and port where elasticsearch runs on your system
-  'elasticsearch_ip': 'es01',
+  'elasticsearch_ip': 'localhost',
   'elasticsearch_port': '9200',
 
   #API ENDPOINTS
