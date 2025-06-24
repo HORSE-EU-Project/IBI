@@ -10,6 +10,28 @@ mitigation or prevention intents regarding threats affecting the network. Within
 the IBI, the intents are processed and matched with the policies that are sent 
 to the [RTR module](https://github.com/HORSE-EU-Project/RTR).
 
+## Development
+- Download the application code:
+```
+git clone https://github.com/HORSE-EU-Project/IBI.git
+```
+
+- Enter the project directory
+```
+cd IBI
+```
+
+- Run Elastic Search on a local docker instance
+```
+docker run --rm --name es01-dev -p 127.0.0.1:9200:9200 -p 127.0.0.1:9300:9300 -e "discovery.type=single-node" -e "xpack.security.enabled=false" -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" elasticsearch:8.18.1
+```
+
+- Run the application
+```
+uv run app/main.py
+```
+
+
 ## Installation
 
 - Download the application code:
