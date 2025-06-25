@@ -1,4 +1,5 @@
 import threading
+import uvicorn
 from time import sleep
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -16,10 +17,12 @@ async def lifespan(app: FastAPI):
     setup_logging()
     # Initialize the loop that processes intents
     # Start threads
-    threading.Thread(target=process_intents, daemon=True).start()
+    t_intent = threading.Thread(target=process_intents, daemon=True)
+    t_intent.start()
     # Start processing requests
     yield
-    # Stop background tasks
+    # Stop running threads
+    t_intent.join(3)
 
 """
 IBI API Server
@@ -42,5 +45,4 @@ def process_intents():
 Main entry point
 """
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host=Const.SERVER_HOST, port=Const.SERVER_PORT)
