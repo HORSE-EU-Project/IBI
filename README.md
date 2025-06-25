@@ -26,6 +26,12 @@ cd IBI
 docker run --rm --name es01-dev -p 127.0.0.1:9200:9200 -p 127.0.0.1:9300:9300 -e "discovery.type=single-node" -e "xpack.security.enabled=false" -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" elasticsearch:8.18.1
 ```
 
+- Install project dependencies
+```
+uv sync
+source .venv/bin/activate
+```
+
 - Run the application
 ```
 uv run app/main.py
