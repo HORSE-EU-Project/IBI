@@ -3,7 +3,7 @@ import time
 import get_intents_script
 
 #function to resolve conflict in policies
-def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url, elasticsearch_url):
+def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url):
     if policy_dict['intent_type'] == 'qos_ntp' or policy_dict['intent_type'] == 'qos_dns' \
             or policy_dict['intent_type'] == 'qos_pfcp':
 
@@ -29,8 +29,7 @@ def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url, elasticsear
                 # repeat the process for the next intent in the intent store
                 if (ind < len(stored_qos_intents_arr)):
                     print('starting new qos conflict resolution')
-                    conflict_fun(ind, policy_dict, workflow_url, stored_intents_url,
-                                 elasticsearch_url)
+                    conflict_fun(ind, policy_dict, workflow_url, stored_intents_url)
                 else:
                     print('qos conflicts resolved')
             else:
@@ -39,8 +38,7 @@ def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url, elasticsear
                 # repeat the process for the next intent in the intent store
                 if (ind < len(stored_qos_intents_arr)):
                     print('starting new qos conflict resolution')
-                    conflict_fun(ind, policy_dict, workflow_url, stored_intents_url,
-                                 elasticsearch_url)
+                    conflict_fun(ind, policy_dict, workflow_url, stored_intents_url)
                 else:
                     print('qos conflicts resolved')
 
@@ -51,8 +49,7 @@ def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url, elasticsear
             # repeat the process for the next intent in the intent store
             if (ind < len(stored_qos_intents_arr)):
                 print('starting new qos conflict resolution')
-                conflict_fun(ind, policy_dict, workflow_url, stored_intents_url,
-                             elasticsearch_url)
+                conflict_fun(ind, policy_dict, workflow_url, stored_intents_url)
             else:
                 print('ok')
 
@@ -82,8 +79,7 @@ def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url, elasticsear
                 #repeat the process for the next intent in the intent store
                 if (ind < len(stored_intents_arr)):
                     print('starting new conflict resolution')
-                    conflict_fun(ind, policy_dict, workflow_url, stored_intents_url,
-                                 elasticsearch_url)
+                    conflict_fun(ind, policy_dict, workflow_url, stored_intents_url)
                 else:
                     print('conflicts resolved')
             else:
@@ -92,8 +88,7 @@ def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url, elasticsear
                 # repeat the process for the next intent in the intent store
                 if (ind < len(stored_intents_arr)):
                     print('starting new conflict resolution')
-                    conflict_fun(ind, policy_dict, workflow_url, stored_intents_url,
-                                 elasticsearch_url)
+                    conflict_fun(ind, policy_dict, workflow_url, stored_intents_url)
                 else:
                     print('conflicts resolved')
 
@@ -104,9 +99,6 @@ def conflict_fun(ind, policy_dict, workflow_url, stored_intents_url, elasticsear
             # repeat the process for the next intent in the intent store
             if (ind < len(stored_intents_arr)):
                 print('starting new conflict resolution')
-                conflict_fun(ind, policy_dict, workflow_url, stored_intents_url,
-                             elasticsearch_url)
+                conflict_fun(ind, policy_dict, workflow_url, stored_intents_url)
             else:
                 print('ok')
-
-

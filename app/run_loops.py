@@ -1,16 +1,12 @@
-from elasticsearch import Elasticsearch
+from database import es_client as es
 import whatif_loop
 import warnings
 import config
 import get_intents_script
 import time
 import requests
-
 warnings.filterwarnings('ignore')
 
-
-elasticsearch_url = config.elasticsearch_url
-es = Elasticsearch(elasticsearch_url)
 whatif_send_url = config.whatif_send_url
 stored_intents_url = config.stored_intents_url
 

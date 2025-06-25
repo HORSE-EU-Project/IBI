@@ -1,4 +1,4 @@
-from elasticsearch import Elasticsearch
+from database import es_client as es
 import time
 import random
 import string
@@ -6,16 +6,12 @@ import pandas as pd
 import delete_intents_elasticsearch
 import config
 import get_intents_script
-
-
 port = config.port
 elastic_host = config.elastic_host
 elastic_port = config.elastic_port
 parameters = config.parameters
 workflow_url = config.workflow_url
 stored_qos_intents_url = config.stored_qos_intents_url
-elasticsearch_url = config.elasticsearch_url
-es = Elasticsearch(elasticsearch_url)
 
 
 def to_send_DT(what_if_question):
@@ -216,8 +212,7 @@ def whatif_receive_fun(whatif_receive):
                     for ind in df_policy.index:
                         if df_policy['action'][ind] == whatif_answer['action']:
                             whatif_answer['priority'] = df_policy['priority'][ind]
-                    policy_configurator.policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url,
-                                                                  whatif_answer)
+                    policy_configurator.policy_configurator_fun_2(workflow_url, stored_intents_url, whatif_answer)
     else:
         print('not proceeding with intent')
     resp = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
@@ -226,8 +221,7 @@ def whatif_receive_fun(whatif_receive):
         if hit1['intent_type'] == whatif_answer['intent_type'] and hit1['threat'] == whatif_answer['threat'] and \
                 str(hit1['host']) == str(whatif_answer['host'][0]) and hit1['action'] == whatif_answer['action'] and \
                 str(hit1['duration']) == str(whatif_answer['duration']) and hit1['id'] == whatif_answer['id']:
-            delete_intents_elasticsearch.delete_intents_elasticsearch_fun(elasticsearch_url, resp['hits']['hits'][ind]['_id'],
-                                                        "awaiting_intents")
+            delete_intents_elasticsearch.delete_intents_elasticsearch_fun(resp['hits']['hits'][ind]['_id'], "awaiting_intents")
 
 def del_whatif_fun(policy_dict):
     int_ind = False
@@ -240,7 +234,4 @@ def del_whatif_fun(policy_dict):
         for ind in range(len(resp['hits']['hits'])):
             hit1 = resp['hits']['hits'][ind]['_source']
             if hit1['threat'] == policy_dict['threat'] and hit1['host'] == policy_dict['host']:
-                delete_intents_elasticsearch.delete_intents_elasticsearch_fun(elasticsearch_url, resp['hits']['hits'][ind]['_id'],
-                                                            "awaiting_intents")
-
-
+                delete_intents_elasticsearch.delete_intents_elasticsearch_fun(resp['hits']['hits'][ind]['_id'], "awaiting_intents")

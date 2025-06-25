@@ -1,6 +1,5 @@
 import yaml
 import os
-from elasticsearch import Elasticsearch
 
 """
 Get current directory to derive application directory
@@ -19,7 +18,6 @@ port = parameters["port"]
 elastic_host = parameters["elasticsearch_ip"]
 elastic_port = parameters["elasticsearch_port"]
 elasticsearch_url = "http://" + elastic_host + ":" + elastic_port
-es = Elasticsearch(elasticsearch_url)
 
 whatif_receive_url = "http://" + host + ":" + port + parameters["to_receive_whatif"]
 whatif_send_url = parameters["san_api_url"]

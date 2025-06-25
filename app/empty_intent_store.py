@@ -1,63 +1,34 @@
-from elasticsearch import Elasticsearch
-import config
+from database import es_client
+from elasticsearch.exceptions import NotFoundError
 
-elasticsearch_url = config.elasticsearch_url
-es = Elasticsearch(elasticsearch_url)
+def _clear_index(index_name):
+    """Helper function to delete all documents from an index if it exists."""
+    try:
+        # Use es.indices.exists to check for an index, not es.exists which checks for a document.
+        if es_client.indices.exists(index=index_name):
+            # Use delete_by_query for efficiency. It's a single request.
+            es_client.delete_by_query(
+                index=index_name,
+                query={"match_all": {}},
+                refresh=True,
+                conflicts='proceed' # Continue even if there are version conflicts
+            )
+            print(f"Cleared all documents from index '{index_name}'.")
+    except NotFoundError:
+        # This can happen in a race condition if index is deleted between exists() and delete_by_query()
+        print(f"Index '{index_name}' not found, skipping clear.")
+    except Exception as e:
+        print(f"An error occurred while clearing index '{index_name}': {e}")
 
 def empty_fun():
-    #delete existing data on the intent store on elasticsearch when u start new deployment
-    int_ind = False
-    for i in list(range(100)):
-        intent_index = es.exists(index="stored_intents", id=str(i))
-        if intent_index == True:
-            int_ind = True
-    if int_ind == True:
-        es.indices.refresh(index="stored_intents")
-        resp = es.search(index="stored_intents", size=100, query={"match_all": {}})
-        total = resp['hits']['total']['value']
-        #print('total: ', total)
-        if total != 0:
-            id_arr = []
-            for hit in resp['hits']['hits']:
-                id_arr.append(hit["_id"])
-            #print('id arr: ', id_arr)
-            for id in id_arr:
-                es.delete(index="stored_intents", id=id)
-
-    #delete existing data on awaiting intents on elasticsearch when u start new deployment
-    int_ind = False
-    for i in list(range(100)):
-        intent_index = es.exists(index="awaiting_intents", id=str(i))
-        if intent_index == True:
-            int_ind = True
-    if int_ind == True:
-        es.indices.refresh(index="awaiting_intents")
-        resp = es.search(index="awaiting_intents", size=100, query={"match_all": {}})
-        total = resp['hits']['total']['value']
-        #print('total: ', total)
-        if total != 0:
-            id_arr = []
-            for hit in resp['hits']['hits']:
-                id_arr.append(hit["_id"])
-            #print('id arr: ', id_arr)
-            for id in id_arr:
-                es.delete(index="awaiting_intents", id=id)
-
-    #delete existing data on the qos intent store on elasticsearch when u start new deployment
-    int_ind = False
-    for i in list(range(100)):
-        intent_index = es.exists(index="stored_qos_intents", id=str(i))
-        if intent_index == True:
-            int_ind = True
-    if int_ind == True:
-        es.indices.refresh(index="stored_qos_intents")
-        resp = es.search(index="stored_qos_intents", size=100, query={"match_all": {}})
-        total = resp['hits']['total']['value']
-        #print('total: ', total)
-        if total != 0:
-            id_arr = []
-            for hit in resp['hits']['hits']:
-                id_arr.append(hit["_id"])
-            #print('id arr: ', id_arr)
-            for id in id_arr:
-                es.delete(index="stored_qos_intents", id=id)
+    """
+    Deletes all documents from specified Elasticsearch indices.
+    This is intended to be run at the start of a new deployment to ensure a clean state.
+    """
+    indices_to_clear = [
+        "stored_intents",
+        "awaiting_intents",
+        "stored_qos_intents"
+    ]
+    for index in indices_to_clear:
+        _clear_index(index)

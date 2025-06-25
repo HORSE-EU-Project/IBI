@@ -1,5 +1,4 @@
 import policy_configurator
-from elasticsearch import Elasticsearch
 import config
 
 def execute_intent_manager(intent):
@@ -11,8 +10,6 @@ def execute_intent_manager(intent):
     workflow_url = config.workflow_url
     whatif_send_url = config.whatif_send_url
     stored_intents_url = config.stored_intents_url
-    elasticsearch_url = config.elasticsearch_url
-    es = Elasticsearch(elasticsearch_url)
 
     intent_dict_main = {}
     intent_dict_main['intent_type'] = intent.intent_type
@@ -28,7 +25,7 @@ def execute_intent_manager(intent):
     #        retrieved_intents_arr.append(intent_dict_main)
     if intent_dict_main['intent_type'] == 'mitigation' or intent_dict_main['intent_type'] == 'prevention':
         policy_configurator.policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
-                                                    stored_intents_url, elasticsearch_url)
+                                                    stored_intents_url)
     #elif intent_dict_main['intent_type'] == 'prevention':
     #    policy_configurator.policy_configurator_fun(intent_dict_main, workflow_url,
     #                                          whatif_send_url, stored_intents_url, elasticsearch_url)
@@ -54,8 +51,6 @@ def execute_intent_manager_qos(intent):
     workflow_url = config.workflow_url
     whatif_send_url = config.whatif_send_url
     stored_qos_intents_url = config.stored_qos_intents_url
-    elasticsearch_url = config.elasticsearch_url
-    es = Elasticsearch(elasticsearch_url)
 
     intent_dict_main = {}
     intent_dict_main['intent_type'] = intent.intent_type
@@ -74,8 +69,7 @@ def execute_intent_manager_qos(intent):
     if intent_dict_main['intent_type'] == 'qos_ntp' or intent_dict_main['intent_type'] == 'qos_dns' \
     or intent_dict_main['intent_type'] == 'qos_pfcp':
     #if intent_dict_main['intent_type'] == 'mitigation':
-        policy_configurator.policy_configurator_fun_qos(intent_dict_main, workflow_url, stored_qos_intents_url,
-                                                        elasticsearch_url)
+        policy_configurator.policy_configurator_fun_qos(intent_dict_main, workflow_url, stored_qos_intents_url)
 
 
 

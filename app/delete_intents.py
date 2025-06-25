@@ -1,5 +1,5 @@
 import delete_command
-from elasticsearch import Elasticsearch
+from database import es_client as es
 import delete_intents_elasticsearch
 import time
 import config
@@ -7,8 +7,6 @@ import config
 #function for deleting intents
 def select_delete_fun(to_delete):
     workflow_url = config.workflow_url
-    elasticsearch_url = config.elasticsearch_url
-    es = Elasticsearch(elasticsearch_url)
 
     print('to delete intent')
 
@@ -25,16 +23,12 @@ def select_delete_fun(to_delete):
                 #send delete intent workflow to RTR
                 delete_command.delete_intents_fun(hit1['intent_id'], workflow_url)
                 # delete intent on elasticsearch
-                delete_intents_elasticsearch.delete_intents_elasticsearch_fun(elasticsearch_url,
-                                                                        resp['hits']['hits'][ind]['_id'], "stored_intents")
+                delete_intents_elasticsearch.delete_intents_elasticsearch_fun(resp['hits']['hits'][ind]['_id'], "stored_intents")
 
 def select_delete_fun_qos(to_delete):
     workflow_url = config.workflow_url
-    elasticsearch_url = config.elasticsearch_url
-    es = Elasticsearch(elasticsearch_url)
 
     print('to delete qos intent')
-
     resp = es.search(index="stored_qos_intents", size=100, query={"match_all": {}})
     time.sleep(1)
     for ind in range(len(resp['hits']['hits'])):
@@ -48,6 +42,4 @@ def select_delete_fun_qos(to_delete):
                 #send delete intent workflow to RTR
                 #delete_command.delete_intents_fun(hit1['intent_id'], workflow_url)
                 # delete intent on elasticsearch
-                delete_intents_elasticsearch.delete_intents_elasticsearch_fun_qos(elasticsearch_url,
-                                                                        resp['hits']['hits'][ind]['_id'], "stored_qos_intents")
-
+                delete_intents_elasticsearch.delete_intents_elasticsearch_fun_qos(resp['hits']['hits'][ind]['_id'], "stored_qos_intents")

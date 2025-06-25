@@ -3,15 +3,14 @@ import pandas as pd
 import random
 import string
 import conflict_resolution
-import store_intent
-from elasticsearch import Elasticsearch
+import store_intent    
+from database import es_client as es
 import whatif_loop
 import config
 import get_intents_script
 import find_interface
 
-def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
-                       stored_intents_url, elasticsearch_url):
+def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url, stored_intents_url):
     global policy_dict
     global mitigation_host
     stored_qos_intents_url = config.stored_qos_intents_url
@@ -243,7 +242,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
     if policy_dict['intent_type'] == 'mitigation':
         print('proceeding with intent')
         whatif_loop.del_whatif_fun(policy_dict)
-        policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url, policy_dict)
+        policy_configurator_fun_2(workflow_url, stored_intents_url, policy_dict)
     elif policy_dict['intent_type'] == 'prevention':
         if policy_dict['threat'] == 'ddos_ntp':
             mitigation_host = config.ddos_ntp[policy_dict['action']]
@@ -298,9 +297,7 @@ def policy_configurator_fun(intent_dict_main, workflow_url, whatif_send_url,
         #whatif_loop.whatif_send_fun(policy_dict, whatif_send_url)
         return whatif_loop.whatif_send_fun(policy_dict, whatif_send_url)
 
-def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_url,
-                              policy_dict):
-    es = Elasticsearch(elasticsearch_url)
+def policy_configurator_fun_2(workflow_url, stored_intents_url, policy_dict):
     df_policy = pd.read_csv(config.policy_store_directory)
     if policy_dict['intent_type'] == 'prevention':
         for ind in df_policy.index:
@@ -316,8 +313,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
         total = resp1['hits']['total']['value']
         #if there are existing intents, check for conflicts
         if total >= 1:
-            conflict_resolution.conflict_fun(0, policy_dict, workflow_url,
-                                             stored_intents_url, elasticsearch_url)
+            conflict_resolution.conflict_fun(0, policy_dict, workflow_url, stored_intents_url)
 
     #if a host has an intent in the intent store, and still receives a new intent with the priority value of the policy
     #higher than or equal to the one of the existing intent, then the host is stored inside the array - host_existing
@@ -477,10 +473,7 @@ def policy_configurator_fun_2(workflow_url, stored_intents_url, elasticsearch_ur
     else:
         send_store('no_value')
 
-def policy_configurator_fun_qos(policy_dict, workflow_url, stored_qos_intents_url,
-                                                                elasticsearch_url):
-    es = Elasticsearch(elasticsearch_url)
-
+def policy_configurator_fun_qos(policy_dict, workflow_url, stored_qos_intents_url):
     # extract the hosts in the policy_dict
     intent_host_arr = policy_dict['host']
 
@@ -490,8 +483,7 @@ def policy_configurator_fun_qos(policy_dict, workflow_url, stored_qos_intents_ur
         total = resp1['hits']['total']['value']
         #if there are existing intents, check for conflicts
         if total >= 1:
-            conflict_resolution.conflict_fun(0, policy_dict, workflow_url,
-                                             stored_qos_intents_url, elasticsearch_url)
+            conflict_resolution.conflict_fun(0, policy_dict, workflow_url, stored_qos_intents_url)
 
     #if a host has an intent in the intent store, and still receives a new intent with the priority value of the policy
     #higher than or equal to the one of the existing intent, then the host is stored inside the array - host_existing
@@ -567,7 +559,3 @@ def policy_configurator_fun_qos(policy_dict, workflow_url, stored_qos_intents_ur
             # send workflows to workflow api
             send_workflows.send_workflow_fun_2(workflow_url, base_data)'''
             time.sleep(1)
-
-
-
-
