@@ -1,11 +1,14 @@
 import threading
 import uvicorn
+import config
+import logging
 from time import sleep
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from constants import Const
 from utils.log_config import setup_logging
 from routers import ping, intents
+from db.elastic_search import ElasticSearchClient
 
 """
 This code is executed when applications starts
@@ -22,7 +25,7 @@ async def lifespan(app: FastAPI):
     # Start processing requests
     yield
     # Stop running threads
-    t_intent.join(3)
+    t_intent.join(1)
 
 """
 IBI API Server
@@ -35,14 +38,24 @@ app.include_router(intents.router)
 Backround taks
 """
 def process_intents():
-    logger = setup_logging()
+    logger = logging.getLogger(__name__)
     while(True):
         # logger.info("hello world from intents loop")
-        sleep(Const.TH_INTENT_WAIT)
+        sleep(Const.THREAD_INTENT_WAIT)
     
+
+def clean_database():
+    """
+    Flush data in Elasticsearch
+    """
+    es_client = ElasticSearchClient()
+    es_client.delete_indices()
 
 """
 Main entry point
 """
 if __name__ == "__main__":
-    uvicorn.run(app, host=Const.SERVER_HOST, port=Const.SERVER_PORT)
+    # Flush data in Elasticsearch
+    if config.ES_FLUSH:
+        clean_database()
+    uvicorn.run(app, host=Const.APP_HOST, port=Const.APP_PORT)
