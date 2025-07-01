@@ -8,8 +8,11 @@ class Const:
     APP_VERSION = "0.0.3a"
 
     # Server related
-    SERVER_HOST = "0.0.0.0"
-    SERVER_PORT = 8000
+    APP_HOST = "0.0.0.0"
+    APP_PORT = 8000
 
     # Intent processing loop
-    TH_INTENT_WAIT = 1.0
+    THREAD_INTENT_WAIT = 1.0
+
+    # Elasticsearch indexes
+    INTENTS_INDEX = "intents"
