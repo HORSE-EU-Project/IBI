@@ -1,11 +1,10 @@
-import time
 import hashlib
+import datetime
 from constants import Const
 from utils.log_config import setup_logging
-from models import SecurityIntent
 from db.elastic_search import ElasticSearchClient
 
-logger = setup_logging()
+logger = setup_logging(__file__)
 
 
 class IntentManager:
@@ -13,9 +12,6 @@ class IntentManager:
     This class is responsible for managing intents.
     It processes intents and calls the policy configurator based on the intent type.
     """
-
-    INT_STATUS_NEW = "new"
-    INT_STATUS_MITIGATED = "mitigated"
 
     def __init__(self):
         self._es_client = ElasticSearchClient().get_client()
@@ -29,7 +25,7 @@ class IntentManager:
         if not self._es_client.exists(index=Const.INTENTS_INDEX, id=intent_id):
             # if intent does not exist in the ES, create a new intent
             logger.debug(f"Intent with ID {intent_id} does not exist, creating new intent")
-            current_time = time.time()
+            current_time = datetime.datetime.now(datetime.timezone.utc)
             intent_dict = {
                 "id": intent_id,
                 "intent_type": intent.intent_type,
@@ -37,9 +33,9 @@ class IntentManager:
                 "host": intent.host,
                 "duration": intent.duration,
                 "timestamp": current_time,
-                "status": self.INT_STATUS_NEW
+                "status": Const.INTENT_STATUS_NEW
             }
-            self.es_client.index(index=Const.INTENTS_INDEX, id=intent_id, document=intent_dict)
+            self._es_client.index(index=Const.INTENTS_INDEX, id=intent_id, document=intent_dict)
             logger.info(f"Intent with ID {intent_id} added to Elasticsearch")
         
 
@@ -51,9 +47,38 @@ class IntentManager:
         return self._es_client.get(index=Const.INTENTS_INDEX, id=intent_id)
 
 
-    def get_all(self):
-        logger.info("Retrieving all intents")
-        return []
+    def get_all(self, status=None):
+        intents = []
+        if status is not None:
+            query = {
+                "query": {
+                    "term": {
+                        "status": status
+                    }
+                }
+            }
+        else:
+            query = {
+                "query": {
+                    "match_all": {}
+                }
+            }
+
+        try:
+            logger.info(f"Retrieving intents with status: {status}")
+            response = self._es_client.search(
+                    index=Const.INTENTS_INDEX,
+                    body=query
+            )
+            for hit in response['hits']['hits']:
+                intent = hit['_source']
+                intents.append(intent)
+            return intents
+        except Exception as e:
+            logger.error(f"Error querying Elasticsearch: {e}")
+            return []
+
+
     
     def _generate_id(self, intent) -> str:
         """

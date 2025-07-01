@@ -1,5 +1,6 @@
 from elasticsearch import Elasticsearch
 import config
+from constants import Const
 from utils.log_config import setup_logging
 from threading import Lock
 
@@ -50,8 +51,15 @@ class ElasticSearchClient(metaclass=ESClientMeta):
         """
         Delete all indices in Elasticsearch.
         """
-        if self._es_client:
-            self._es_client.indices.delete(index="*", ignore=[400, 404])
-            logger.debug("All indices deleted from Elasticsearch")
-        else:
-            logger.error("Elasticsearch client is not initialized")
+        _to_delete = {Const.INTENTS_INDEX}
+
+        for index in _to_delete:
+            try:
+                if self._es_client:
+                    response = self._es_client.indices.delete(index=index, ignore=[404])
+                    if response.get('acknowledged', False):
+                        logger.debug(f"Index '{index}' deleted successfully")
+                    else:
+                        logger.warning(f"Failed to delete index '{index}'")
+            except Exception as e:
+                logger.error(f"Error deleting index '{index}': {str(e)}")

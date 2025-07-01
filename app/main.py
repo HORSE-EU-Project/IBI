@@ -1,7 +1,6 @@
 import threading
 import uvicorn
 import config
-import logging
 from time import sleep
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -9,6 +8,7 @@ from constants import Const
 from utils.log_config import setup_logging
 from routers import ping, intents
 from db.elastic_search import ElasticSearchClient
+from pipeline import IntentPipeline
 
 """
 This code is executed when applications starts
@@ -38,9 +38,15 @@ app.include_router(intents.router)
 Backround taks
 """
 def process_intents():
-    logger = logging.getLogger(__name__)
+    logger = setup_logging(__name__)
+    pipeline = IntentPipeline()
     while(True):
         # logger.info("hello world from intents loop")
+        try:
+            # Process intents
+            pipeline.process_intents()
+        except Exception as e:
+            logger.error(f"Error processing intents: {e}")
         sleep(Const.THREAD_INTENT_WAIT)
     
 
@@ -56,6 +62,6 @@ Main entry point
 """
 if __name__ == "__main__":
     # Flush data in Elasticsearch
-    if config.ES_FLUSH:
+    if config.ES_CLEAN:
         clean_database()
     uvicorn.run(app, host=Const.APP_HOST, port=Const.APP_PORT)

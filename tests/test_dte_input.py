@@ -18,7 +18,7 @@ def test_demo0():
     # Data to send to IBI as input
     data = {
         "intent_type": "mitigation",
-        "threat": "helloworld",
+        "threat": "hello_world",
         "host": [""],
         "duration": 600
     }
