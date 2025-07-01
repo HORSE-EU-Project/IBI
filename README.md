@@ -23,7 +23,7 @@ cd IBI
 
 - Run Elastic Search on a local docker instance
 ```
-docker run --rm --name es01-dev -p 127.0.0.1:9200:9200 -p 127.0.0.1:9300:9300 -e "discovery.type=single-node" -e "xpack.security.enabled=false" -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" elasticsearch:8.18.1
+docker run --rm --name es01-dev -p 127.0.0.1:9200:9200 -p 127.0.0.1:9300:9300 -e "discovery.type=single-node" -e "xpack.security.enabled=false" -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" elastic/elasticsearch:9.0.3
 ```
 
 - Install project dependencies
