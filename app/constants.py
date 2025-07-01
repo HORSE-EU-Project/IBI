@@ -11,8 +11,13 @@ class Const:
     APP_HOST = "0.0.0.0"
     APP_PORT = 8000
 
+    # Intent status
+    INTENT_STATUS_NEW = "new"
+    INTENT_STATUS_MITIGATED = "mitigated"
+
     # Intent processing loop
     THREAD_INTENT_WAIT = 1.0
 
     # Elasticsearch indexes
     INTENTS_INDEX = "intents"
+
