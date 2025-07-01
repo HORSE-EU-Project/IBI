@@ -1,5 +1,6 @@
 import yaml
 import os
+from urllib import parse
 
 """
 Get current directory to derive application directory
@@ -10,16 +11,27 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 # Remove the /app from the tail of the path
 files_directory = os.path.dirname(current_dir)
 
+
 yml_file = os.path.join(files_directory, "config.yml")
 with open(yml_file) as f:
     parameters = yaml.safe_load(f)
-host = parameters["ip"]
-port = parameters["port"]
-elastic_host = parameters["elasticsearch_ip"]
-elastic_port = parameters["elasticsearch_port"]
-elasticsearch_url = "http://" + elastic_host + ":" + elastic_port
 
-whatif_receive_url = "http://" + host + ":" + port + parameters["to_receive_whatif"]
+# TODO: Properly read the parameters from the config file
+
+# Expose the parameters as constants
+
+# Elasticsearch parameters
+ES_HOST = parameters["elasticsearch"]["ip"]
+ES_PORT = parameters["elasticsearch"]["port"]
+ES_CLEAN = parameters["elasticsearch"]["reset"]
+ES_URL = f"http://{ES_HOST}:{ES_PORT}"
+
+
+# Integration with the cKB
+CKB_URL = parameters["ckb"]["url"]
+
+
+# whatif_receive_url = "http://" + host + ":" + port + parameters["to_receive_whatif"]
 whatif_send_url = parameters["san_api_url"]
 workflow_url = parameters["rtr_api_url"]
 intents_url = parameters["intents_url"]
