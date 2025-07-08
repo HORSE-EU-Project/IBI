@@ -33,11 +33,16 @@ CKB_URL = parameters["ckb"]["url"]
 # Integration with the Digital Twin
 IADT_URL = parameters["iadt"]["url"]
 
+# Integration with Compliance Assessment
+CAS_URL = parameters["cas"]["url"]
+
 # Integration with the RTR
 RTR_URL = parameters["rtr"]["url"]
 RTR_USER = parameters["rtr"]["username"]
 RTR_PASSWORD = parameters["rtr"]["password"]
 RTR_EMAIL = parameters["rtr"]["email"]
+
+
 
 # whatif_receive_url = "http://" + host + ":" + port + parameters["to_receive_whatif"]
 # whatif_send_url = parameters["san_api_url"]
