@@ -51,7 +51,10 @@ class ElasticSearchClient(metaclass=ESClientMeta):
         """
         Delete all indices in Elasticsearch.
         """
-        _to_delete = {Const.INTENTS_INDEX}
+        _to_delete = {
+            Const.INTENTS_INDEX, 
+            Const.MITIGATION_INDEX
+        }
 
         for index in _to_delete:
             try:
@@ -63,3 +66,16 @@ class ElasticSearchClient(metaclass=ESClientMeta):
                         logger.warning(f"Failed to delete index '{index}'")
             except Exception as e:
                 logger.error(f"Error deleting index '{index}': {str(e)}")
+
+    
+    def pupulate_mitigations(self):
+        """
+        Populate mitigations data in Elasticsearch.
+        """
+        # Check whether the index MITIGATION_INDEX exists
+        if not self._es_client.indices.exists(index=Const.MITIGATION_INDEX):
+            logger.info(f"Index '{Const.MITIGATION_INDEX}' does not exist, creating it")
+            self._es_client.indices.create(index=Const.MITIGATION_INDEX)
+            
+        else:
+            logger.info(f"Index '{Const.MITIGATION_INDEX}' already exists")

@@ -57,6 +57,13 @@ def clean_database():
     es_client = ElasticSearchClient()
     es_client.delete_indices()
 
+def populate_database():
+    """
+    Populate data in Elasticsearch
+    """
+    es_client = ElasticSearchClient()
+    es_client.pupulate_mitigations()
+
 """
 Main entry point
 """
@@ -64,4 +71,6 @@ if __name__ == "__main__":
     # Flush data in Elasticsearch
     if config.ES_CLEAN:
         clean_database()
+        # Populate data in Elasticsearch
+        populate_database()
     uvicorn.run(app, host=Const.APP_HOST, port=Const.APP_PORT)
