@@ -1,4 +1,3 @@
-import hashlib
 import datetime
 import uuid
 from constants import Const
