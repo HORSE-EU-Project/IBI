@@ -169,16 +169,16 @@ class CKB:
             "poisoning_and_amplification",
             "network_exposure",
         ]
+        req_body = {}
+
+        if attack_name is None or attack_name == "" or attack_name not in attacks:
+            self._logger.info(f"Using default attack name")
+            attack_name = "hello_world"
+        req_body = {"attack_name": attack_name}
 
         if self.enabled:
-            req_body = {}
-            if attack_name and attack_name in attacks:
-                pass
-            else:
-                self._logger.info(f"Using default attack name")
-                attack_name = "hello_world"
             try:
-                req_body = {"attack_name": attack_name}
+                
                 response = requests.post(
                     f"{self.ckb_url}/mitigations",
                     timeout=2,
@@ -189,3 +189,6 @@ class CKB:
                 self._logger.info(f"CKB query successful for attacks.")
             except requests.exceptions.RequestException as e:
                 self._logger.error(f"Error querying CKB for attacks: {e}")
+        else:
+            self._logger.warning(f"CKB integration is disabled. Sending query to logging system.")
+            self._logger.info(f"CKB query body: {req_body}")
