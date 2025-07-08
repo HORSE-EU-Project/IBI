@@ -13,7 +13,14 @@ class Const:
 
     # Intent status
     INTENT_STATUS_NEW = "new"
+    INTENT_STATUS_IN_PROGRESS = "in_progress"
+    INTENT_STATUS_RENEWED = "renewed"
+    INTENT_STATUS_UNDER_MITIGATION = "under_mitigation"
     INTENT_STATUS_MITIGATED = "mitigated"
+
+    # Intent type
+    INTENT_TYPE_MITIGATION = "mitigation"
+    INTENT_TYPE_PREVENTION = "prevention"
 
     # Intent processing loop
     THREAD_INTENT_WAIT = 1.0
