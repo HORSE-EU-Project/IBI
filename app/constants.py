@@ -18,13 +18,10 @@ class Const:
     INTENT_STATUS_UNDER_MITIGATION = "under_mitigation"
     INTENT_STATUS_MITIGATED = "mitigated"
 
-    # Intent type
-    INTENT_TYPE_MITIGATION = "mitigation"
-    INTENT_TYPE_PREVENTION = "prevention"
-
     # Intent processing loop
     THREAD_INTENT_WAIT = 1.0
 
     # Elasticsearch indexes
     INTENTS_INDEX = "intents"
+    MITIGATION_INDEX = "mitigations"
 
