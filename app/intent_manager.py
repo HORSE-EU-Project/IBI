@@ -1,5 +1,6 @@
 import hashlib
 import datetime
+import uuid
 from constants import Const
 from utils.log_config import setup_logging
 from db.elastic_search import ElasticSearchClient
@@ -13,16 +14,36 @@ class IntentManager:
     It processes intents and calls the policy configurator based on the intent type.
     """
 
+    INTENT_CREATED = "created"
+    INTENT_UPDATED = "updated"
+
     def __init__(self):
         self._es_client = ElasticSearchClient().get_client()
         logger.info("IntentManager initialized")
+
+
+    def process_intent_request(self, intent):
+        """
+        Process an intent request.
+        If the intent already exists, it updates the status.
+        If it does not exist, it creates a new intent.
+        """
+        logger.info(f"Processing intent request: {intent}")
+
+        if self._intent_exists(intent):
+            logger.debug(f"Intent {intent} already exists in the store")
+            return self.INTENT_UPDATED
+        else:
+            logger.debug(f"Intent {intent} does not exist in the store, adding it")
+            self.add(intent)
+            return self.INTENT_CREATED
 
     
     def add(self, intent):
         # generate a unique ID for the intent
         intent_id = self._generate_id(intent)
 
-        if not self._es_client.exists(index=Const.INTENTS_INDEX, id=intent_id):
+        if not self._intent_exists(intent):
             # if intent does not exist in the ES, create a new intent
             logger.debug(f"Intent with ID {intent_id} does not exist, creating new intent")
             current_time = datetime.datetime.now(datetime.timezone.utc)
@@ -33,11 +54,11 @@ class IntentManager:
                 "host": intent.host,
                 "duration": intent.duration,
                 "timestamp": current_time,
-                "status": Const.INTENT_STATUS_NEW
+                "status": Const.INTENT_STATUS_NEW,
+                "timeout": current_time + datetime.timedelta(seconds=intent.duration)
             }
             self._es_client.index(index=Const.INTENTS_INDEX, id=intent_id, document=intent_dict)
-            logger.info(f"Intent with ID {intent_id} added to Elasticsearch")
-        
+            logger.info(f"New intent added to intent store. ID {intent_id}")
 
     
     def get_by_id(self, intent_id):
@@ -47,9 +68,16 @@ class IntentManager:
         return self._es_client.get(index=Const.INTENTS_INDEX, id=intent_id)
 
 
-    def get_all(self, status=None):
+    def get_all(self, status=None, intent_type=None):
         intents = []
-        if status is not None:
+        if status is None:
+            query = {
+                "query": {
+                    "match_all": {}
+                }
+            }
+            logger.info(f"Retrieving all intents from the store")
+        else:
             query = {
                 "query": {
                     "term": {
@@ -57,15 +85,11 @@ class IntentManager:
                     }
                 }
             }
-        else:
-            query = {
-                "query": {
-                    "match_all": {}
-                }
-            }
-
+            if intent_type is not None:
+                query['query']['bool']['must'].append({"term": {"intent_type": intent_type}})
+            logger.info(f"Retrieving intents with status '{status}' and type '{intent_type}' from the store")
         try:
-            logger.info(f"Retrieving intents with status: {status}")
+            
             response = self._es_client.search(
                     index=Const.INTENTS_INDEX,
                     body=query
@@ -77,6 +101,25 @@ class IntentManager:
         except Exception as e:
             logger.error(f"Error querying Elasticsearch: {e}")
             return []
+        
+    
+    def update_status(self, intent_id, status):
+        """
+        Update the status of an intent.
+        """
+        if self._es_client.exists(index=Const.INTENTS_INDEX, id=intent_id):
+            logger.info(f"Updating status of intent {intent_id} to {status}")
+            self._es_client.update(
+                index=Const.INTENTS_INDEX,
+                id=intent_id,
+                body={
+                    "doc": {
+                        "status": status
+                    }
+                }
+            )
+        else:
+            logger.warning(f"Intent with ID {intent_id} does not exist, cannot update status")
 
 
     
@@ -84,11 +127,63 @@ class IntentManager:
         """
         Generate a unique ID for the intent.
         """
-        fields = intent.intent_type + intent.threat + ''.join(intent.host)
-        res = hashlib.md5(bytes(fields, 'utf-8'))
-        return res.hexdigest()
+        return str(uuid.uuid4())  # Using UUID for unique intent ID
 
-    
+    def _get_intent_id(self, intent) -> str:
+        """
+        Get the ID of the intent in the intent store.
+        """
+        query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"intent_type": intent.intent_type}},
+                        {"term": {"threat": intent.threat}},
+                        {"term": {"host": intent.host}}
+                    ],
+                    "must_not": [
+                        {"term": {"status": Const.INTENT_STATUS_MITIGATED}}
+                    ]
+                }
+            }
+        }
+        response = self._es_client.search(
+            index=Const.INTENTS_INDEX,
+            body=query
+        )
+        if response['hits']['total']['value'] > 0:
+            return response['hits']['hits'][0]['_id']
+        return None
+
+
+    def _intent_exists(self, intent) -> bool:
+        """
+        Check if an intent already exists in the Elasticsearch index.
+        """
+        query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"intent_type": intent.intent_type}},
+                        {"term": {"threat": intent.threat}},
+                        {"term": {"host": intent.host}}
+                    ],
+                    "must_not": [
+                        {"term": {"status": Const.INTENT_STATUS_MITIGATED}}
+                    ]
+                }
+            }
+        }
+
+        try:
+            response = self._es_client.search(
+                index=Const.INTENTS_INDEX,
+                body=query
+            )
+            return response['hits']['total']['value'] > 0
+        except Exception as e:
+            logger.error(f"Error checking if intent exists: {e}")
+            return False
     
 
 
