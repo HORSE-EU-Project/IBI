@@ -3,6 +3,7 @@ from intent_manager import IntentManager
 from db.elastic_search import ElasticSearchClient
 from utils.log_config import setup_logging
 from integrations.external import CKB
+from models import IntentType
 
 logger = setup_logging(__file__)
 
@@ -20,7 +21,7 @@ class IntentPipeline:
             intents = self.intent_manager.get_all(status=Const.INTENT_STATUS_NEW)
             for intent in intents:
                 # Processing mitigation intents
-                if intent.get("intent_type") == Const.INTENT_TYPE_MITIGATION:
+                if intent.get("intent_type") == IntentType.MITIGATION:
                     logger.info(f"Processing intent ID: {intent.get('id')}, TYPE: {intent.get('intent_type')}")
                     # Set status of intent to "processing"
                     # Query cKB
@@ -28,7 +29,7 @@ class IntentPipeline:
                     ckb.query_ckb(intent.get("threat"))
 
                     # Get mitigation actions from recommender
-                    
+
 
                     # Validate with CAS
 
@@ -40,7 +41,7 @@ class IntentPipeline:
                         Const.INTENT_STATUS_UNDER_MITIGATION
                     )
                 
-                if intent.get("intent_type") == Const.INTENT_TYPE_PREVENTION:
+                if intent.get("intent_type") == IntentType.PREVENTION:
                     logger.info(f"Processing intent ID: {intent.get('id')}, TYPE: {intent.get('intent_type')}")
                     # Set status of intent to "processing"
                     # Query cKB
