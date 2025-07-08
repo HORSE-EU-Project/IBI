@@ -19,20 +19,46 @@ class IntentPipeline:
             logger.info("Checking new intents")
             intents = self.intent_manager.get_all(status=Const.INTENT_STATUS_NEW)
             for intent in intents:
-                logger.info(f"Processing intent {intent.get("id")} ")
-                # Set status of intent to "processing"
+                # Processing mitigation intents
+                if intent.get("intent_type") == Const.INTENT_TYPE_MITIGATION:
+                    logger.info(f"Processing intent ID: {intent.get('id')}, TYPE: {intent.get('intent_type')}")
+                    # Set status of intent to "processing"
+                    # Query cKB
+                    ckb = CKB()
+                    ckb.query_ckb(intent.get("threat"))
 
-                # Query cKB
-                ckb = CKB()
-                ckb.query_ckb(intent.get("threat"))
+                    # Get mitigation actions from recommender
+                    
 
-                # Get mitigation actions from recommender
+                    # Validate with CAS
 
-                # Validate with CAS
+                    # Send to RTR
 
-                # Send to RTR
+                    # Set status of intent to "under mitigation"
+                    self.intent_manager.update_status(
+                        intent.get("id"), 
+                        Const.INTENT_STATUS_UNDER_MITIGATION
+                    )
+                
+                if intent.get("intent_type") == Const.INTENT_TYPE_PREVENTION:
+                    logger.info(f"Processing intent ID: {intent.get('id')}, TYPE: {intent.get('intent_type')}")
+                    # Set status of intent to "processing"
+                    # Query cKB
+                    ckb = CKB()
+                    ckb.query_ckb(intent.get("threat"))
 
-                # Set status of intent to "under mitigation"
+                    # Get prevention actions from recommender
+
+                    # Validate with CAS
+
+                    # Send to RTR
+
+                    # Set status of intent to "under mitigation"
+                    self.intent_manager.update_status(
+                        intent.get("id"), 
+                        Const.INTENT_STATUS_MITIGATED
+                    )
+
             
         except Exception as e:
             logger.error(f"Error querying Elasticsearch: {e}")
