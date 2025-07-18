@@ -21,7 +21,7 @@ class Const:
     INTENT_STATUS_MITIGATED = "INTENT_STATUS_MITIGATED"
 
     # Intent processing loop
-    THREAD_INTENT_WAIT = 1.0
+    THREAD_INTENT_WAIT = 5.0
 
     # Elasticsearch indexes
     INTENTS_INDEX = "intents"
