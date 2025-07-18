@@ -3,26 +3,23 @@ networks:
   ibi-network:
     driver: bridge
     name: ibi-network
-  shared-network:
-    external: true
 
 services:
   ibi-api:
     container_name: ibi-api
     build: .
     volumes:
-      - ${PWD}/config/prod.yml:/code/app/config.yml
+      - ${PWD}/config-prod.yml:/code/config.yml
     ports:
-      - "7777:7777"
+      - "8000:8000"
     depends_on:
       es01:
         condition: service_healthy
     networks:
       - ibi-network
-      - shared-network
 
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.3
     container_name: es01
     restart: always
     environment:

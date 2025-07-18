@@ -1,12 +1,11 @@
+# Instructions to Run the Demos
 
+## Demo 3
 
-
-# Demo 3
-
-## Command to trigger the IBI
+### Command to trigger the IBI
 
 ```bash
-curl -X POST http://localhost:8000/intents \
+curl -X POST http://localhost:8080/intents \
 -H "Content-Type: application/json" \
 -d '{
     "intent_type": "prevention",
@@ -17,13 +16,13 @@ curl -X POST http://localhost:8000/intents \
 ```
 
 
-## Simulate NDT answer to IBI
+### Simulate NDT answer to IBI
 
 ```bash
-curl -X POST http://127.0.0.1:8000/impact-analysis \
+curl -X POST http://127.0.0.1:8080/impact-analysis \
     -H "Content-Type: application/json" \
     -d '{
-        "id": "0002",
+        "id": "ec61211b-6074-4e6d-818a-6b6e33e2ca7e,",
         "topology_name": "horse_ddos",
         "attack": "DDoS_reverse",
         "what": {

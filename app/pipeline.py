@@ -30,7 +30,6 @@ class IntentPipeline:
 
                     # Get mitigation actions from recommender
 
-
                     # Validate with CAS
 
                     # Send to RTR

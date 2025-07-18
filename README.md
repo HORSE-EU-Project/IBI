@@ -37,6 +37,24 @@ source .venv/bin/activate
 uv run app/main.py
 ```
 
+# Deployment in testbeds without Github access
+
+Create a .tar.gz of the project
+
+```bash
+cd ..
+tar -cvzf horse-ibi.tar.gz --exclude='horse-ibi/.venv' --exclude='horse-ibi/__pycache__' --exclude='horse-ibi/*.pyc' --exclude='horse-ibi/*.git' horse-ibi/
+```
+
+Copy the .tar.gz file to the testbed over SCP:
+```bash
+scp horse-ibi.tar.gz user@REMOTE_IP:~
+```
+
+Extract the .tar.gz file on the testbed
+```bash
+tar -xzf horse-ibi.tar.gz
+``` 
 
 ## Installation
 

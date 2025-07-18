@@ -2,7 +2,7 @@
 
 # Elasticsearch configuration
 elasticsearch:
-  ip: 'localhost'
+  ip: 'es01'
   port: '9200'
   reset: true
 
@@ -11,8 +11,8 @@ ckb:
   # url: 'http://10.19.2.18'   # UPC
 
 iadt:
-  # url: ''
-  url: http://10.208.11.74:5005
+  url: ''
+  # url: http://10.208.11.74:5005
   # url: 'http://10.208.11.74:5005/from_ibi'
 
 rtr:
