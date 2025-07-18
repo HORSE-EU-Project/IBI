@@ -15,3 +15,29 @@ curl -X POST http://localhost:8000/intents \
     "duration": 600
 }'
 ```
+
+
+## Simulate NDT answer to IBI
+
+```bash
+curl -X POST http://127.0.0.1:8000/impact-analysis \
+    -H "Content-Type: application/json" \
+    -d '{
+        "id": "0002",
+        "topology_name": "horse_ddos",
+        "attack": "DDoS_reverse",
+        "what": {
+                "KPIs": {
+                    "element": {
+                        "node": "ceos-1",
+                        "interface": "eth6"
+                    },
+                    "metric": "packets-per-second",
+                    "result": {
+                        "value": "1.2",
+                        "unit": "packets-per-second"
+                    }
+                }
+        }
+}'
+```
