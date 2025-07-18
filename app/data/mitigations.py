@@ -23,7 +23,7 @@ MITIGATION_DATA = {
                 }
             },
             {
-                "attack_name": "",
+                "attack_name": "ddos_amplification",
                 "mitigation_name": "ntp_access_control",
                 "intent_id": "20002",
                 "fields": {
@@ -43,7 +43,7 @@ MITIGATION_DATA = {
                 }
             },
             {
-                "attack_name": "",
+                "attack_name": "multidomain",
                 "mitigation_name": "define_dns_servers",
                 "intent_id": "60002",
                 "fields": {
@@ -91,7 +91,7 @@ MITIGATION_DATA = {
                 }
             },
             {
-                "attack_name": "",
+                "attack_name": "nf_exposure",
                 "mitigation_name": "api_rate_limiting",
                 "intent_id": "80002",
                 "fields": {

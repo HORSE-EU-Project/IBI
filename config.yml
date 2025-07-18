@@ -11,7 +11,8 @@ ckb:
   # url: 'http://10.19.2.18'   # UPC
 
 iadt:
-  url: 'http://iadt-api:8000'
+  url: ''
+  # url: 'http://10.208.11.74:5005/from_ibi'
 
 rtr:
   url: 'http://rtr-api:8000'

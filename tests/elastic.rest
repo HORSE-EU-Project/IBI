@@ -1,3 +1,9 @@
+# PING (Hello World) REST API calls for testing
+GET http://127.0.0.1:8000/ping HTTP/1.1
+content-type: application/json
+
+
+
 # DTE
 
 ###
@@ -20,3 +26,28 @@ GET http://127.0.0.1:9200/intents/_search?pretty HTTP/1.1
 
 ###
 DELETE  http://127.0.0.1:9200/intents HTTP/1.1
+
+
+###
+# Impact Analysis Digital Twin (IADT) REST API call (IA-NDT to IBI)
+POST http://127.0.0.1:8000/impact-analysis HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": "0002",
+    "topology_name": "horse_ddos",
+    "attack": "DDoS_reverse",
+    "what": {
+        "KPIs": {
+          "element": {
+            "node": "ceos-1",
+            "interface": "eth6"
+          },
+          "metric": "packets-per-second",
+          "result": {
+            "value": "1.2",
+            "unit": "packets-per-second"
+          }
+        }
+    }
+}

@@ -17,4 +17,6 @@ class Recommender:
         Get mitigation actions based on intent type and threat.
         """
         return MITIGATION_DATA.get(intent_type, {}).get(threat, [])
+    
+
         

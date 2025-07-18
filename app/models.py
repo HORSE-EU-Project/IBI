@@ -19,21 +19,21 @@ class SecurityIntent(BaseModel):
     duration: int
 
 
-class QoSIntentType(str, Enum):
-    QOS_NTP = "qos_ntp"
-    QOS_DNS = "qos_dns"
-    QOS_PFCP = "qos_pfcp"
+# class QoSIntentType(str, Enum):
+#     QOS_NTP = "qos_ntp"
+#     QOS_DNS = "qos_dns"
+#     QOS_PFCP = "qos_pfcp"
 
 
-class QoSMetricName(str, Enum):
-    RELIABILITY = "reliability"
-    BANDWIDTH = "bandwidth"
-    LATENCY = "latency"
+# class QoSMetricName(str, Enum):
+#     RELIABILITY = "reliability"
+#     BANDWIDTH = "bandwidth"
+#     LATENCY = "latency"
 
 
-class QoSIntent(BaseModel):
-    intent_type: QoSIntentType
-    name: QoSMetricName
-    value: float
-    unit: str
-    host: list
+# class QoSIntent(BaseModel):
+#     intent_type: QoSIntentType
+#     name: QoSMetricName
+#     value: float
+#     unit: str
+#     host: list

@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from constants import Const
 from utils.log_config import setup_logging
-from routers import ping, intents
+from routers import ping, intents, iandt
 from db.elastic_search import ElasticSearchClient
 from pipeline import IntentPipeline
 
@@ -33,6 +33,7 @@ IBI API Server
 app = FastAPI(lifespan=lifespan)
 app.include_router(ping.router)
 app.include_router(intents.router)
+app.include_router(iandt.router)
 
 """
 Backround taks
@@ -40,6 +41,7 @@ Backround taks
 def process_intents():
     logger = setup_logging(__name__)
     pipeline = IntentPipeline()
+    sleep(10)
     while(True):
         # logger.info("hello world from intents loop")
         try:

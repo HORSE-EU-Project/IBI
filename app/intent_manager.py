@@ -69,33 +69,30 @@ class IntentManager:
 
     def get_all(self, status=None, intent_type=None):
         intents = []
-        if status is None:
-            query = {
-                "query": {
-                    "match_all": {}
-                }
+        # Ignore intent_type parameter for now, only filter by status
+        # Always fetch all intents first, then filter locally
+        query = {
+            "query": {
+                "match_all": {}
             }
-            logger.info(f"Retrieving all intents from the store")
-        else:
-            query = {
-                "query": {
-                    "term": {
-                        "status": status
-                    }
-                }
-            }
-            if intent_type is not None:
-                query['query']['bool']['must'].append({"term": {"intent_type": intent_type}})
-            logger.info(f"Retrieving intents with status '{status}' and type '{intent_type}' from the store")
+        }
+        logger.info(f"Retrieving all intents from the store for local filtering")
+
         try:
-            
             response = self._es_client.search(
-                    index=Const.INTENTS_INDEX,
-                    body=query
+                index=Const.INTENTS_INDEX,
+                body=query
             )
+            
             for hit in response['hits']['hits']:
                 intent = hit['_source']
+                # Apply local filtering
+                if status is not None and intent.get('status') != status:
+                    continue
+                if intent_type is not None and intent.get('intent_type') != intent_type:
+                    continue
                 intents.append(intent)
+            
             return intents
         except Exception as e:
             logger.error(f"Error querying Elasticsearch: {e}")
@@ -138,7 +135,7 @@ class IntentManager:
                     "must": [
                         {"term": {"intent_type": intent.intent_type}},
                         {"term": {"threat": intent.threat}},
-                        {"term": {"host": intent.host}}
+                        {"terms": {"host": intent.host}}
                     ],
                     "must_not": [
                         {"term": {"status": Const.INTENT_STATUS_MITIGATED}}
@@ -159,13 +156,14 @@ class IntentManager:
         """
         Check if an intent already exists in the Elasticsearch index.
         """
+        
         query = {
             "query": {
                 "bool": {
                     "must": [
                         {"term": {"intent_type": intent.intent_type}},
                         {"term": {"threat": intent.threat}},
-                        {"term": {"host": intent.host}}
+                        {"terms": {"host": intent.host}}
                     ],
                     "must_not": [
                         {"term": {"status": Const.INTENT_STATUS_MITIGATED}}
@@ -181,6 +179,8 @@ class IntentManager:
             )
             return response['hits']['total']['value'] > 0
         except Exception as e:
+            if e.status_code == 404:
+                return False
             logger.error(f"Error checking if intent exists: {e}")
             return False
     

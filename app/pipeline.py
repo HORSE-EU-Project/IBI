@@ -2,7 +2,7 @@ from constants import Const
 from intent_manager import IntentManager
 from db.elastic_search import ElasticSearchClient
 from utils.log_config import setup_logging
-from integrations.external import CKB
+from integrations.external import CKB, ImpactAnalysisDT
 from models import IntentType
 
 logger = setup_logging(__file__)
@@ -50,15 +50,23 @@ class IntentPipeline:
 
                     # Get prevention actions from recommender
 
+                    # Send to IA-Digital Twin
+                    iadt = ImpactAnalysisDT()
+                    iadt.send_to_iadt(intent.get("id"))
+                    self.intent_manager.update_status(
+                        intent.get("id"), 
+                        Const.INTENT_STATUS_NDT_SENT
+                    )
+
                     # Validate with CAS
 
                     # Send to RTR
 
                     # Set status of intent to "under mitigation"
-                    self.intent_manager.update_status(
-                        intent.get("id"), 
-                        Const.INTENT_STATUS_MITIGATED
-                    )
+                    # self.intent_manager.update_status(
+                    #     intent.get("id"), 
+                    #     Const.INTENT_STATUS_UNDER_MITIGATION
+                    # )
 
             
         except Exception as e:
