@@ -16,26 +16,34 @@ yml_file = os.path.join(files_directory, "config.yml")
 with open(yml_file) as f:
     parameters = yaml.safe_load(f)
 
-# TODO: Properly read the parameters from the config file
 
-# Expose the parameters as constants
-
-# Elasticsearch parameters
+"""
+Expose the Elasticsearch connection parameters
+"""
 ES_HOST = parameters["elasticsearch"]["ip"]
 ES_PORT = parameters["elasticsearch"]["port"]
 ES_URL = f"http://{ES_HOST}:{ES_PORT}"
 ES_CLEAN = parameters["elasticsearch"]["reset"]
 
 
-# Integration with the cKB
+"""
+Knowledge Base (CKB) connection parameters
+"""
 CKB_URL = parameters["ckb"]["url"]
 
-# Integration with the Digital Twin
+"""
+IADT (Impact analysis DT) connection parameters
+"""
 IADT_URL = parameters["iadt"]["url"]
 
-# Integration with Compliance Assessment
+"""
+CAS (Compliance Assessment) connection parameters
+"""
 CAS_URL = parameters["cas"]["url"]
 
+"""
+RTR Connection parameters
+"""
 # Integration with the RTR
 RTR_URL = parameters["rtr"]["url"]
 RTR_USER = parameters["rtr"]["username"]
