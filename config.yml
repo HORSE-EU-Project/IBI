@@ -22,8 +22,10 @@ rtr:
   email: 'user3@gmail.com'
 
 cas:
-  url: ''
-  # url: 'http://cas-api:8000'
+  # url: ''
+  url: 'http://10.19.2.15:8080'  # UPC
+  # url: 'http://cas-api:8000'  # CNIT
+  # url: 'http://cas-api:8000'   # UMU
 
 
 #   #API ENDPOINTS
