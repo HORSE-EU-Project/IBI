@@ -115,22 +115,7 @@ class RTR:
             "threat": intent.get("threat"),
             "attacked_host": intent.get("attacked_host"),
             "mitigation_host": intent.get("mitigation_host"),
-            "action": {
-                "name": "execute_test_1",
-                "fields": {
-                    "test_id": "1",
-                    "modules": [
-                        "Pre-processing",
-                        "DEME",
-                        "DTE",
-                        "IBI",
-                        "CKB",
-                        "RTR",
-                        "ePEM",
-                        "CAS",
-                    ],
-                },
-            },
+            "action": mitigation_action,
             "duration": intent.get("duration"),
             "intent_id": im._get_intent_id(intent),
         }
@@ -355,14 +340,12 @@ class ImpactAnalysisDT:
             except requests.exceptions.RequestException as e:
                 print(f"Error sending workflow to Impact Analysis Digital Twin: {e}")
 
-
     def update_intent_status(self, intent_id, status):
         """
         Update the status of an intent in the Impact Analysis Digital Twin.
         """
         intent_manager = IntentManager()
         intent_manager.update_status(intent_id, status)
-
 
     def log_received_answer(self, answer_dict):
         """
@@ -379,3 +362,106 @@ class ImpactAnalysisDT:
         self._logger.info(
             f"Received answer from Impact Analysis Digital Twin: {answer_dict}"
         )
+
+
+class CASClient:
+    """
+    Client for the Compliance Asssurance Service
+    """
+
+    _logger = setup_logging(__file__)
+
+    VALID = "valid"
+    INVALID = "invalid"
+    PARTIAL = "partial"
+
+    def __init__(self):
+        self.headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        self.cas_url = config.CAS_URL
+        if self.cas_url and self.cas_url != "":
+            self.enabled = True
+            self.cas_url = f"{self.cas_url}/api/external-data"
+        else:
+            self.enabled = False
+            self._logger.info(f"Integration to CKB is disabled.")
+
+    def _tune_mitigation_fields(self, mitigation_action):
+        """
+        Tune the fields of the mitigation action to match the expected format.
+        """
+        # Example tuning logic, adjust as needed
+        # if "percentage" in mitigation_action:
+        #     mitigation_action["fields"]["percentage"] = int(
+        #         mitigation_action["fields"]["percentage"]
+        #     )
+        return mitigation_action
+
+
+    def process_mitigation(self, intent, mitigations):
+        for mitigation in mitigations:
+            
+            result = self.validate(intent, mitigation)
+            
+            if result == self.VALID:
+                return mitigation
+            else:
+                if result == self.INVALID:
+                    self._logger.info(f"Mitigation {mitigation} is invalid, trying next mitigation")
+                    continue
+                elif result == self.PARTIAL:
+                    tuned_mitigation = self._tune_mitigation_fields(mitigation)
+                    return tuned_mitigation
+                    
+
+    def validate(self, intent, mitigation_action):
+        doc_body = {
+            "input": {
+                "command": "add",
+                "intent_type": intent.get("intent_type"),
+                "threat": intent.get("threat"),
+                "attacked_host": intent.get("host"),
+                "mitigation_host": "dns-s",
+                "action": {
+                    "name": "random",
+                    "intent_id": intent.get("id"),
+                    "fields": {"percentage": 50},
+                },
+                "duration": intent.get("duration"),
+                "intent_id": intent.get("id"),
+            }
+        }
+        if not self.enabled:
+            self._logger.warning(f"CAS is not enabled. Sending data to logging system.")
+            self._logger.info(f"Document body: {doc_body}")
+            return self.VALID
+        else:
+            try:
+                response = requests.post(
+                    f"{self.cas_url}",
+                    headers=self.headers,
+                    json=doc_body,
+                )
+                response.raise_for_status()
+                self._logger.debug(f"CAS document sent successfully: {response.status_code}")
+                # Check the answer from CAS
+                if response.status_code == 200:
+                    answer = response.json()
+                    if answer.get("allow") == "true":
+                        self._logger.info(f"CAS validation successful for intent ID: {intent_id}")
+                        return self.VALID
+                    elif answer.get("allow") == "false":
+                        if int(answer.get("pass_percentage")) == 0:
+                            return self.INVALID
+                        else:
+                            return self.PARTIAL
+                    else:
+                        self._logger.warning(f"CAS validation failed for intent ID: {intent_id}")
+                else:
+                    self._logger.error(f"CAS validation failed with status code: {response.status_code}")
+
+            except requests.exceptions.RequestException as e:
+                self._logger.error(f"Error sending document to CAS: {e}")
+            return self.VALID
