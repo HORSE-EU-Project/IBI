@@ -1,6 +1,7 @@
 from constants import Const
+from recommender import Recommender
 from intent_manager import IntentManager
-from db.elastic_search import ElasticSearchClient
+from integrations.external import CKB, CASClient, RTR
 from utils.log_config import setup_logging
 from integrations.external import CKB, ImpactAnalysisDT
 from models import IntentType
@@ -12,6 +13,10 @@ class IntentPipeline:
     def __init__(self):
         self.to_process = {}
         self.intent_manager = IntentManager()
+        self.recommender = Recommender()
+        self.rtr_client = RTR()
+        self.cas_client = CASClient()
+        self.ckb = CKB()
 
     def process_intents(self):
         # Get intents with status 'new'
@@ -25,14 +30,30 @@ class IntentPipeline:
                     logger.info(f"Processing intent ID: {intent.get('id')}, TYPE: {intent.get('intent_type')}")
                     # Set status of intent to "processing"
                     # Query cKB
-                    ckb = CKB()
-                    ckb.query_ckb(intent.get("threat"))
+                    self.ckb.query_ckb(intent.get("threat"))
 
                     # Get mitigation actions from recommender
+                    mitigations = self.recommender.get_mitigation(intent)
+
+                    if not mitigations:
+                        logger.warning(f"No mitigation found for intent ID: {intent.get('id')}")
+                        continue
 
                     # Validate with CAS
+                    final_mitigation = self.cas_client.process_mitigation(intent, mitigations)
+
+                    # Store associate mitigation to intent
+                    self.recommender.associate_mitigation(
+                        intent.get("id"), 
+                        final_mitigation  # Assuming we take the first mitigation action
+                    )
 
                     # Send to RTR
+                    rtr_workflow = self.rtr_client.create_workflow(
+                        intent.get("id"), 
+                        final_mitigation
+                    )
+                    self.rtr_client.send_workflow(rtr_workflow)
 
                     # Set status of intent to "under mitigation"
                     self.intent_manager.update_status(
@@ -40,6 +61,7 @@ class IntentPipeline:
                         Const.INTENT_STATUS_UNDER_MITIGATION
                     )
                 
+                # Processing prevention intents
                 if intent.get("intent_type") == IntentType.PREVENTION:
                     logger.info(f"Processing intent ID: {intent.get('id')}, TYPE: {intent.get('intent_type')}")
                     # Set status of intent to "processing"
