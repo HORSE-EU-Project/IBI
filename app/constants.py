@@ -26,6 +26,7 @@ class Const:
     # Elasticsearch indexes
     INTENTS_INDEX = "intents"
     MITIGATION_INDEX = "mitigations"
+    ASSOCIATIONS_INDEX = "associations"
 
     IADT_PPS_THRESHOLD = 2.0
 
