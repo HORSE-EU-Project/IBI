@@ -6,11 +6,13 @@ ADD https://astral.sh/uv/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 ENV PATH="/root/.local/bin/:$PATH"
 
-# Prepare the software
-ADD . /code
-
+ADD pyproject.toml /code/pyproject.toml
+ADD uv.lock /code/uv.lock
 WORKDIR /code
 RUN uv sync --locked
+
+
+ADD . /code
 
 ENV PATH="/code/.venv/bin:$PATH"
 
