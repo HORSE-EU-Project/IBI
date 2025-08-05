@@ -53,7 +53,8 @@ class ElasticSearchClient(metaclass=ESClientMeta):
         """
         _to_delete = {
             Const.INTENTS_INDEX, 
-            Const.MITIGATION_INDEX
+            Const.MITIGATION_INDEX,
+            Const.ASSOCIATIONS_INDEX
         }
 
         for index in _to_delete:
