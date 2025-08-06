@@ -14,10 +14,11 @@ from pipeline import IntentPipeline
 This code is executed when applications starts
 It bootstraps a loop that process the intents in background
 """
+
+logger = setup_logging(__name__)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize logging
-    setup_logging()
     # Initialize the loop that processes intents
     # Start threads
     t_intent = threading.Thread(target=process_intents, daemon=True)
@@ -39,7 +40,6 @@ app.include_router(iandt.router)
 Backround taks
 """
 def process_intents():
-    logger = setup_logging(__name__)
     pipeline = IntentPipeline()
     sleep(10)
     while(True):
