@@ -55,6 +55,9 @@ class RTR:
             )
             response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
             self._logger.info(f"RTR registration successful: {response.status_code}")
+        except requests.exceptions.MissingSchema as e:
+            self._logger.info(f"CKB integration is disabled. Sending query to logging system.")
+            self._logger.info(f"{ json.dumps(reg_data) }")  
         except requests.exceptions.ConnectionError as e:
             self._logger.error(
                 f"Error connecting to RTR service during registration: {e}"

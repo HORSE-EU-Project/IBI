@@ -18,6 +18,7 @@ class IntentPipeline:
         self._store = InMemoryStore()
 
     def process_intents(self):
+        pass
         # Get intents with status 'new'
         logger.info("Starting intent pipeline iteration")
         try:
