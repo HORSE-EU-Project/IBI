@@ -1,10 +1,9 @@
 from constants import Const
 from recommender import Recommender
-from intent_manager import IntentManager
-from integrations.external import CKB, CASClient, RTR
+from data.store import InMemoryStore
+from models.api_models import DTEIntentType
+from integrations.external import CKB, CASClient, RTR, ImpactAnalysisDT
 from utils.log_config import setup_logging
-from integrations.external import CKB, ImpactAnalysisDT
-from models import IntentType
 
 logger = setup_logging(__file__)
 
@@ -12,11 +11,11 @@ class IntentPipeline:
 
     def __init__(self):
         self.to_process = {}
-        self.intent_manager = IntentManager()
         self.recommender = Recommender()
         self.rtr_client = RTR()
         self.cas_client = CASClient()
         self.ckb = CKB()
+        self._store = InMemoryStore()
 
     def process_intents(self):
         # Get intents with status 'new'
@@ -26,7 +25,7 @@ class IntentPipeline:
             intents = self.intent_manager.get_all(status=Const.INTENT_STATUS_NEW)
             for intent in intents:
                 # Processing mitigation intents
-                if intent.get("intent_type") == IntentType.MITIGATION:
+                if intent.get("intent_type") == DTEIntentType.MITIGATION:
                     logger.info(f"Processing intent ID: {intent.get('id')}, TYPE: {intent.get('intent_type')}")
                     # Set status of intent to "processing"
                     # Query cKB
@@ -62,7 +61,7 @@ class IntentPipeline:
                     )
                 
                 # Processing prevention intents
-                if intent.get("intent_type") == IntentType.PREVENTION:
+                if intent.get("intent_type") == DTEIntentType.PREVENTION:
                     logger.info(f"Processing intent ID: {intent.get('id')}, TYPE: {intent.get('intent_type')}")
                     # Set status of intent to "processing"
                     # Query cKB

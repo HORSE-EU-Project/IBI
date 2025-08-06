@@ -1,35 +1,30 @@
 import logging
 from fastapi import APIRouter, Response
-from models import SecurityIntent
-from intent_manager import IntentManager
+from models.api_models import DTEIntent
+from controllers.dte_controller import DTEController
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-intent_manager = IntentManager()
-
-@router.get("/intents")
-async def get_intents():
-    return {"ping": "pong"}
-
+intent_manager = DTEController()
 
 @router.post("/intents", status_code=201)
-def post_intent(intent: SecurityIntent, response:Response):
-    logger.debug(f"Received intent: {intent}")
-    status = intent_manager.process_intent_request(intent)
-    if status == IntentManager.INTENT_CREATED:
-        logger.info(f"Intent {intent} created successfully")
-        response.status_code = 201 
-    elif status == IntentManager.INTENT_ALREADY_EXISTS:
-        logger.warning(f"Intent {intent} already exists")
+def post_intent(dte_intent: DTEIntent, response:Response):
+    logger.debug(f"Received intent: {dte_intent}")
+    status = intent_manager.process_dte_intent(dte_intent)
+    if status == DTEController.RETURN_STATUS_CREATED:
+        logger.info(f"Intent {dte_intent} created successfully")
+        response.status_code = 201
+    elif status == DTEController.RETURN_STATUS_UPDATED:
+        logger.warning(f"Intent {dte_intent} already exists. Updating threat state")
         response.status_code = 208
-        return intent
+        return dte_intent
     else:
-        logger.error(f"Failed to create intent {intent}")
+        logger.error(f"Failed to create intent {dte_intent}")
         response.status_code = 500
         return {"error": "Failed to create intent"}
 
 
 @router.put("/intents")
-def put_intent(intent: SecurityIntent):
-    logger.debug(f"Redirecting to post_intent for intent: {intent}")
-    post_intent(intent)
+def put_intent(dte_intent: DTEIntent):
+    logger.debug(f"Redirecting to post_intent for intent: {dte_intent}")
+    post_intent(dte_intent)

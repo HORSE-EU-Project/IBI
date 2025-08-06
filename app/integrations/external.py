@@ -9,7 +9,7 @@ import requests
 import json
 import config
 from utils.log_config import setup_logging
-from intent_manager import IntentManager
+from data.store import InMemoryStore
 
 
 class RTR:
@@ -107,20 +107,21 @@ class RTR:
             raise
 
     def create_workflow(self, intent, mitigation_action):
-        """Create a workflow for the RTR service."""
-        im = IntentManager()
-        workflow = {
-            "command": "add",
-            "intent_type": intent.get("intent_type"),
-            "threat": intent.get("threat"),
-            "attacked_host": intent.get("attacked_host"),
-            "mitigation_host": intent.get("mitigation_host"),
-            "action": mitigation_action,
-            "duration": intent.get("duration"),
-            "intent_id": im._get_intent_id(intent),
-        }
-        self._logger.debug(f"Workflow created: {workflow}")
-        return workflow
+        # """Create a workflow for the RTR service."""
+        # im = DTEController()
+        # workflow = {
+        #     "command": "add",
+        #     "intent_type": intent.get("intent_type"),
+        #     "threat": intent.get("threat"),
+        #     "attacked_host": intent.get("attacked_host"),
+        #     "mitigation_host": intent.get("mitigation_host"),
+        #     "action": mitigation_action,
+        #     "duration": intent.get("duration"),
+        #     "intent_id": im._get_intent_id(intent),
+        # }
+        # self._logger.debug(f"Workflow created: {workflow}")
+        # return workflow
+        pass
 
     def send_workflow(self, workflow):
         if not self.access_token:
@@ -223,6 +224,7 @@ class CKB:
 class ImpactAnalysisDT:
 
     _logger = setup_logging(__file__)
+    _store = InMemoryStore()
 
     _messages = {
         "block": {
@@ -344,8 +346,7 @@ class ImpactAnalysisDT:
         """
         Update the status of an intent in the Impact Analysis Digital Twin.
         """
-        intent_manager = IntentManager()
-        intent_manager.update_status(intent_id, status)
+        # TODO: update status from NDT
 
     def log_received_answer(self, answer_dict):
         """
@@ -417,6 +418,8 @@ class CASClient:
                     
 
     def validate(self, intent, mitigation_action):
+        # TODO: implement validation logic
+        return self.VALID
         doc_body = {
             "input": {
                 "command": "add",
