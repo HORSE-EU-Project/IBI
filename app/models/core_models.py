@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import uuid4
 
-from app.constants import Const
+from constants import Const
 from .api_models import DTEIntent
 from enum import Enum
 
@@ -60,35 +60,53 @@ class DetectedThreat:
 
     uid: str
     threat_type: str
-    host: List[str]
+    threat_name: str
+    hosts: List[str]
     start_time: Optional[int] = None
-    update_time: Optional[int] = None
     end_time: Optional[int] = None
+    last_update: Optional[int] = None
     status: ThreatStatus = ThreatStatus.NEW
     
     def __init__(self, dte_intent: DTEIntent):
         self.uid = str(uuid4())
         self.threat_type = dte_intent.intent_type
-        for h in dte_intent.host:
-            if h not in self.host:
-                self.host.append(h)
+        self.threat_name = dte_intent.threat
+        self.hosts = dte_intent.host
         self.start_time = int(datetime.now().timestamp())
-        self.update_time = self.start_time
         self.end_time = self.start_time + Const.THREAT_TIMEOUT
+        self.last_update = self.start_time
 
-        
 
-    def __repr__(self):
-        return f"DetectedThreat(type={self.threat_type}, host={self.host}, timestamp={self.timestamp})"
+    def renew(self) -> None:
+        """
+        Renew the detected threat's timeout.
+        """
+        if self.status == self.ThreatStatus.MITIGATED:
+            return
+        self.last_update = int(datetime.now().timestamp())
+        self.status = self.ThreatStatus.REINCIDENT
+
+
+    def update_status(self, new_status: ThreatStatus):
+        """
+        Update the status of the detected threat.
+        """
+        self.status = new_status
+        self.last_update = int(datetime.now().timestamp())
+
+
+    def get_status(self) -> ThreatStatus:
+        """
+        Get the current status of the detected threat.
+        """
+        return self.status
     
 
-class SystemState:
-    """
-    Represents the system state regarding threads.
-    This is a placeholder for future implementation.
-    """
-    def __init__(self):
-        self.state = {}
+    def is_expired(self) -> bool:
+        """
+        Check if the detected threat has expired.
+        """
+        return datetime.now().timestamp() > self.last_update + Const.THREAT_TIMEOUT
 
-    def update_state(self, key: str, value: str):
-        self.state[key] = value
+    def __repr__(self):
+        return f"DetectedThreat(type={self.threat_type}, host={self.hosts}, timestamp={self.timestamp})"

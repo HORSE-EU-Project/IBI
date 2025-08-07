@@ -1,6 +1,6 @@
 from data.store import InMemoryStore
 from models.api_models import DTEIntent
-from models.core_models import CoreIntent
+from models.core_models import CoreIntent, DetectedThreat
 from utils.log_config import setup_logging
 
 logger = setup_logging(__name__)
@@ -21,6 +21,20 @@ class DTEController:
         """
         logger.info(f"Processing intent request from DTE: {dte_intent}")
 
+        # Infere system state from the request
+        # It a simlar threat exists, renew it, otherwise create a new one
+        newThreat = DetectedThreat(dte_intent)
+        existing_threat_uid = self._storage.threat_locate(newThreat)
+        if existing_threat_uid:
+            logger.info(f"Threat {existing_threat_uid} already exists.")
+            updated_threat = self._storage.threat_get(existing_threat_uid)
+            updated_threat.renew()
+            self._storage.threat_update(existing_threat_uid, updated_threat)
+            logger.info(f"Threat {existing_threat_uid} updated successfully.")
+        else:
+            self._storage.threat_add(newThreat)
+            logger.info(f"New threat detected: {newThreat.uid}")
+
         # Convert to a CoreIntent
         new_core_intent = CoreIntent(dte_intent)
 
@@ -33,7 +47,3 @@ class DTEController:
         self._storage.intent_add(new_core_intent)
         logger.info(f"Intent {new_core_intent.get_uid()} created successfully.")
         return self.RETURN_STATUS_CREATED
-        
-        # System state regarding threads must be always updated
-        # TODO: update system state
-        
