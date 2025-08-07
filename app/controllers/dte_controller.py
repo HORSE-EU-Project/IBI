@@ -34,3 +34,6 @@ class DTEController:
         logger.info(f"Intent {new_core_intent.get_uid()} created successfully.")
         return self.RETURN_STATUS_CREATED
         
+        # System state regarding threads must be always updated
+        # TODO: update system state
+        

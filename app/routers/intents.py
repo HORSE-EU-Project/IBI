@@ -17,9 +17,9 @@ def post_intent(dte_intent: DTEIntent, response:Response):
         response.status_code = 201
         return {"created": dte_intent}
     elif status == DTEController.RETURN_STATUS_UPDATED:
-        logger.warning(f"Intent {dte_intent} already exists. Updating threat state")
+        logger.info(f"Intent or system state updated successfully")
         response.status_code = 208
-        return {"info": "Intent updated"}
+        return {"info": "Intent or system state updated"}
     else:
         logger.error(f"Failed to create intent {dte_intent}")
         response.status_code = 500

@@ -22,6 +22,7 @@ class Const:
 
     # Intent processing loop
     THREAD_INTENT_WAIT = 5.0
+    THREAT_TIMEOUT = 2.0 * 60.0  # 2 minutes
 
     # Elasticsearch indexes
     INTENTS_INDEX = "intents"
