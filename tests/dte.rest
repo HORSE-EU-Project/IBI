@@ -1,10 +1,123 @@
-###
+### Demo 0
 POST http://127.0.0.1:8000/intents HTTP/1.1
 content-type: application/json
 
 {
     "intent_type": "mitigation",
     "threat": "hello_world",
-    "host": [""],
+    "host": [],
     "duration": 5
+}
+
+### Demo 0
+
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "mitigation",
+    "threat": "hello_world",
+    "host": ["192.168.0.1", "192.168.0.2"],
+    "duration": 5
+}
+
+### Demo 0
+
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "prevention",
+    "threat": "helloworld",
+    "host": [""],
+    "duration": 600
+}
+
+#### Demo 1
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "mitigation",
+    "threat": "ntp_ddos",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 2
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "prevention",
+    "threat": "dns_ddos",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+
+### Demo 3
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "prevention",
+    "threat": "ddos_download",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 5
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "mitigation",
+    "threat": "dns_ddos",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 6
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "detection",
+    "threat": "pfcp",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 7
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "mitigation",
+    "threat": "nef",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 8
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "detection",
+    "threat": "pfcp",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 9
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "mitigation",
+    "threat": "dns_ddos",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
 }

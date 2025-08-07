@@ -10,6 +10,7 @@ Intent related models
 class DTEIntentType(str, Enum):
     MITIGATION = "mitigation"
     PREVENTION = "prevention"
+    DETECTION = "detection"
 
 
 class DTEIntent(BaseModel):
