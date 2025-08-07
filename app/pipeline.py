@@ -10,17 +10,24 @@ logger = setup_logging(__file__)
 class IntentPipeline:
 
     def __init__(self):
-        self.to_process = {}
+        self._store = InMemoryStore()
         self.recommender = Recommender()
         self.rtr_client = RTR()
         self.cas_client = CASClient()
         self.ckb = CKB()
-        self._store = InMemoryStore()
 
     def process_intents(self):
-        pass
         # Get intents with status 'new'
         logger.info("Starting intent pipeline iteration")
+        ### List all intents from the store
+        logger.debug("Listing all intents from the store")
+        intents = self._store.intent_get_all()
+        logger.debug(intents)
+        ### List all the threats from the store
+        logger.debug("Listing all threats from the store")
+        threats = self._store.threat_get_all()
+        logger.debug(threats)
+        return
         try:
             logger.info("Checking new intents")
             intents = self.intent_manager.get_all(status=Const.INTENT_STATUS_NEW)

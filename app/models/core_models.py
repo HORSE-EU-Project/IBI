@@ -35,7 +35,7 @@ class CoreIntent:
         self.duration = dte_intent.duration
         self.start_time = int(datetime.now().timestamp())
         self.end_time = self.start_time + self.duration
-        self.expectations = []
+        # Initialize expectations
 
     def get_uid(self) -> str:
         return self.uid
@@ -45,6 +45,9 @@ class CoreIntent:
         Check if the intent has timed out.
         """
         return datetime.now().timestamp() > self.end_time
+    
+    def __repr__(self):
+        return f"CoreIntent(uid={self.uid}, intent_type={self.intent_type}, threat={self.threat}, host={self.host}, duration={self.duration}, start_time={self.start_time}, end_time={self.end_time}, expectations={self.expectations}, satisfied={self.satisfied})"
     
 
 class DetectedThreat:
@@ -109,4 +112,4 @@ class DetectedThreat:
         return datetime.now().timestamp() > self.last_update + Const.THREAT_TIMEOUT
 
     def __repr__(self):
-        return f"DetectedThreat(type={self.threat_type}, host={self.hosts}, timestamp={self.timestamp})"
+        return f"DetectedThreat(uid={self.uid}, threat_type={self.threat_type}, threat_name={self.threat_name}, hosts={self.hosts}, start_time={self.start_time}, end_time={self.end_time}, last_update={self.last_update}, status={self.status})"
