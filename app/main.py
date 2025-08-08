@@ -4,9 +4,10 @@ import config
 from time import sleep
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from constants import Const
 from utils.log_config import setup_logging
-from routers import ping, intents, iandt
+from routers import ping, intents, iandt, gui
 from db.elastic_search import ElasticSearchClient
 from pipeline import IntentPipeline
 
@@ -32,9 +33,13 @@ async def lifespan(app: FastAPI):
 IBI API Server
 """
 app = FastAPI(lifespan=lifespan)
+app.include_router(gui.router, prefix="")
 app.include_router(ping.router)
 app.include_router(intents.router)
 app.include_router(iandt.router)
+
+# Register static files
+app.mount("/static", StaticFiles(directory="app/gui/static"), name="static")
 
 """
 Backround taks
