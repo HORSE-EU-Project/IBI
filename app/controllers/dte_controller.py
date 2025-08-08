@@ -13,6 +13,14 @@ class DTEController:
     def __init__(self):
         self._storage = InMemoryStore()
 
+    def get_all_intents(self):
+        """
+        Get all intents from the storage.
+        """
+        logger.debug("Fetching all intents from storage")
+        return self._storage.intent_get_all()
+
+
     def process_dte_intent(self, dte_intent: DTEIntent):
         """
         Process an intent request.
