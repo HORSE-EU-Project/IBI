@@ -46,9 +46,9 @@ class InMemoryStore:
             self._logger.info(f"Intent removed: {key}")
             return self._core_intents.pop(key, None) is not None
 
-    def intent_get_all(self) -> Dict[str, CoreIntent]:
+    def intent_get_all(self) -> List[CoreIntent]:
         with self._data_lock:
-            return self._core_intents.copy()
+            return [intent for intent in self._core_intents.values()]
 
     def intent_clear_all(self) -> None:
         with self._data_lock:
@@ -115,4 +115,17 @@ class InMemoryStore:
                 ):
                     return threat.uid
             return None
-
+        
+    def expire_old_threats(self) -> None:
+        with self._data_lock:
+            for threat in list(self._threats.values()):
+                if threat.is_expired():
+                    t_new = DetectedThreat(
+                        threat.uid,
+                        threat.threat_type,
+                        threat.threat_name,
+                        threat.hosts,
+                        DetectedThreat.ThreatStatus.MITIGATED,
+                    )
+                    self._threats[threat.uid] = t_new
+                    self._logger.info(f"Threat expired: {threat.uid}")

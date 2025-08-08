@@ -1,0 +1,6 @@
+### List all intents
+GET http://127.0.0.1:8000/intents HTTP/1.1
+
+
+### List all threats
+GET http://127.0.0.1:8000/threats HTTP/1.1
