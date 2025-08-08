@@ -53,6 +53,10 @@ class ExternalService:
             self.enabled = False
             self._logger.info("Service disabled, logging only")
 ```
+### DTE pipeline
+- The DTE can only handle one request at a time (only one "in-flight" request to simulate on the digital twin).
+- The workflow to simulate an action on the digital twin always include a monitor request followed by the action request
+- To be able to judge whether the action produced the desired effect, this system must compare the measurememnts from the monitor request with the measurements from the action request.
 
 ### Data Storage
 - **Primary**: `InMemoryStore` singleton with thread-safe operations
