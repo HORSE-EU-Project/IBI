@@ -24,7 +24,7 @@ class RTR:
     def __init__(self, config_path="config.yml"):
         if self._initialized:
             return
-        self._logger = setup_logging(__file__)
+        self._logger = setup_logging(__name__)
         self.rtr_url = config.RTR_URL
         self.rtr_username = config.RTR_USER
         self.rtr_password = config.RTR_PASSWORD
@@ -165,7 +165,7 @@ class RTR:
 
 class CKB:
 
-    _logger = setup_logging(__file__)
+    _logger = setup_logging(__name__)
 
     def __init__(self):
         self.ckb_url = config.CKB_URL
@@ -226,7 +226,7 @@ class CKB:
 
 class ImpactAnalysisDT:
 
-    _logger = setup_logging(__file__)
+    _logger = setup_logging(__name__)
     _store = InMemoryStore()
 
     _messages = {
@@ -373,7 +373,7 @@ class CASClient:
     Client for the Compliance Asssurance Service
     """
 
-    _logger = setup_logging(__file__)
+    _logger = setup_logging(__name__)
 
     VALID = "valid"
     INVALID = "invalid"

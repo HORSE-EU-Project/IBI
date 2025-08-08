@@ -115,7 +115,7 @@ Use `tests/dte.rest` for HTTP requests. Key endpoints:
 ### Logging
 ```python
 from utils.log_config import setup_logging
-logger = setup_logging(__file__)
+logger = setup_logging(__name__)
 ```
 
 ### Error Handling

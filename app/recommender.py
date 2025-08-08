@@ -4,7 +4,7 @@ from utils.log_config import setup_logging
 from data.mitigations import MITIGATION_DATA
 from db.elastic_search import ElasticSearchClient
 
-logger = setup_logging(__file__)
+logger = setup_logging(__name__)
 
 class Recommender:
 

@@ -8,8 +8,8 @@ from fastapi.staticfiles import StaticFiles
 from constants import Const
 from utils.log_config import setup_logging
 from routers import ping, intents, iandt, gui
-from db.elastic_search import ElasticSearchClient
 from pipeline import IntentPipeline
+from controllers.mitigations_controller import MitigationsController
 
 """
 This code is executed when applications starts
@@ -57,19 +57,11 @@ def process_intents():
         sleep(Const.THREAD_INTENT_WAIT)
     
 
-def clean_database():
-    """
-    Flush data in Elasticsearch
-    """
-    es_client = ElasticSearchClient()
-    es_client.delete_indices()
-
 def populate_database():
     """
-    Populate data in Elasticsearch
+    Populate data in Mitigation actions
     """
-    es_client = ElasticSearchClient()
-    es_client.pupulate_mitigations()
+    MitigationsController.populate_mitigation_actions()
 
 """
 Main entry point
@@ -77,7 +69,6 @@ Main entry point
 if __name__ == "__main__":
     # Flush data in Elasticsearch
     if config.ES_CLEAN:
-        clean_database()
         # Populate data in Elasticsearch
         populate_database()
     uvicorn.run(app, host=Const.APP_HOST, port=Const.APP_PORT)

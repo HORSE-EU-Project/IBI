@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from utils.log_config import setup_logging
 
-logger = setup_logging(__file__)
+logger = setup_logging(__name__)
 
 router = APIRouter()
 

@@ -7,7 +7,7 @@ from integrations.external import ImpactAnalysisDT
 from constants import Const
 
 # Configure logging
-logger = setup_logging(__file__)
+logger = setup_logging(__name__)
 
 router = APIRouter()
 

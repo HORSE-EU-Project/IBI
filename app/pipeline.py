@@ -5,7 +5,7 @@ from models.api_models import DTEIntentType
 from integrations.external import CKB, CASClient, RTR, ImpactAnalysisDT
 from utils.log_config import setup_logging
 
-logger = setup_logging(__file__)
+logger = setup_logging("app.pipeline")
 
 class IntentPipeline:
 

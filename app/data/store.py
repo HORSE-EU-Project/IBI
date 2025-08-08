@@ -1,5 +1,5 @@
 from utils.log_config import setup_logging
-from models.core_models import CoreIntent, DetectedThreat
+from models.core_models import CoreIntent, DetectedThreat, MitigationAction
 import threading
 from typing import Dict, List, Any, Optional
 
@@ -21,6 +21,7 @@ class InMemoryStore:
             self._data_lock = threading.RLock()
             self._core_intents: Dict[str, CoreIntent] = {}
             self._threats: Dict[str, DetectedThreat] = {}
+            self._available_actions: Dict[str, MitigationAction] = {}
             self._logger = setup_logging(__name__)
             self._initialized = True
 
@@ -120,12 +121,21 @@ class InMemoryStore:
         with self._data_lock:
             for threat in list(self._threats.values()):
                 if threat.is_expired():
-                    t_new = DetectedThreat(
-                        threat.uid,
-                        threat.threat_type,
-                        threat.threat_name,
-                        threat.hosts,
-                        DetectedThreat.ThreatStatus.MITIGATED,
-                    )
-                    self._threats[threat.uid] = t_new
+                    threat.status = DetectedThreat.ThreatStatus.MITIGATED
                     self._logger.info(f"Threat expired: {threat.uid}")
+
+    # Available Mitigation actions
+    def mitigation_add(self, action: MitigationAction) -> None:
+        with self._data_lock:
+            self._available_actions[action.uid] = action
+            self._logger.info(f"Mitigation action added: {action.uid}")
+
+
+    def mitigation_get(self, key: str) -> Optional[MitigationAction]:
+        with self._data_lock:
+            return self._available_actions.get(key)
+
+
+    def mitigation_get_all(self) -> Dict[str, MitigationAction]:
+        with self._data_lock:
+            return self._available_actions.copy()

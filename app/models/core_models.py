@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from uuid import uuid4
 
 from constants import Const
@@ -36,6 +36,7 @@ class CoreIntent:
         self.start_time = int(datetime.now().timestamp())
         self.end_time = self.start_time + self.duration
         # Initialize expectations
+        self.expectations = []
 
     def get_uid(self) -> str:
         return self.uid
@@ -113,3 +114,46 @@ class DetectedThreat:
 
     def __repr__(self):
         return f"DetectedThreat(uid={self.uid}, threat_type={self.threat_type}, threat_name={self.threat_name}, hosts={self.hosts}, start_time={self.start_time}, end_time={self.end_time}, last_update={self.last_update}, status={self.status})"
+
+
+class MitigationAction:
+    """
+    Represents a mitigation action that can be applied to handle threats.
+    """
+
+    class MitigationCategory(str, Enum):
+        MITIGATION = "mitigation"
+        PREVENTION = "prevention"
+        DETECTION = "detection"
+
+    uid: str
+    name: str
+    category: MitigationCategory
+    threats: List[str]  # e.g., "dns_ddos", "ntp_ddos", etc.
+    fields: List[str]
+    priority: int = 0  # Lower number = higher priority
+    enabled: bool = True
+
+    def __init__(self, name, category, threats, fields):
+        self.uid = str(uuid4())
+        self.name = name
+        self.category = MitigationAction.MitigationCategory(category)
+        self.threats = threats
+        self.fields = fields
+        self.priority = 0
+        self.enabled = True
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization"""
+        return {
+            "uid": self.uid,
+            "name": self.name,
+            "category": self.category.value,
+            "threats": self.threats,
+            "fields": self.fields,
+            "priority": self.priority,
+            "enabled": self.enabled
+        }
+
+    def __repr__(self):
+        return f"MitigationAction(uid={self.uid}, threat={self.threats}, name={self.name})"
