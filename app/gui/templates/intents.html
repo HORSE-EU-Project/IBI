@@ -1,0 +1,259 @@
+<!-- Intents Table Template (loaded via AJAX) -->
+<div class="intents-table-wrapper">
+    <div class="table-controls">
+        <div class="grid-x grid-padding-x align-middle">
+            <div class="large-6 cell">
+                <div class="input-group">
+                    <span class="input-group-label">
+                        <i class="fas fa-filter"></i>
+                    </span>
+                    <select class="input-group-field" id="intent-type-filter">
+                        <option value="">All Types</option>
+                        <option value="mitigation">Mitigation</option>
+                        <option value="prevention">Prevention</option>
+                        <option value="detection">Detection</option>
+                    </select>
+                </div>
+            </div>
+            <div class="large-6 cell text-right">
+                <div class="button-group">
+                    <button class="button secondary small" onclick="exportIntentsData()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="button primary small" onclick="createNewIntent()">
+                        <i class="fas fa-plus"></i> New Intent
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="dashboard-table responsive-table" id="intents-table">
+        <thead>
+            <tr>
+                <th class="sortable" data-sort="uid">
+                    <span>Intent ID</span>
+                    <i class="fas fa-sort"></i>
+                </th>
+                <th class="sortable" data-sort="intent_type">
+                    <span>Type</span>
+                    <i class="fas fa-sort"></i>
+                </th>
+                <th class="sortable" data-sort="threat">
+                    <span>Threat</span>
+                    <i class="fas fa-sort"></i>
+                </th>
+                <th>Affected Hosts</th>
+                <th class="sortable" data-sort="status">
+                    <span>Status</span>
+                    <i class="fas fa-sort"></i>
+                </th>
+                <th class="sortable" data-sort="start_time">
+                    <span>Created</span>
+                    <i class="fas fa-sort"></i>
+                </th>
+                <th class="sortable" data-sort="duration">
+                    <span>Duration</span>
+                    <i class="fas fa-sort"></i>
+                </th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="intents-tbody">
+            <!-- Content loaded via JavaScript -->
+            <tr class="loading-row">
+                <td colspan="8" class="text-center">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Loading intents...</span>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="table-pagination">
+        <nav aria-label="Pagination">
+            <ul class="pagination text-center" id="intents-pagination">
+                <!-- Pagination loaded via JavaScript -->
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Intent Details Modal -->
+<div class="reveal large" id="intent-details-modal" data-reveal>
+    <h4>Intent Details</h4>
+    <div id="intent-details-content">
+        <!-- Content loaded dynamically -->
+    </div>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<!-- Create Intent Modal -->
+<div class="reveal" id="create-intent-modal" data-reveal>
+    <h4>Create New Intent</h4>
+    <form id="create-intent-form">
+        <div class="grid-x grid-padding-x">
+            <div class="large-6 cell">
+                <label>Intent Type
+                    <select id="new-intent-type" required>
+                        <option value="">Select Type</option>
+                        <option value="mitigation">Mitigation</option>
+                        <option value="prevention">Prevention</option>
+                        <option value="detection">Detection</option>
+                    </select>
+                </label>
+            </div>
+            <div class="large-6 cell">
+                <label>Threat Type
+                    <select id="new-threat-type" required>
+                        <option value="">Select Threat</option>
+                        <option value="ddos_dns">DDoS DNS</option>
+                        <option value="ddos_ntp">DDoS NTP</option>
+                        <option value="ddos_pfcp">DDoS PFCP</option>
+                        <option value="dos_sig">DoS Signaling</option>
+                        <option value="api_vul">API Vulnerability</option>
+                    </select>
+                </label>
+            </div>
+            <div class="large-12 cell">
+                <label>Affected Hosts
+                    <textarea id="new-hosts" placeholder="Enter host IPs or hostnames, one per line" rows="3" required></textarea>
+                    <p class="help-text">Enter one host per line (e.g., 192.168.1.10, dns-server-1)</p>
+                </label>
+            </div>
+            <div class="large-6 cell">
+                <label>Duration (seconds)
+                    <input type="number" id="new-duration" value="600" min="1" required>
+                </label>
+            </div>
+        </div>
+        <div class="button-group">
+            <button type="submit" class="button primary">Create Intent</button>
+            <button type="button" class="button secondary" data-close>Cancel</button>
+        </div>
+    </form>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<style>
+.intents-table-wrapper {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.table-controls {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.dashboard-table th {
+    background-color: #f8f9fa;
+    padding: 12px 8px;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.dashboard-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.dashboard-table th.sortable:hover {
+    background-color: #e9ecef;
+}
+
+.dashboard-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+.dashboard-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.new { background-color: #17a2b8; color: white; }
+.status-badge.processing { background-color: #ffc107; color: #212529; }
+.status-badge.under-mitigation { background-color: #fd7e14; color: white; }
+.status-badge.mitigated { background-color: #28a745; color: white; }
+.status-badge.failed { background-color: #dc3545; color: white; }
+
+.intent-type-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.intent-type-badge.mitigation { background-color: #dc3545; color: white; }
+.intent-type-badge.prevention { background-color: #007bff; color: white; }
+.intent-type-badge.detection { background-color: #6f42c1; color: white; }
+
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.table-pagination {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e6e6e6;
+}
+
+.host-list {
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+.timestamp {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.action-buttons .button {
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+@media screen and (max-width: 640px) {
+    .dashboard-table {
+        font-size: 0.875rem;
+    }
+    
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 8px 4px;
+    }
+}
+</style>
