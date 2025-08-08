@@ -17,6 +17,10 @@ class IntentPipeline:
         self.ckb = CKB()
 
     def process_intents(self):
+
+        # Expire threats according to their timeout
+        self._store.expire_old_threats()
+
         # Get intents with status 'new'
         logger.info("Starting intent pipeline iteration")
         ### List all intents from the store
