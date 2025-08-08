@@ -9,7 +9,11 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/app/main.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/.venv/bin"
+            },
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
