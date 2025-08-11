@@ -8,7 +8,7 @@ logger = setup_logging(__name__)
 
 router = APIRouter()
 
-templates = Jinja2Templates(directory="app/gui/templates")
+templates = Jinja2Templates(directory="app/dashboard/templates")
 
 @router.get("/")
 def get_index(request: Request):

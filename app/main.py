@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from constants import Const
 from utils.log_config import setup_logging
-from routers import ping, intents, iandt, gui
+from routers import ping, intents, iandt, dashboard
 from pipeline import IntentPipeline
 from controllers.mitigations_controller import MitigationsController
 
@@ -33,13 +33,13 @@ async def lifespan(app: FastAPI):
 IBI API Server
 """
 app = FastAPI(lifespan=lifespan)
-app.include_router(gui.router, prefix="")
+app.include_router(dashboard.router, prefix="")
 app.include_router(ping.router)
 app.include_router(intents.router)
 app.include_router(iandt.router)
 
 # Register static files
-app.mount("/static", StaticFiles(directory="app/gui/static"), name="static")
+app.mount("/static", StaticFiles(directory="app/dashboard/static"), name="static")
 
 """
 Backround taks
