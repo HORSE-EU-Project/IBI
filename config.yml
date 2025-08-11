@@ -23,7 +23,7 @@ rtr:
 cas:
   url: ''
 syslog:
-  url: 'http://localhost:514'  # Default local syslog server
+  ip: '127.0.0.1'  # Default local syslog server
 
 
 ########################################

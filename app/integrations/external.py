@@ -13,7 +13,6 @@ from logging.handlers import SysLogHandler
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
 
-
 class RTR:
     _instance = None
 
@@ -485,10 +484,10 @@ class ExternalSyslog:
     _remote_logger = None
 
     def __init__(self):
-        self.syslog_url = config.SYSLOG_URL
-        if self.syslog_url and self.syslog_url != "":
+        self.syslog_addr = config.SYSLOG_IP
+        if self.syslog_addr and self.syslog_addr != "":
             self.enabled = True
-            self._syslog_remote = SysLogHandler(address=(self.syslog_url, 514))
+            self._syslog_remote = SysLogHandler(address=(self.syslog_addr, config.SYSLOG_PORT))
             self._remote_logger = logging.getLogger("remote_logger")
             self._remote_logger.setLevel(logging.INFO)
             self._remote_logger.addHandler(self._syslog_remote)

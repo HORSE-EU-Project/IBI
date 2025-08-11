@@ -2,7 +2,7 @@ from constants import Const
 from recommender import Recommender
 from data.store import InMemoryStore
 from models.api_models import DTEIntentType
-from integrations.external import CKB, CASClient, RTR, ImpactAnalysisDT
+from integrations.external import CKB, CASClient, RTR, ImpactAnalysisDT, ExternalSyslog
 from utils.log_config import setup_logging
 
 logger = setup_logging("app.pipeline")
@@ -15,6 +15,7 @@ class IntentPipeline:
         self.rtr_client = RTR()
         self.cas_client = CASClient()
         self.ckb = CKB()
+        self.external_syslog = ExternalSyslog()
 
     def process_intents(self):
 
@@ -28,6 +29,7 @@ class IntentPipeline:
         intents = self._store.intent_get_all()
         logger.debug(intents)
         ### List all the threats from the store
+        self.external_syslog.send_log("Listing all threats from the store")
         logger.debug("Listing all threats from the store")
         threats = self._store.threat_get_all()
         logger.debug(threats)
