@@ -51,6 +51,10 @@ RTR_PASSWORD = parameters["rtr"]["password"]
 RTR_EMAIL = parameters["rtr"]["email"]
 
 
+"""
+External Syslog server (SIAM Integration)
+"""
+SYSLOG_URL = parameters["syslog"]["url"]
 
 # whatif_receive_url = "http://" + host + ":" + port + parameters["to_receive_whatif"]
 # whatif_send_url = parameters["san_api_url"]
