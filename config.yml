@@ -22,6 +22,8 @@ rtr:
   email: 'user3@horse-6g.eu'
 cas:
   url: ''
+syslog:
+  url: 'http://localhost:514'  # Default local syslog server
 
 
 ########################################
