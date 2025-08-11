@@ -41,7 +41,9 @@ def setup_logging(current_file=None):
     if not logger.handlers:
         # Define log format
         formatter = CustomFormatter(
-            '%(name)s - %(levelname)s - %(asctime)s - %(message)s'
+            # '%(name)s - %(levelname)s - %(asctime)s - %(message)s'
+            # '%(levelname)s: \t %(name)s - %(asctime)s - %(message)s'
+            '%(levelname)s: \t  %(name)s - %(message)s'
         )
         # Log to console
         console_handler = logging.StreamHandler()
