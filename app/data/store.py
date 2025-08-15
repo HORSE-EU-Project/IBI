@@ -68,11 +68,11 @@ class InMemoryStore:
             return False
 
     # Threat management methods
-
     def threat_add(self, threat: DetectedThreat) -> None:
         with self._data_lock:
             self._threats[threat.uid] = threat
             self._logger.info(f"Threat added: {threat.uid}")
+
 
     def threat_get(self, key: str) -> Optional[DetectedThreat]:
         with self._data_lock:
@@ -86,19 +86,22 @@ class InMemoryStore:
                 return True
             return False
 
+
     def threat_remove(self, key: str) -> bool:
         with self._data_lock:
             self._logger.info(f"Threat removed: {key}")
             return self._threats.pop(key, None) is not None
 
-    def threat_get_all(self) -> Dict[str, DetectedThreat]:
+    def threat_get_all(self) -> List[DetectedThreat]:
         with self._data_lock:
-            return self._threats.copy()
+            return [threat for threat in self._threats.values()]
+
 
     def threat_clear_all(self) -> None:
         with self._data_lock:
             self._threats.clear()
     
+
     def threat_locate(self, another_threat: DetectedThreat) -> Optional[str]:
         with self._data_lock:
             for threat in self._threats.values():
@@ -117,12 +120,14 @@ class InMemoryStore:
                     return threat.uid
             return None
         
+
     def expire_old_threats(self) -> None:
         with self._data_lock:
             for threat in list(self._threats.values()):
                 if threat.is_expired():
                     threat.status = DetectedThreat.ThreatStatus.MITIGATED
                     self._logger.info(f"Threat expired: {threat.uid}")
+
 
     # Available Mitigation actions
     def mitigation_add(self, action: MitigationAction) -> None:
@@ -136,6 +141,6 @@ class InMemoryStore:
             return self._available_actions.get(key)
 
 
-    def mitigation_get_all(self) -> Dict[str, MitigationAction]:
+    def mitigation_get_all(self) -> List[MitigationAction]:
         with self._data_lock:
-            return self._available_actions.copy()
+            return [action for action in self._available_actions.values()]

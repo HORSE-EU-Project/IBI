@@ -1,7 +1,7 @@
+import json
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from uuid import uuid4
-
 from constants import Const
 from .api_models import DTEIntent
 from enum import Enum
@@ -156,4 +156,4 @@ class MitigationAction:
         }
 
     def __repr__(self):
-        return f"MitigationAction(uid={self.uid}, threat={self.threats}, name={self.name})"
+        return json.dumps(self.to_dict(), indent=4)

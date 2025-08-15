@@ -1,8 +1,8 @@
 from constants import Const
 import datetime
+from typing import List
 from utils.log_config import setup_logging
-from data.mitigations import MITIGATION_DATA
-from db.elastic_search import ElasticSearchClient
+from data.store import InMemoryStore
 
 logger = setup_logging(__name__)
 
@@ -12,16 +12,16 @@ class Recommender:
         """
         Initialize the Recommender class.
         """
-        self._es_client = ElasticSearchClient().get_client()
+        self._store = InMemoryStore()
 
-    def get_mitigation(self, intent):
+    def get_mitigations(self, intent_type: str, threat: str, k: int) -> List[str]:
         """
         Get mitigation actions based on intent type and threat.
-        @param intent: The intent object containing type and threat.
+        @param intent_type: The type of intent (e.g., MITIGATION, DETECTION, PREVENTION).
+        @param threat: The name of the threat.
+        @param k: The number of top mitigations to return.
         @return: List of mitigation actions.
         """
-        intent_type = intent.get("intent_type")
-        threat = intent.get("threat")
         possible_mitigations = MITIGATION_DATA.get(intent_type, {}).get(threat, [])
         # Get already associated mitigations for this intent
         associated_mitigations = self.get_associated_mitigations(intent.get("id"))

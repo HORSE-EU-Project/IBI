@@ -62,6 +62,9 @@ def populate_database():
     Populate data in Mitigation actions
     """
     MitigationsController.populate_mitigation_actions()
+    MitigationsController.dump_mitigation_actions()
+    
+
 
 """
 Main entry point

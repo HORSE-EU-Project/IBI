@@ -45,3 +45,14 @@ class MitigationsController:
             store.mitigation_add(mitigation)
         
         logger.info(f"Populated {len(mitigations)} mitigation actions")
+
+    @staticmethod
+    def dump_mitigation_actions():
+        """
+        Dump all mitigation actions to the logger
+        """
+        store = InMemoryStore()
+        mitigations = store.mitigation_get_all()
+        logger.debug("Dumping Mitigation Actions:")
+        for mitigation in mitigations:
+            logger.debug(mitigation.to_dict())

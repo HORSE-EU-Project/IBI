@@ -15,6 +15,7 @@ class IntentPipeline:
         self.rtr_client = RTR()
         self.cas_client = CASClient()
         self.ckb = CKB()
+        self.iadt = ImpactAnalysisDT()
         self.external_syslog = ExternalSyslog()
 
     def process_intents(self):
@@ -24,15 +25,33 @@ class IntentPipeline:
 
         # Get intents with status 'new'
         logger.info("Starting intent pipeline iteration")
-        ### List all intents from the store
-        logger.debug("Listing all intents from the store")
-        intents = self._store.intent_get_all()
-        logger.debug(intents)
-        ### List all the threats from the store
-        self.external_syslog.send_log("Listing all threats from the store")
-        logger.debug("Listing all threats from the store")
-        threats = self._store.threat_get_all()
-        logger.debug(threats)
+        ### List all valid intents
+        intents = [i for i in self._store.intent_get_all() if not i.timedout()]
+        threats = [t for t in self._store.threat_get_all() if not t.is_expired()]
+
+        for intent in intents:
+            logger.debug(f"Processing intent: {intent.get_uid()}")
+            logger.debug(intent)
+            # Check if there is a threat related to the intent
+            if intent.intent_type == DTEIntentType.MITIGATION or intent.intent_type == DTEIntentType.DETECTION:
+                # Checks detected threats (Mitigation or Detection)
+                pass
+            elif intent.intent_type == DTEIntentType.PREVENTION:
+                # Checks forecasted threats (Prevention)
+                for threat in threats:
+                    # if threat is NEW, propose a prevention
+                    if threat.get_status() == threat.ThreatStatus.NEW:
+                        logger.debug(f"Detected NEW threat: {threat.uid} for intent: {intent.get_uid()}")
+                        # Query cKB
+                        self.ckb.query_ckb(threat.threat_name)
+                        available_actions = self.recommender.get_mitigations()
+
+                    # if threat is REINCIDENT try a different migigation
+
+            else:
+                logger.warning(f"Unknown intent type: {intent.intent_type} for intent: {intent.get_uid()}")
+                continue
+                                
         return
         try:
             logger.info("Checking new intents")

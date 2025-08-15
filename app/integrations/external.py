@@ -12,6 +12,7 @@ import logging
 from logging.handlers import SysLogHandler
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
+from difflib import get_close_matches
 
 class RTR:
     _instance = None
@@ -167,6 +168,22 @@ class RTR:
 class CKB:
 
     _logger = setup_logging(__name__)
+    _attacks = [
+        "ntp_dos",
+        "pfcf_dos",
+        "dns_reflection_amplification",
+        "hello_world",
+        "ddos_amplification",
+        "dns_amplification",
+        "ddos_download_link",
+        "data_poisoning",
+        "multidomain",
+        "mitm",
+        "nf_exposure",
+        "signaling_pfcp",
+        "poisoning_and_amplification",
+        "network_exposure",
+    ]
 
     def __init__(self):
         self.ckb_url = config.CKB_URL
@@ -181,30 +198,24 @@ class CKB:
             self.enabled = False
             self._logger.info(f"Integration to CKB is disabled.")
 
+    def get_attack_by_similarity(self, attack_name):
+        """
+        Get an attack by its name or a similar name.
+        """
+        # Use built-in string similarity matching
+        matches = get_close_matches(attack_name, self._attacks, n=1, cutoff=0.3)
+        if matches:
+            self._logger.debug(f"Found similar attack: {matches[0]} for input: {attack_name}")
+            return matches[0]
+        else:
+            self._logger.debug(f"Using default attack name")
+            return "hello_world"
+
+
     def query_ckb(self, attack_name=None):
-        attacks = [
-            "ntp_dos",
-            "pfcf_dos",
-            "dns_reflection_amplification",
-            "hello_world",
-            "ddos_amplification",
-            "dns_amplification",
-            "ddos_download_link",
-            "data_poisoning",
-            "multidomain",
-            "mitm",
-            "nf_exposure",
-            "signaling_pfcp",
-            "poisoning_and_amplification",
-            "network_exposure",
-        ]
         req_body = {}
-
-        if attack_name is None or attack_name == "" or attack_name not in attacks:
-            self._logger.info(f"Using default attack name")
-            attack_name = "hello_world"
+        attack_name = self.get_attack_by_similarity(attack_name)
         req_body = {"attack_name": attack_name}
-
         if self.enabled:
             try:
 
@@ -226,9 +237,15 @@ class CKB:
 
 
 class ImpactAnalysisDT:
+    """
+    Class to interact with the Impact Analysis Digital Twin (IA-NDT).
+    It sends workflows to the IA-NDT and handles responses. The class implementas a queue
+    to ensure that only one request at time is sent to the IA-NDT.
+    """
 
     _logger = setup_logging(__name__)
     _store = InMemoryStore()
+    # Class-level queue and worker to guarantee only one in-flight request
 
     _messages = {
         "block": {
@@ -321,6 +338,12 @@ class ImpactAnalysisDT:
             self.enabled = True
         else:
             self.enabled = False
+
+    def enqueue_simulation(self, intent_id):
+        pass
+
+    def process_queue():
+        pass
 
     def send_to_iadt(self, intent_id):
         # Message to send to the Impact Analysis Digital Twin
