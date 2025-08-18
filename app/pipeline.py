@@ -2,7 +2,8 @@ from constants import Const
 from recommender import Recommender
 from data.store import InMemoryStore
 from models.api_models import DTEIntentType
-from integrations.external import CKB, CASClient, RTR, ImpactAnalysisDT, ExternalSyslog
+from integrations.ckb import CKB
+from integrations.external import CASClient, RTR, ImpactAnalysisDT, ExternalSyslog
 from utils.log_config import setup_logging
 
 logger = setup_logging("app.pipeline")
