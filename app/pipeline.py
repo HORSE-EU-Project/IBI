@@ -44,7 +44,12 @@ class IntentPipeline:
                         logger.debug(f"Detected NEW threat: {threat.uid} for intent: {intent.get_uid()}")
                         # Query cKB
                         self.ckb.query_ckb(threat.threat_name)
-                        available_actions = self.recommender.get_mitigations()
+                        available_actions = self.recommender.get_mitigations(threat)
+                        if not available_actions:
+                            logger.warning(f"No mitigation found for threat: {threat.threat_name}")
+                            continue
+                        # Emulate in the IA-DT
+                        self.iadt.emulate(threat, available_actions[0])
 
                     # if threat is REINCIDENT try a different migigation
 

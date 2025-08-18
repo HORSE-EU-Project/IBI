@@ -9,9 +9,11 @@ import requests
 import json
 import config
 import logging
+from threading import Lock
 from logging.handlers import SysLogHandler
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
+from models.core_models import DetectedThreat, MitigationAction
 from difflib import get_close_matches
 
 class RTR:
@@ -243,8 +245,19 @@ class ImpactAnalysisDT:
     to ensure that only one request at time is sent to the IA-NDT.
     """
 
+    class IADTACtion:
+        """
+        Class to represent an action in the Impact Analysis Digital Twin.
+        """
+        def __init__(self, threat: DetectedThreat, action: MitigationAction):
+            self.theat = threat
+            self.action = action
+            self.kpi_before = None
+            self.kpi_after = None
+
     _logger = setup_logging(__name__)
-    _store = InMemoryStore()
+    _queue = []
+
     # Class-level queue and worker to guarantee only one in-flight request
 
     _messages = {
@@ -328,6 +341,8 @@ class ImpactAnalysisDT:
         },
     }
 
+
+
     def __init__(self):
         self.iadt_url = config.IADT_URL
         self.headers = {
@@ -339,13 +354,19 @@ class ImpactAnalysisDT:
         else:
             self.enabled = False
 
-    def enqueue_simulation(self, intent_id):
-        pass
+    def enqueue_simulation(self, threat: DetectedThreat, action: MitigationAction):
+        action = ImpactAnalysisDT.IADTACtion(threat, action)
+        self._queue.append(action)
+        self._logger.info(f"Action {action.action.uid} for threat {threat.uid} added to the IA-NDT queue.")
 
-    def process_queue():
-        pass
 
-    def send_to_iadt(self, intent_id):
+    def process_queue(self):
+        if self._queue:
+            current_action = self._queue.pop(0)
+            self.send_to_iadt(current_action)
+
+
+    def send_to_iadt(self, action: IADTACtion):
         # Message to send to the Impact Analysis Digital Twin
         iadt_message = self._messages["block"]
         iadt_message["id"] = intent_id

@@ -3,10 +3,16 @@ import datetime
 from typing import List
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
+from models.core_models import DetectedThreat, CoreIntent, MitigationAction
 
 logger = setup_logging(__name__)
 
 class Recommender:
+    """
+    This class is responsible for providing recommendations of mitigation actions for threats.
+    It receives Threat (DetectedThreat) and find suitable MitigationAction based on threat type,
+    attack type and priority.
+    """
 
     def __init__(self):
         """
@@ -14,68 +20,65 @@ class Recommender:
         """
         self._store = InMemoryStore()
 
-    def get_mitigations(self, intent_type: str, threat: str, k: int) -> List[str]:
+    def get_mitigations(self, threat: DetectedThreat) -> List[MitigationAction]:
         """
-        Get mitigation actions based on intent type and threat.
-        @param intent_type: The type of intent (e.g., MITIGATION, DETECTION, PREVENTION).
-        @param threat: The name of the threat.
-        @param k: The number of top mitigations to return.
-        @return: List of mitigation actions.
+        Get a list of mitigation actions based on the detected threat.
+        
+        :param threat: DetectedThreat object
+        :return: List of MitigationAction objects
         """
-        possible_mitigations = MITIGATION_DATA.get(intent_type, {}).get(threat, [])
-        # Get already associated mitigations for this intent
-        associated_mitigations = self.get_associated_mitigations(intent.get("id"))
-        # Filter out mitigations that are already associated
-        available_mitigations = [m for m in possible_mitigations if m not in associated_mitigations]
-        return available_mitigations
-    
+        mitigations = []
+        for m in self._store.mitigation_get_all():
+            if threat.threat_type == m.category \
+                and threat.threat_name in m.threats:
+                # Appens mitigation action if type and name of the threat match
+                associations  = self._store.association_get(threat.uid)
+                if not associations:
+                    # If there are no associations, add the mitigation
+                    mitigations.append(m)
+                else:
+                    # If there are associations, check if the mitigation is already associated
+                    if m.uid not in [assoc.uid for assoc in associations]:
+                        mitigations.append(m)
+                    else:
+                        logger.debug(f"Mitigation {m.uid} already associated with threat {threat.uid}")
+                    mitigations.append(m)
+        if not mitigations:
+            logger.info(f"No mitigations found for threat: {threat.threat_name} of type: {threat.threat_type}")
+            return None
+        else :
+            logger.debug(f"Found {len(mitigations)} mitigations for threat: {threat.threat_name} of type: {threat.threat_type}")
+            return mitigations
+        
 
-    def associate_mitigation(self, intent_id, mitigation_name):
+    def associate_mitigation(self, threat: DetectedThreat, mitigation: MitigationAction) -> None:
         """
         Associate a mitigation action with an intent.
-
-        @param intent_id: The ID of the intent.
-        @param mitigation_name: The name of the mitigation action.
-        """
         
-        # Create the association document
-        association_doc = {
-            'intent_id': intent_id,
-            'mitigation_name': mitigation_name,
-            'timestamp': datetime.utcnow().isoformat()
-        }
-
-        # Store in Elasticsearch index
-        self._es_client.index(
-            index=Const.ASSOCIATIONS_INDEX, 
-            body=association_doc
-        )
-
-        logger.info(f"Associating mitigation '{mitigation_name}' with intent ID '{intent_id}'")
-
-    def get_associated_mitigations(self, intent_id):
+        :param intent: CoreIntent object
+        :param mitigation: MitigationAction object
         """
-        Get all mitigations associated with a specific intent.
+        self._store.association_add(threat.uid, mitigation.uid)
 
-        @param intent_id: The ID of the intent.
-        @return: List of associated mitigation names.
+    def configure_mitigation(self, threat: DetectedThreat, mitigation: MitigationAction) -> MitigationAction:
         """
-        query = {
-            "query": {
-                "term": {"intent_id": intent_id}
-            }
-        }
-
-        response = self._es_client.search(
-            index=Const.ASSOCIATIONS_INDEX,
-            body=query
-        )
-
-        associated_mitigations = []
-        if response['hits']['hits']:
-            for hit in response['hits']['hits']:
-                associated_mitigations.append(hit['_source']['mitigation_name'])
-
-        return associated_mitigations
-
+        Configure a mitigation action.
+        
+        :param mitigation: MitigationAction object
+        """
+        if mitigation.category == MitigationAction.MitigationCategory.DETECTION:
+            # configure detection mitigation action
+            pass
+        elif mitigation.category == MitigationAction.MitigationCategory.PREVENTION:
+            # configure prevention mitigation action
+            pass
+        elif mitigation.category == MitigationAction.MitigationCategory.MITIGATION:
+            # configure mitigation action
+            if mitigation.name == "udp_traffic_filter":
+                mitigation.define_field("protocol", "UDP")
+                mitigation.define_field("source_ip_filter", threat.hosts[0])
+                mitigation.define_field("destination_port", "123")  # Example port for NTP
+            
+            # TODO: parametrize other mitigation actions here
+        return mitigation
         

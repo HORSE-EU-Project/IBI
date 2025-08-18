@@ -22,8 +22,13 @@ class InMemoryStore:
             self._core_intents: Dict[str, CoreIntent] = {}
             self._threats: Dict[str, DetectedThreat] = {}
             self._available_actions: Dict[str, MitigationAction] = {}
+            self._associations: Dict[str, List[MitigationAction]] = {}
             self._logger = setup_logging(__name__)
             self._initialized = True
+
+    """
+    Core Intent management methods
+    """
 
     def intent_add(self, intent: CoreIntent) -> None:
         with self._data_lock:
@@ -67,12 +72,13 @@ class InMemoryStore:
                     return True
             return False
 
-    # Threat management methods
+    """
+    Detected threat management methods
+    """
     def threat_add(self, threat: DetectedThreat) -> None:
         with self._data_lock:
             self._threats[threat.uid] = threat
             self._logger.info(f"Threat added: {threat.uid}")
-
 
     def threat_get(self, key: str) -> Optional[DetectedThreat]:
         with self._data_lock:
@@ -85,8 +91,7 @@ class InMemoryStore:
                 self._logger.info(f"Threat updated: {key}")
                 return True
             return False
-
-
+        
     def threat_remove(self, key: str) -> bool:
         with self._data_lock:
             self._logger.info(f"Threat removed: {key}")
@@ -96,12 +101,10 @@ class InMemoryStore:
         with self._data_lock:
             return [threat for threat in self._threats.values()]
 
-
     def threat_clear_all(self) -> None:
         with self._data_lock:
             self._threats.clear()
     
-
     def threat_locate(self, another_threat: DetectedThreat) -> Optional[str]:
         with self._data_lock:
             for threat in self._threats.values():
@@ -119,7 +122,6 @@ class InMemoryStore:
                 ):
                     return threat.uid
             return None
-        
 
     def expire_old_threats(self) -> None:
         with self._data_lock:
@@ -129,7 +131,9 @@ class InMemoryStore:
                     self._logger.info(f"Threat expired: {threat.uid}")
 
 
-    # Available Mitigation actions
+    """
+    Mitigation actions management methods
+    """
     def mitigation_add(self, action: MitigationAction) -> None:
         with self._data_lock:
             self._available_actions[action.uid] = action
@@ -144,3 +148,15 @@ class InMemoryStore:
     def mitigation_get_all(self) -> List[MitigationAction]:
         with self._data_lock:
             return [action for action in self._available_actions.values()]
+        
+    """
+    Keeps track of associations between the MitigationAction and Threat
+    """
+    def association_add(self, threat_id: str, mitigation: MitigationAction) -> None:
+        with self._data_lock:
+            self._associations[threat_id].append(mitigation)
+            self._logger.debug(f"Association added for intent {threat_id} with mitigation {mitigation.uid}")
+
+    def association_get(self, threat_id: str) -> Optional[List[MitigationAction]]:
+        with self._data_lock:
+            return self._associations.get(threat_id)

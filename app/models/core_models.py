@@ -133,6 +133,7 @@ class MitigationAction:
     fields: List[str]
     priority: int = 0  # Lower number = higher priority
     enabled: bool = True
+    parameters: Dict[str, Any] = {}
 
     def __init__(self, name, category, threats, fields):
         self.uid = str(uuid4())
@@ -142,6 +143,15 @@ class MitigationAction:
         self.fields = fields
         self.priority = 0
         self.enabled = True
+
+    def define_field(self, field_name: str, field_value: Any) -> None:
+        """
+        Define a field for the mitigation action.
+        
+        :param field_name: Name of the field
+        :param field_value: Value of the field
+        """
+        self.parameters[field_name] = field_value
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization"""

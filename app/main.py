@@ -18,6 +18,11 @@ It bootstraps a loop that process the intents in background
 
 logger = setup_logging(__name__)
 
+"""
+The pipeline is satefull, so it should existst during the whole application lifecycle
+"""
+pipeline = IntentPipeline()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize the loop that processes intents
@@ -45,7 +50,7 @@ app.mount("/static", StaticFiles(directory="app/dashboard/static"), name="static
 Backround taks
 """
 def process_intents():
-    pipeline = IntentPipeline()
+    # pipeline = IntentPipeline()
     sleep(10)
     while(True):
         # logger.info("hello world from intents loop")
@@ -62,7 +67,7 @@ def populate_database():
     Populate data in Mitigation actions
     """
     MitigationsController.populate_mitigation_actions()
-    MitigationsController.dump_mitigation_actions()
+    MitigationsController.dump_mitigation_actions
     
 
 
