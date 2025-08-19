@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any
 from utils.log_config import setup_logging
-from integrations.external import ImpactAnalysisDT
+from integrations.iandt import ImpactAnalysisDT
 
 from constants import Const
 
