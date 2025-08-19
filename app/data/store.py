@@ -1,5 +1,5 @@
 from utils.log_config import setup_logging
-from models.core_models import CoreIntent, DetectedThreat, MitigationAction
+from models.core_models import CoreIntent, DetectedThreat, MitigationAction, DTJob
 import threading
 from typing import Dict, List, Any, Optional
 
@@ -23,6 +23,7 @@ class InMemoryStore:
             self._threats: Dict[str, DetectedThreat] = {}
             self._available_actions: Dict[str, MitigationAction] = {}
             self._associations: Dict[str, List[MitigationAction]] = {}
+            self._dt_jobs: List[DTJob] = {}
             self._logger = setup_logging(__name__)
             self._initialized = True
 
@@ -160,3 +161,14 @@ class InMemoryStore:
     def association_get(self, threat_id: str) -> Optional[List[MitigationAction]]:
         with self._data_lock:
             return self._associations.get(threat_id)
+
+    # Digital Twin Jobs management methods
+    def dt_job_add(self, job: DTJob) -> None:
+        with self._data_lock:
+            self._dt_jobs.append(job)
+            self._logger.info(f"Digital Twin job added: {job.uid}")
+
+
+    def dt_job_get_all(self) -> List[DTJob]:
+        with self._data_lock:
+            return self._dt_jobs

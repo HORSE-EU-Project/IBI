@@ -51,6 +51,8 @@ async def process_impact_analysis(request: ImpactAnalysisRequest):
         
         # Check if value is below threshold
         value = float(request.what.KPIs.result.value)
+        # TODO: Update logic to handle IAND responses
+        return
         if value < Const.IADT_PPS_THRESHOLD:
             logger.warning(
                 f"Impact analysis value {value} is below threshold {Const.IADT_PPS_THRESHOLD}. "

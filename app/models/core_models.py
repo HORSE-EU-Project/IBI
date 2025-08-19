@@ -58,6 +58,7 @@ class DetectedThreat:
 
     class ThreatStatus(Enum):
         NEW = "NEW"
+        UNDER_EMULATION = "UNDER_EMULATION"
         UNDER_MITIGATION = "UNDER_MITIGATION"
         REINCIDENT = "REINCIDENT"
         MITIGATED = "MITIGATED"
@@ -167,3 +168,45 @@ class MitigationAction:
 
     def __repr__(self):
         return json.dumps(self.to_dict(), indent=4)
+    
+
+class DTJob:
+    """
+    Represents a job in the Digital Twin.
+    It keeps track of the threat and the mitigation action being emulated
+    resulting measurements of applying the mitigation action.
+    """
+
+    class JobStatus(Enum):
+        PENDING = "PENDING"
+        COMPLETED = "COMPLETED"
+
+    uid: str
+    threat_id: str
+    mitigation_id: str
+    kpi_before: Optional[int] = None  # KPI before the mitigation action
+    kpi_after: Optional[int] = None  # KPI after the mitigation action
+    status: JobStatus = None
+
+    def __init__(self, thread_id, migitation_id):
+        self.uid = str(uuid4())
+        self.threat_id = thread_id
+        self.mitigation_id = migitation_id
+        self.status = DTJob.JobStatus.PENDING
+
+    def update_kpi_before(self, kpi: int) -> None:
+        """
+        Update the KPI before applying the mitigation action.
+        
+        :param kpi: KPI value before the mitigation action
+        """
+        self.kpi_before = kpi
+
+    def update_kpi_after(self, kpi: int) -> None:
+        """
+        Update the KPI after applying the mitigation action.
+        
+        :param kpi: KPI value after the mitigation action
+        """
+        self.kpi_after = kpi
+        self.status = DTJob.JobStatus.COMPLETED

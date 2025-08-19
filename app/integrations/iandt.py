@@ -1,7 +1,10 @@
 import requests
 import config
+from enum import Enum
+from typing import List
 from utils.log_config import setup_logging
-from models.core_models import DetectedThreat, MitigationAction
+from data.store import InMemoryStore
+from models.core_models import DetectedThreat, MitigationAction, DTJob
 
 
 class ImpactAnalysisDT:
@@ -11,18 +14,13 @@ class ImpactAnalysisDT:
     to ensure that only one request at time is sent to the IA-NDT.
     """
 
-    class IADTACtion:
-        """
-        Class to represent an action in the Impact Analysis Digital Twin.
-        """
-        def __init__(self, threat: DetectedThreat, action: MitigationAction):
-            self.theat = threat
-            self.action = action
-            self.kpi_before = None
-            self.kpi_after = None
+    class JobType(Enum):
+        MEASUREMENT = "MEASUREMENT"
+        SIMULATION = "SIMULATION"
 
-    _logger = setup_logging(__name__)
-    _queue = []
+    _store = None
+    _logger = None
+    _queue = List[(DTJob, JobType)] = []  # Queue to hold actions to be processed
 
     # Class-level queue and worker to guarantee only one in-flight request
 
@@ -107,9 +105,9 @@ class ImpactAnalysisDT:
         },
     }
 
-
-
     def __init__(self):
+        self._store = InMemoryStore()
+        self._logger = setup_logging(__name__)
         self.iadt_url = config.IADT_URL
         self.headers = {
             "Accept": "application/json",
@@ -120,15 +118,31 @@ class ImpactAnalysisDT:
         else:
             self.enabled = False
 
+    def is_available(self):
+        """
+        Check if the Impact Analysis Digital Twin is available.
+        """
+        for job in self._store.dt_job_get_all():
+            if job.status == DTJob.JobStatus.PENDING:
+                return False
+        return True
+
+
     def enqueue_simulation(self, threat: DetectedThreat, action: MitigationAction):
-        action = ImpactAnalysisDT.IADTACtion(threat, action)
-        self._queue.append(action)
-        self._logger.info(f"Action {action.action.uid} for threat {threat.uid} added to the IA-NDT queue.")
+        dt_job = DTJob(threat=threat.uid, action=action.uid)
+        measure_task = (dt_job, ImpactAnalysisDT.JobType.MEASUREMENT)
+        action_task = (dt_job, ImpactAnalysisDT.JobType.SIMULATION)
+        
+        self._queue.append(measure_task)
+        self._queue.append(action_task)
+        self._logger.info(f"New job added to the queue: Threat: {threat.uid}, Action: {action.uid}")
 
 
     def process_queue(self):
-        if self._queue:
-            current_action = self._queue.pop(0)
+        if self._queue and self.is_available():
+            dt_job, job_type = self._queue.pop(0)
+            
+            self._store.dt_job_add(new_job)
             self.send_to_iadt(current_action)
 
 
