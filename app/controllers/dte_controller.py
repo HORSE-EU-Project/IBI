@@ -1,6 +1,7 @@
 from data.store import InMemoryStore
 from models.api_models import DTEIntent
 from models.core_models import CoreIntent, DetectedThreat
+from integrations.siem import CustomSIEM
 from utils.log_config import setup_logging
 
 logger = setup_logging(__name__)
@@ -12,6 +13,7 @@ class DTEController:
 
     def __init__(self):
         self._storage = InMemoryStore()
+        self._customSIEM = CustomSIEM()
 
     def get_all_intents(self):
         """
@@ -31,8 +33,8 @@ class DTEController:
 
         # Infere system state from the request
         # It a simlar threat exists, renew it, otherwise create a new one
-        newThreat = DetectedThreat(dte_intent)
-        existing_threat_uid = self._storage.threat_locate(newThreat)
+        new_threat = DetectedThreat(dte_intent)
+        existing_threat_uid = self._storage.threat_locate(new_threat)
         if existing_threat_uid:
             logger.info(f"Threat {existing_threat_uid} already exists.")
             updated_threat = self._storage.threat_get(existing_threat_uid)
@@ -40,8 +42,11 @@ class DTEController:
             self._storage.threat_update(existing_threat_uid, updated_threat)
             logger.info(f"Threat {existing_threat_uid} updated successfully.")
         else:
-            self._storage.threat_add(newThreat)
-            logger.info(f"New threat detected: {newThreat.uid}")
+            logger.info(f"New threat detected: {new_threat.uid}")
+            self._storage.threat_add(new_threat)
+            # Generate a SIEM alarm
+            self._customSIEM.send_log(new_threat, CustomSIEM.AlarmType.NEW)
+            
 
         # Convert to a CoreIntent
         new_core_intent = CoreIntent(dte_intent)
