@@ -50,7 +50,7 @@ content-type: application/json
 
 {
     "intent_type": "prevention",
-    "threat": "dns_ddos",
+    "threat": "dns_amplification",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }
@@ -62,7 +62,7 @@ content-type: application/json
 
 {
     "intent_type": "prevention",
-    "threat": "ddos_download",
+    "threat": "ddos_download_link",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }

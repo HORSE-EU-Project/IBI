@@ -210,3 +210,17 @@ class DTJob:
         """
         self.kpi_after = kpi
         self.status = DTJob.JobStatus.COMPLETED
+
+    def __str__(self):
+        return f"DTJob(uid={self.uid}, threat_id={self.threat_id}, mitigation_id={self.mitigation_id}, kpi_before={self.kpi_before}, kpi_after={self.kpi_after}, status={self.status})"
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization"""
+        return {
+            "uid": self.uid,
+            "threat_id": self.threat_id,
+            "mitigation_id": self.mitigation_id,
+            "kpi_before": self.kpi_before,
+            "kpi_after": self.kpi_after,
+            "status": self.status.value
+        }

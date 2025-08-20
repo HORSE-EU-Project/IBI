@@ -23,7 +23,7 @@ class IntentPipeline:
         self.ckb = CKB()
         self.iadt = ImpactAnalysisDT()
         self.customSIEM = CustomSIEM()
-        print("A-HA!")
+
 
     def process_intents(self):
 
@@ -55,6 +55,11 @@ class IntentPipeline:
             else:
                 logger.warning(f"Unknown intent type: {intent.intent_type} for intent: {intent.get_uid()}")
                 continue
+
+        self.iadt.process_queued_jobs()
+        print("#" * 20)
+        for job in self._store._dt_jobs:
+            print(job)
         
 
     def update_expired_threats(self, threats):
@@ -91,8 +96,14 @@ class IntentPipeline:
                 if not available_actions:
                     logger.warning(f"No mitigation found for threat: {threat.threat_name}")
                     continue
+                # Parametrize the mitigation action
+                available_actions[0] = self.recommender.configure_mitigation(threat, available_actions[0])
+                # Associate the mitigation action with the threat
+                self.recommender.associate_mitigation(threat.uid, available_actions[0])
                 # Emulate in the IA-DT
                 self.iadt.enqueue_simulation(threat, available_actions[0])
+                threat.update_status(DetectedThreat.ThreatStatus.UNDER_EMULATION)
+
 
             if threat.get_status() == DetectedThreat.ThreatStatus.UNDER_EMULATION:
                 # If threat is Under emulation/simulation on the DT

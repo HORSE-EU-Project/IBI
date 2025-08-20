@@ -58,7 +58,8 @@ def process_intents():
             # Process intents
             pipeline.process_intents()
         except Exception as e:
-            logger.error(f"Error processing intents: {e}")
+            logger.error(f"Error processing intent: {e}")
+            raise e
         sleep(Const.THREAD_INTENT_WAIT)
     
 

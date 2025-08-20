@@ -23,7 +23,7 @@ class InMemoryStore:
             self._threats: Dict[str, DetectedThreat] = {}
             self._available_actions: Dict[str, MitigationAction] = {}
             self._associations: Dict[str, List[MitigationAction]] = {}
-            self._dt_jobs: List[DTJob] = {}
+            self._dt_jobs: List[DTJob] = []
             self._logger = setup_logging(__name__)
             self._initialized = True
 
@@ -155,6 +155,8 @@ class InMemoryStore:
     """
     def association_add(self, threat_id: str, mitigation: MitigationAction) -> None:
         with self._data_lock:
+            if threat_id not in self._associations:
+                self._associations[threat_id] = []
             self._associations[threat_id].append(mitigation)
             self._logger.debug(f"Association added for intent {threat_id} with mitigation {mitigation.uid}")
 
@@ -166,7 +168,19 @@ class InMemoryStore:
     def dt_job_add(self, job: DTJob) -> None:
         with self._data_lock:
             self._dt_jobs.append(job)
-            self._logger.info(f"Digital Twin job added: {job.uid}")
+            self._logger.debug(f"IA-NDT job added: {job.uid}")
+
+    
+    def dt_job_exists(self, job: DTJob) -> bool:
+        """
+        Check if there there is already a job for the same threat and action.
+        """
+        with self._data_lock:
+            for existing_job in self._dt_jobs:
+                if existing_job.threat_id == job.threat_id and \
+                    existing_job.mitigation_id == job.mitigation_id:
+                    return True
+            return False
 
 
     def dt_job_get_all(self) -> List[DTJob]:

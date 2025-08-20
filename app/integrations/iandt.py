@@ -1,7 +1,7 @@
 import requests
 import config
 from enum import Enum
-from typing import List
+from typing import List, Any
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
 from models.core_models import DetectedThreat, MitigationAction, DTJob
@@ -20,13 +20,13 @@ class ImpactAnalysisDT:
 
     _store = None
     _logger = None
-    _queue = List[(DTJob, JobType)] = []  # Queue to hold actions to be processed
+    _queue = []   # List[(DTJob, JobType)]
 
     # Class-level queue and worker to guarantee only one in-flight request
 
     _messages = {
         "block": {
-            "id": "0002",
+            "id": "",
             "topology_name": "horse_ddos",
             "attack": "DDoS_reverse",
             "what-condition": {
@@ -52,7 +52,7 @@ class ImpactAnalysisDT:
             },
         },
         "monitor": {
-            "id": "0003",
+            "id": "",
             "topology_name": "horse_ddos",
             "attack": "DDoS_reverse",
             "what-condition": {
@@ -77,8 +77,8 @@ class ImpactAnalysisDT:
                 },
             },
         },
-        "limit": {
-            "id": "0001",
+        "rate_limit": {
+            "id": "",
             "topology_name": "horse_ddos",
             "attack": "DDoS_reverse",
             "what-condition": {
@@ -129,46 +129,111 @@ class ImpactAnalysisDT:
 
 
     def enqueue_simulation(self, threat: DetectedThreat, action: MitigationAction):
-        dt_job = DTJob(threat=threat.uid, action=action.uid)
-        measure_task = (dt_job, ImpactAnalysisDT.JobType.MEASUREMENT)
-        action_task = (dt_job, ImpactAnalysisDT.JobType.SIMULATION)
+        dt_job = DTJob(threat.uid, action.uid)
+        measure_task = tuple([dt_job, ImpactAnalysisDT.JobType.MEASUREMENT])
+        action_task = tuple([dt_job, ImpactAnalysisDT.JobType.SIMULATION])
         
         self._queue.append(measure_task)
         self._queue.append(action_task)
         self._logger.info(f"New job added to the queue: Threat: {threat.uid}, Action: {action.uid}")
 
 
-    def process_queue(self):
+    def process_queued_jobs(self):
         if self._queue and self.is_available():
-            dt_job, job_type = self._queue.pop(0)
+            (dt_task, task_type) = self._queue.pop(0)  # Task type is either MEASUREMENT or SIMULATION
+            if not self._store.dt_job_exists(dt_task):
+                self._store.dt_job_add(dt_task)
             
-            self._store.dt_job_add(new_job)
-            self.send_to_iadt(current_action)
+            if task_type == ImpactAnalysisDT.JobType.MEASUREMENT:
+                message = self._get_monitor_msg(dt_task)
+            elif task_type == ImpactAnalysisDT.JobType.SIMULATION:
+                message = self._get_simulation_msg(dt_task)
+            # Send the message via REST API
+            self.send_iandt_message(message)
+        else:
+            if len(self._queue) == 0:
+                self._logger.debug("IA-NDT queue is empty waiting for next cycle")
+            if not self.is_available():
+                self._logger.debug("IA-NDT is not available, waiting for next cycle")
+
+    
+    def _get_monitor_msg(self, dt_job: DTJob) -> dict:
+        """
+        Send a measurement request to the Impact Analysis Digital Twin.
+        """
+        # Get the threat name from the detected threat
+        threat_name = self._store.threat_get(dt_job.threat_id).threat_name
+        # TODO: Fixed for the PoC, but it should be dynamic based on the threat
+        message = self._messages["monitor"]
+        message["id"] = dt_job.uid
+        message["attack"] = self._dt_attack_name(threat_name)
+        message["what-condition"]["KPIs"]["element"]["node"] = "ceos2"
+        message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
+        message["what-condition"]["KPIs"]["duration"] = "15s"
+        message["if-condition"]["action"]["duration"] = "15s"
+        return message
 
 
-    def send_to_iadt(self, action: IADTACtion):
+    def _get_simulation_msg(self, dt_job: DTJob) -> dict:
+        """
+        Send a simulation request to the Impact Analysis Digital Twin.
+        """
+        # Get the threat name from the detected threat
+        threat_name = self._store.threat_get(dt_job.threat_id).threat_name
+        # Get the mitigation action from the store
+        mitigation = self._store.mitigation_get(dt_job.mitigation_id)
+        match mitigation.name:
+             case "dns_rate_limiting" | "rate_limiting":
+                message = self._messages["rate_limit"]
+                # Action parameters
+                message["if-condition"]["action"]["type"] = "rate_limit"
+                message["if-condition"]["action"]["value"] = "10"
+                message["if-condition"]["action"]["unit"] = "mbps"
+                message["if-condition"]["action"]["duration"] = "15s"
+                # Where to apply the mitigation
+                message["if-condition"]["element"]["node"] = "ceos2"
+                message["if-condition"]["element"]["interface"] = "eth4"
+             
+             case "block_pod_address":
+                message = self._messages["block"]
+                # Action parameters
+                message["if-condition"]["action"]["type"] = "block_pod_ip"
+                message["if-condition"]["action"]["value"] = "internet"
+                message["if-condition"]["action"]["unit"] = "*"
+                message["if-condition"]["action"]["duration"] = "15s"
+                # Where to apply the mitigation
+                message["if-condition"]["element"]["node"] = "ceos2"
+                message["if-condition"]["element"]["interface"] = "eth4"
+
+        # TODO: Fixed for the PoC, but it should be dynamic based on the threat
+        # General configuration for the message
+        message["id"] = dt_job.uid
+        message["attack"] = self._dt_attack_name(threat_name)
+        message["what-condition"]["KPIs"]["element"]["node"] = "ceos2"
+        message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
+        message["what-condition"]["KPIs"]["duration"] = "15s"
+        return message
+
+
+    def send_iandt_message(self, message: dict):
         # Message to send to the Impact Analysis Digital Twin
-        iadt_message = self._messages["block"]
-        iadt_message["id"] = intent_id
-
         if not self.enabled:
             self._logger.warning(
                 f"Impact Analysis Digital Twin is not enabled. Commands will be sent to logging system."
             )
-            self._logger.info(f"Impact Analysis Digital Twin message: {iadt_message}")
+            self._logger.warning(f"Impact Analysis Digital Twin message: {message}")
         else:
             try:
                 response = requests.post(
                     f"{self.iadt_url}/from_ibi",
                     headers=self.headers,
-                    json=iadt_message,
+                    json=message,
                 )
                 response.raise_for_status()
-                print(
-                    f"Workflow sent to Impact Analysis Digital Twin successfully: {response.status_code}"
-                )
+                self._logger.info(f"Message sent to IA-NDT. Response status: {response.status_code}")
             except requests.exceptions.RequestException as e:
                 print(f"Error sending workflow to Impact Analysis Digital Twin: {e}")
+
 
     def update_intent_status(self, intent_id, status):
         """
@@ -191,3 +256,19 @@ class ImpactAnalysisDT:
         self._logger.info(
             f"Received answer from Impact Analysis Digital Twin: {answer_dict}"
         )
+
+    def _dt_attack_name(self, from_threat: str) -> str:
+        """
+        Convert a threat name to an attack name for the Digital Twin.
+
+        This is a workaround because the NDT does not follow the naming convention
+        agreed in the rest of the HORSE architecture.
+
+        @param from_threat: The name of the threat (From DTE)
+        @return: The corresponding attack name for the Digital Twin
+        """
+        names = {
+            "dns_ddos": "DDoS_DNS",
+            "ddos_download": "DDoS_reverse",
+        }
+        return names.get(from_threat, from_threat)

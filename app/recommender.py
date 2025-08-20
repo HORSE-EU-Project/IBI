@@ -1,9 +1,8 @@
 from constants import Const
-import datetime
 from typing import List
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
-from models.core_models import DetectedThreat, CoreIntent, MitigationAction
+from models.core_models import DetectedThreat, MitigationAction
 
 logger = setup_logging(__name__)
 
@@ -42,7 +41,6 @@ class Recommender:
                         mitigations.append(m)
                     else:
                         logger.debug(f"Mitigation {m.uid} already associated with threat {threat.uid}")
-                    mitigations.append(m)
         if not mitigations:
             logger.info(f"No mitigations found for threat: {threat.threat_name} of type: {threat.threat_type}")
             return None
@@ -51,14 +49,14 @@ class Recommender:
             return mitigations
         
 
-    def associate_mitigation(self, threat: DetectedThreat, mitigation: MitigationAction) -> None:
+    def associate_mitigation(self, threat_uid: str, mitigation: MitigationAction) -> None:
         """
         Associate a mitigation action with an intent.
-        
-        :param intent: CoreIntent object
-        :param mitigation: MitigationAction object
+        :param threat_uid: UID of the threat
+        :param mitigation_uid: UID of the mitigation action 
         """
-        self._store.association_add(threat.uid, mitigation.uid)
+        self._store.association_add(threat_uid, mitigation)
+
 
     def configure_mitigation(self, threat: DetectedThreat, mitigation: MitigationAction) -> MitigationAction:
         """
