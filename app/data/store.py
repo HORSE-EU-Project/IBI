@@ -1,7 +1,7 @@
 from utils.log_config import setup_logging
 from models.core_models import CoreIntent, DetectedThreat, MitigationAction, DTJob
 import threading
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Optional
 
 
 class InMemoryStore:
@@ -24,6 +24,7 @@ class InMemoryStore:
             self._available_actions: Dict[str, MitigationAction] = {}
             self._associations: Dict[str, List[MitigationAction]] = {}
             self._dt_jobs: List[DTJob] = []
+            self._dt_available: bool = True
             self._logger = setup_logging(__name__)
             self._initialized = True
 
@@ -73,6 +74,7 @@ class InMemoryStore:
                     return True
             return False
 
+
     """
     Detected threat management methods
     """
@@ -116,6 +118,7 @@ class InMemoryStore:
                     and threat.status
                     in [
                         DetectedThreat.ThreatStatus.NEW,
+                        DetectedThreat.ThreatStatus.UNDER_EMULATION,
                         DetectedThreat.ThreatStatus.UNDER_MITIGATION,
                         DetectedThreat.ThreatStatus.REINCIDENT,
                     ]
@@ -150,6 +153,7 @@ class InMemoryStore:
         with self._data_lock:
             return [action for action in self._available_actions.values()]
         
+
     """
     Keeps track of associations between the MitigationAction and Threat
     """
@@ -160,17 +164,49 @@ class InMemoryStore:
             self._associations[threat_id].append(mitigation)
             self._logger.debug(f"Association added for intent {threat_id} with mitigation {mitigation.uid}")
 
+
     def association_get(self, threat_id: str) -> Optional[List[MitigationAction]]:
         with self._data_lock:
             return self._associations.get(threat_id)
 
-    # Digital Twin Jobs management methods
+    def association_update(self, threat_id: str, mitigation: MitigationAction) -> bool:
+        with self._data_lock:
+            if threat_id in self._associations:
+                self._associations[threat_id] = mitigation
+                self._logger.debug(f"Association updated for intent {threat_id} with mitigation {mitigation.uid}")
+                return True
+            return False
+    """
+    Digital Twin Jobs management methods
+    """
     def dt_job_add(self, job: DTJob) -> None:
         with self._data_lock:
+            # Throw an exception if a DTJob with the same threat_id already exists
+            for existing_job in self._dt_jobs:
+                if existing_job.threat_id == job.threat_id:
+                    raise Exception(f"DTJob with threat_id {job.threat_id} already exists.")
             self._dt_jobs.append(job)
             self._logger.debug(f"IA-NDT job added: {job.uid}")
 
-    
+
+    def dt_job_update(self, job_id: str, updated_job: DTJob) -> bool:
+        with self._data_lock:
+            for index in range(len(self._dt_jobs)):
+                if self._dt_jobs[index].uid == job_id:
+                    self._dt_jobs[index] = updated_job
+                    self._logger.debug(f"IA-NDT job updated: {job_id}")
+                    return True
+            return False
+
+
+    def dt_job_get(self, job_id: str) -> Optional[DTJob]:
+        with self._data_lock:
+            for job in self._dt_jobs:
+                if job.uid == job_id:
+                    return job
+            return None
+
+
     def dt_job_exists(self, job: DTJob) -> bool:
         """
         Check if there there is already a job for the same threat and action.
@@ -182,7 +218,37 @@ class InMemoryStore:
                     return True
             return False
 
-
     def dt_job_get_all(self) -> List[DTJob]:
         with self._data_lock:
             return self._dt_jobs
+
+    def dt_job_delete(self, thread_id: str) -> bool:
+        """
+        Delete a DTJob from the list using the DTJob.thread_id.
+        Returns True if a job was deleted, False otherwise.
+        """
+        with self._data_lock:
+            for idx, job in enumerate(self._dt_jobs):
+                if job.threat_id == thread_id:
+                    del self._dt_jobs[idx]
+                    self._logger.debug(f"IA-NDT job deleted: {job.uid}")
+                    return True
+            return False
+
+
+    """
+    Controls the availability of the IA-NDT
+    """
+    def dt_is_available(self) -> bool:
+        with self._data_lock:
+            return self._dt_available
+
+    def dt_set_available(self) -> None:
+        self._logger.debug("Setting IA-NDT to available")
+        with self._data_lock:
+            self._dt_available = True
+
+    def dt_set_busy(self) -> None:
+        self._logger.debug("Setting IA-NDT to busy")
+        with self._data_lock:
+            self._dt_available = False

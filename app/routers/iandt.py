@@ -1,83 +1,47 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Dict, Any
 from utils.log_config import setup_logging
-from integrations.iandt import ImpactAnalysisDT
-
-from constants import Const
+from models.api_models import ImpactAnalysisRequest
+from controllers.iandt_controller import IANDTController
 
 # Configure logging
 logger = setup_logging(__name__)
 
 router = APIRouter()
 
-# Define the request models
-class ResultModel(BaseModel):
-    value: str
-    unit: str
-
-class ElementModel(BaseModel):
-    node: str
-    interface: str
-
-class KPIsModel(BaseModel):
-    element: ElementModel
-    metric: str
-    result: ResultModel
-
-class WhatModel(BaseModel):
-    KPIs: KPIsModel
-
-class ImpactAnalysisRequest(BaseModel):
-    id: str
-    topology_name: str
-    attack: str
-    what: WhatModel
-
 @router.post("/impact-analysis")
 async def process_impact_analysis(request: ImpactAnalysisRequest):
     """
-    Process impact analysis data and trigger external integration.
+    Process asyncronous answer from the IA-NDT. The answer is a JSON o document.
+    The digital twin can answer with two different scenarios: a result form a measurement without
+    a mitigation action (monitor) or a result from a measurement with a mitigation action applied.
+    1. Send the answer to the ID-NDT controller to the processed
+        1. if the answer is a result from a measurement without a mitigation action applied, 
+            it should update the kpi_before field of the DTJob object in the app.store 
+            _dt_jobs list wich has the same id as the request.id field.
+        2. if the answer is a result from a measurement with a mitigation action applied, it 
+            should update the kpi_after field of the DTJob object in the app.store _dt_jobs 
+            list wich has the same id as the request.id field.
+    Ther is not a clear way to identify whether the answer is from a measurement without a 
+    mitigation action, therefore the IBN module should infer the type of answer according to 
+    the internal state of the simulation. Basically, if the DTJob object has a kpi_before field 
+    with the 'None' value, it means that the answer is from a measurement without a mitigation 
+    action applied. If the kpi_before field has a value, it means that the answer is from a 
+    measurement with a mitigation action applied.
     """
     try:
-        # Create instance of ImpactAnalysisDT
-        impact_analysis = ImpactAnalysisDT()
-        
-        # Convert request to dict for processing
-        request_dict = request.dict()
-        
-        # Call the method to print the received answer
-        impact_analysis.log_received_answer(request_dict)
-        
-        # Check if value is below threshold
-        value = float(request.what.KPIs.result.value)
-        # TODO: Update logic to handle IAND responses
-        return
-        if value < Const.IADT_PPS_THRESHOLD:
-            logger.warning(
-                f"Impact analysis value {value} is below threshold {Const.IADT_PPS_THRESHOLD}. "
-                f"Node: {request.what.KPIs.element.node}, "
-                f"Interface: {request.what.KPIs.element.interface}, "
-                f"Metric: {request.what.KPIs.metric}"
-            )
-        else:
-            logger.info(
-                f"Impact analysis value {value} is above threshold {Const.IADT_PPS_THRESHOLD}. "
-                f"Node: {request.what.KPIs.element.node}, "
-                f"Interface: {request.what.KPIs.element.interface}, "
-                f"Metric: {request.what.KPIs.metric}"
-            )
-            logger.info("Impact analysis completed. Updating intent status. ID: %s", request.id)
-            impact_analysis.update_intent_status(
-                request.id, 
-                Const.INTENT_STATUS_NDT_VALIDATED
-            )
-        return {
-            "status": "success",
-            "message": "Answer of the simulation received",
-            "id": request.id
-        }
-        
+
+        data = request.model_dump()
+        # Extract id and value from the request JSON
+        job_id = request.id
+        value = float(data["what"]["KPIs"]["result"]["value"])
+        # Import and call the controller function
+        iandt_controller = IANDTController()
+        iandt_controller.process_response(job_id, value)
+        return {"status": "success", "job_id": job_id, "value": value}
+
+    except (KeyError, TypeError, ValueError) as e:
+        logger.error(f"Failed to extract KPI value: {e}")
+        raise HTTPException(status_code=400, detail="Malformed KPI result in request")
     except ValueError as e:
         logger.error(f"Invalid value format: {e}")
         raise HTTPException(status_code=400, detail="Invalid value format")

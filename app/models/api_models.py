@@ -18,3 +18,33 @@ class DTEIntent(BaseModel):
     threat: str
     host: list
     duration: int
+
+"""
+IANDT related models
+"""
+# Define the request models
+class ResultModel(BaseModel):
+    value: str
+    unit: str
+
+class ElementModel(BaseModel):
+    node: str
+    interface: str
+
+class KPIsModel(BaseModel):
+    element: ElementModel
+    metric: str
+    result: ResultModel
+
+class WhatModel(BaseModel):
+    KPIs: KPIsModel
+
+class ImpactAnalysisRequest(BaseModel):
+    id: str
+    topology_name: str
+    attack: str
+    what: WhatModel
+
+
+
+ResultModel, ElementModel, KPIsModel, WhatModel, ImpactAnalysisRequest

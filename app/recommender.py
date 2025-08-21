@@ -79,4 +79,13 @@ class Recommender:
             
             # TODO: parametrize other mitigation actions here
         return mitigation
-        
+
+    def get_mitigation_host(self, threat: DetectedThreat, mitigation: MitigationAction) -> str:
+        # TODO: implement this method with the values according to the mitigation action
+        """
+        Get the mitigation host based on the threat and the mitigation action.
+        """
+        if mitigation.name == "udp_traffic_filter":
+            return "ceos2"
+        else:
+            return ""

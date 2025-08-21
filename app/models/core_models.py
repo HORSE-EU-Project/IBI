@@ -209,7 +209,12 @@ class DTJob:
         :param kpi: KPI value after the mitigation action
         """
         self.kpi_after = kpi
-        self.status = DTJob.JobStatus.COMPLETED
+        
+    def update_status(self, status: JobStatus) -> None:
+        """
+        Update the status of the job.
+        """
+        self.status = status
 
     def __str__(self):
         return f"DTJob(uid={self.uid}, threat_id={self.threat_id}, mitigation_id={self.mitigation_id}, kpi_before={self.kpi_before}, kpi_after={self.kpi_after}, status={self.status})"
