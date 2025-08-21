@@ -2,19 +2,14 @@
 This class represents an external integration to the RTR service.
 It gets the configuration from the YML configuration file and it tries
 to establish an HTTP connection to the RTR service.
-
 """
 
 import requests
 import json
 import config
-import logging
-from threading import Lock
-from logging.handlers import SysLogHandler
 from utils.log_config import setup_logging
-from data.store import InMemoryStore
-from models.core_models import DetectedThreat, MitigationAction
-from difflib import get_close_matches
+from models.core_models import CoreIntent, MitigationAction
+from recommender import Recommender
 
 class RTR:
     _instance = None
@@ -29,6 +24,7 @@ class RTR:
         if self._initialized:
             return
         self._logger = setup_logging(__name__)
+        self._recommender = Recommender()
         self.rtr_url = config.RTR_URL
         self.rtr_username = config.RTR_USER
         self.rtr_password = config.RTR_PASSWORD
@@ -113,22 +109,35 @@ class RTR:
                 self._logger.error(f"RTR login error response: {e.response.text}")
             raise
 
-    def create_workflow(self, intent, mitigation_action):
-        # """Create a workflow for the RTR service."""
-        # im = DTEController()
-        # workflow = {
-        #     "command": "add",
-        #     "intent_type": intent.get("intent_type"),
-        #     "threat": intent.get("threat"),
-        #     "attacked_host": intent.get("attacked_host"),
-        #     "mitigation_host": intent.get("mitigation_host"),
-        #     "action": mitigation_action,
-        #     "duration": intent.get("duration"),
-        #     "intent_id": im._get_intent_id(intent),
-        # }
-        # self._logger.debug(f"Workflow created: {workflow}")
-        # return workflow
-        pass
+    def enforce_mitigation(self, intent: CoreIntent, mitigation_action: MitigationAction):
+        # Create a workflow for the RTR service
+        rtr_message = self.create_workflow(intent, mitigation_action)
+        # Send the workflow to the RTR service
+        self.send_workflow(rtr_message)
+
+
+    def create_workflow(self, intent: CoreIntent, mitigation_action: MitigationAction):
+        fields_template = {}
+        for f in mitigation_action.parameters:
+            fields_template[f.name] = f.value
+            self._logger.info(f"Field {f.name} with value {f.value} added to the action template")
+
+        action_template = {
+            "name": mitigation_action.name,
+            "fields": fields_template
+        }
+        message_template = {
+            "command": "add",
+            "intent_type": intent.intent_type,
+            "threat": intent.threat,
+            "attacked_host": intent.host,
+            "mitigation_host": self._recommender.get_mitigation_host(intent, mitigation_action),
+            "action": action_template,
+            "duration": intent.duration,
+            "intent_id": intent.uid
+        }
+        return message_template
+
 
     def send_workflow(self, workflow):
         if not self.access_token:
