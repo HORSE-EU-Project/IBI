@@ -1,0 +1,45 @@
+### Response from the IA-NDT for Monitor
+POST http://127.0.0.1:8000/impact-analysis
+content-type: application/json
+
+{
+    "id": "3de2a805-5ad8-4f92-90c7-3fcbf3a4a93a",
+    "topology_name": "horse_ddos",
+    "attack": "DDoS_reverse",
+    "what": {
+        "KPIs": {
+          "element": {
+            "node": "ceos2",
+            "interface": "eth6"
+          },
+          "metric": "packets-per-second",
+          "result": {
+            "value": "20000",
+            "unit": "packets-per-second"
+          }
+        }
+    }
+}
+
+### Response from the IA-NDT for Mitigation
+POST http://127.0.0.1:8000/impact-analysis
+content-type: application/json
+
+{
+    "id": "3de2a805-5ad8-4f92-90c7-3fcbf3a4a93a",
+    "topology_name": "horse_ddos",
+    "attack": "DDoS_reverse",
+    "what": {
+        "KPIs": {
+          "element": {
+            "node": "ceos-1",
+            "interface": "eth6"
+          },
+          "metric": "packets-per-second",
+          "result": {
+            "value": "8000",
+            "unit": "packets-per-second"
+          }
+        }
+    }
+}
