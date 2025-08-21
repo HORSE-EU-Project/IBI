@@ -1,5 +1,7 @@
 import requests
 import config
+import threading
+import time
 from enum import Enum
 from constants import Const
 from utils.log_config import setup_logging
@@ -214,6 +216,10 @@ class ImpactAnalysisDT:
                 f"Impact Analysis Digital Twin is not enabled. Commands will be sent to logging system."
             )
             self._logger.warning(f"Impact Analysis Digital Twin message: {message}")
+            
+            # Schedule a mock response if in development mode
+            if Const.APP_ENV == Const.APP_ENV_DEV:
+                self._schedule_mock_response(message)
         else:
             try:
                 response = requests.post(
@@ -270,3 +276,71 @@ class ImpactAnalysisDT:
             "ddos_download": "DDoS_reverse",
         }
         return names.get(from_threat, from_threat)
+    
+    
+    def _schedule_mock_response(self, original_message: dict):
+        """
+        Schedule a POST request to the impact-analysis endpoint with a mock digital twin answer
+        when the integration is disabled and running in development mode.
+        """
+        def send_mock_response():
+            # Wait a bit to simulate processing time
+            time.sleep(2)
+            
+            # Create mock response based on the original message
+            mock_response = self._create_mock_response(original_message)
+            
+            # Send POST request to the impact-analysis endpoint
+            try:
+                response = requests.post(
+                    f"http://{Const.APP_HOST}:{Const.APP_PORT}/impact-analysis",
+                    headers=self.headers,
+                    json=mock_response,
+                )
+                response.raise_for_status()
+                self._logger.info(f"Mock response sent to impact-analysis endpoint. Status: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                self._logger.error(f"Error sending mock response to impact-analysis endpoint: {e}")
+        
+        # Start the mock response in a separate thread
+        thread = threading.Thread(target=send_mock_response, daemon=True)
+        thread.start()
+        self._logger.info(f"Scheduled mock response for message ID: {original_message.get('id', 'unknown')}")
+
+    def _create_mock_response(self, original_message: dict) -> dict:
+        """
+        Create a mock response based on the original message sent to the digital twin.
+        The response follows the JSON structure from iandt.rest file.
+        """
+        # Determine if this is a monitor or simulation message based on the action type
+        action_type = original_message.get("if-condition", {}).get("action", {}).get("type", "")
+        
+        # Create base response structure
+        mock_response = {
+            "id": original_message.get("id", ""),
+            "topology_name": original_message.get("topology_name", "horse_ddos"),
+            "attack": original_message.get("attack", "DDoS_reverse"),
+            "what": {
+                "KPIs": {
+                    "element": {
+                        "node": original_message.get("what-condition", {}).get("KPIs", {}).get("element", {}).get("node", "ceos2"),
+                        "interface": original_message.get("what-condition", {}).get("KPIs", {}).get("element", {}).get("interface", "eth1")
+                    },
+                    "metric": original_message.get("what-condition", {}).get("KPIs", {}).get("metric", "packets-per-second"),
+                    "result": {
+                        "value": "",
+                        "unit": "packets-per-second"
+                    }
+                }
+            }
+        }
+        
+        # Set different values based on whether it's a monitor or simulation
+        if action_type == "monitor":
+            # Monitor response - higher packet rate (before mitigation)
+            mock_response["what"]["KPIs"]["result"]["value"] = "20000"
+        else:
+            # Simulation response - lower packet rate (after mitigation)
+            mock_response["what"]["KPIs"]["result"]["value"] = "8000"
+        
+        return mock_response

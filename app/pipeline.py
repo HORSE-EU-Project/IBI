@@ -105,11 +105,14 @@ class IntentPipeline:
                 logger.debug(f"Processing: Intent: {intent.get_uid()}, Threat: {threat.uid} (UNDER EMULATION)")
                 
                 # If threat is Under emulation/simulation on the DT
-                dt_job = self._store.dt_job_get(threat.uid)
+                dt_job = self._store.dt_job_get_by_threat(threat.uid)
+                print('#' * 100)
+                print(dt_job)
+                print('#' * 100)
                 # DT workflow is complete?
                 if dt_job and dt_job.status == DTJob.JobStatus.COMPLETED:
                     # Results are good?
-                    if self.iadt.check_results(thread.id, dt_job.kpi_before, dt_job.kpi_after):
+                    if self.iadt.check_results(threat.uid, dt_job.kpi_before, dt_job.kpi_after):
                         # Recover the mitigation action linked to the thread
                         mitigation_actions = self._store.association_get(threat.uid)
                         mitigation_action = mitigation_actions[0] if mitigation_actions else None

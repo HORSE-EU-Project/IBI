@@ -30,7 +30,7 @@ class RTR:
         self.rtr_password = config.RTR_PASSWORD
         self.rtr_email = config.RTR_EMAIL
         # call login method to authenticate
-        self.token = ""
+        self.access_token = None
         self.reg_headers = {
             "accept": "application/json",
             "Content-Type": "application/json",
@@ -118,9 +118,9 @@ class RTR:
 
     def create_workflow(self, intent: CoreIntent, mitigation_action: MitigationAction):
         fields_template = {}
-        for f in mitigation_action.parameters:
-            fields_template[f.name] = f.value
-            self._logger.info(f"Field {f.name} with value {f.value} added to the action template")
+        for key, value in mitigation_action.parameters.items():
+            fields_template[key] = value
+            self._logger.debug(f"Field {key} with value {value} added to the action template")
 
         action_template = {
             "name": mitigation_action.name,
@@ -128,7 +128,7 @@ class RTR:
         }
         message_template = {
             "command": "add",
-            "intent_type": intent.intent_type,
+            "intent_type": intent.intent_type.value,
             "threat": intent.threat,
             "attacked_host": intent.host,
             "mitigation_host": self._recommender.get_mitigation_host(intent, mitigation_action),

@@ -206,6 +206,13 @@ class InMemoryStore:
                     return job
             return None
 
+    def dt_job_get_by_threat(self, threat_id: str) -> Optional[DTJob]:
+        with self._data_lock:
+            for job in self._dt_jobs:
+                if job.threat_id == threat_id:
+                    return job
+            return None
+
 
     def dt_job_exists(self, job: DTJob) -> bool:
         """

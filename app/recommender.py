@@ -68,6 +68,17 @@ class Recommender:
             # configure detection mitigation action
             pass
         elif mitigation.category == MitigationAction.MitigationCategory.PREVENTION:
+            if mitigation.name == "dns_rate_limiting":
+                mitigation.define_field("rate", "20")
+                mitigation.define_field("source_ip_filter", threat.hosts[0] if threat.hosts else "0.0.0.0/0")
+            elif mitigation.name == "rate_limiting":
+                mitigation.define_field("device", "ceos2")
+                mitigation.define_field("interface", "eth4")
+                mitigation.define_field("rate", "10mbps")
+            elif mitigation.name == "block_pod_address":
+                mitigation.define_field("blocked_pod", "attacker")
+                mitigation.define_field("device", "ceos2")
+                mitigation.define_field("interface", "eth4")
             # configure prevention mitigation action
             pass
         elif mitigation.category == MitigationAction.MitigationCategory.MITIGATION:
