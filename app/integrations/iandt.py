@@ -1,7 +1,7 @@
 import requests
 import config
 from enum import Enum
-from typing import List, Any
+from constants import Const
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
 from models.core_models import DetectedThreat, MitigationAction, DTJob
@@ -118,15 +118,6 @@ class ImpactAnalysisDT:
         else:
             self.enabled = False
 
-    def is_available(self):
-        """
-        Check if the Impact Analysis Digital Twin is available.
-        """
-        for job in self._store.dt_job_get_all():
-            if job.status == DTJob.JobStatus.PENDING:
-                return False
-        return True
-
 
     def enqueue_simulation(self, threat: DetectedThreat, action: MitigationAction):
         dt_job = DTJob(threat.uid, action.uid)
@@ -139,7 +130,7 @@ class ImpactAnalysisDT:
 
 
     def process_queued_jobs(self):
-        if self._queue and self.is_available():
+        if self._queue and self._store.dt_is_available():
             (dt_task, task_type) = self._queue.pop(0)  # Task type is either MEASUREMENT or SIMULATION
             if not self._store.dt_job_exists(dt_task):
                 self._store.dt_job_add(dt_task)
@@ -153,7 +144,7 @@ class ImpactAnalysisDT:
         else:
             if len(self._queue) == 0:
                 self._logger.debug("IA-NDT queue is empty waiting for next cycle")
-            if not self.is_available():
+            if not self._store.dt_is_available():
                 self._logger.debug("IA-NDT is not available, waiting for next cycle")
 
     
@@ -216,6 +207,7 @@ class ImpactAnalysisDT:
 
 
     def send_iandt_message(self, message: dict):
+        self._store.dt_set_busy()
         # Message to send to the Impact Analysis Digital Twin
         if not self.enabled:
             self._logger.warning(
@@ -256,6 +248,12 @@ class ImpactAnalysisDT:
         self._logger.info(
             f"Received answer from Impact Analysis Digital Twin: {answer_dict}"
         )
+
+    def check_results(self, threat_id: str, kpi_before: float, kpi_after: float) -> bool:
+        """
+        Check if the result is good.
+        """
+        return kpi_after < kpi_before * Const.IADT_PPS_THRESHOLD
 
     def _dt_attack_name(self, from_threat: str) -> str:
         """

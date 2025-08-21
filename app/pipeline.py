@@ -1,9 +1,8 @@
-from typing import List
-from constants import Const
+from concurrent.futures import thread
 from recommender import Recommender
 from data.store import InMemoryStore
 from models.api_models import DTEIntentType
-from models.core_models import CoreIntent, DetectedThreat
+from models.core_models import CoreIntent, DTJob, DetectedThreat
 from integrations.ckb import CKB
 from integrations.cas import CASClient
 from integrations.iandt import ImpactAnalysisDT
@@ -57,9 +56,6 @@ class IntentPipeline:
                 continue
 
         self.iadt.process_queued_jobs()
-        print("#" * 20)
-        for job in self._store._dt_jobs:
-            print(job)
         
 
     def update_expired_threats(self, threats):
@@ -89,7 +85,7 @@ class IntentPipeline:
         for threat in threats:
             # if threat is NEW, propose a prevention
             if threat.get_status() == DetectedThreat.ThreatStatus.NEW:
-                logger.debug(f"Processing threat {threat.uid} for intent: {intent.get_uid()}")
+                logger.debug(f"Processing: Intent: {intent.get_uid()}, Threat: {threat.uid} (NEW)")
                 # Query cKB
                 self.ckb.query_ckb(threat.threat_name)
                 available_actions = self.recommender.get_mitigations(threat)
@@ -106,16 +102,42 @@ class IntentPipeline:
 
 
             if threat.get_status() == DetectedThreat.ThreatStatus.UNDER_EMULATION:
+                logger.debug(f"Processing: Intent: {intent.get_uid()}, Threat: {threat.uid} (UNDER EMULATION)")
+                
                 # If threat is Under emulation/simulation on the DT
+                dt_job = self._store.dt_job_get(threat.uid)
                 # DT workflow is complete?
+                if dt_job and dt_job.status == DTJob.JobStatus.COMPLETED:
                     # Results are good?
-                        # Send to RTR
-                        # Set threat as UNDER_MITIGATION
-                    # Results are bad
-                        # Propose a new mitigation action
-                        # Send to IA-NDT
-                        # Set status to UNDER_EMULATION
-                pass
+                    if self.iadt.check_results(thread.id, dt_job.kpi_before, dt_job.kpi_after):
+                        # Recover the mitigation action linked to the thread
+                        mitigation_actions = self._store.association_get(threat.uid)
+                        mitigation_action = mitigation_actions[0] if mitigation_actions else None
+                        # Test with CAS
+                        cas_result = self.cas_client.validate(intent, mitigation_action)
+                        
+                        while cas_result == self.cas_client.PARTIAL:
+                            mitigation_action = self.cas_client.tune_mitigation(mitigation_action)
+                            self._store.association_update(threat.uid, mitigation_action)
+                            cas_result = self.cas_client.validate(mitigation_action)
+
+                        if cas_result == self.cas_client.INVALID:
+                            logger.debug(f"Mitigation {mitigation_action.uid} was rejected by CAS. Setting as NEW for new cycle.")
+                            threat.update_status(DetectedThreat.ThreatStatus.NEW)
+                        
+                        if cas_result == self.cas_client.VALID:
+                            logger.debug(f"Mitigation {mitigation_action.uid} was accepted by CAS. Sending to RTR and setting UNDER_MITIGATION.")
+                            self.rtr_client.enforce_mitigation(intent, mitigation_action)
+                            threat.update_status(DetectedThreat.ThreatStatus.UNDER_MITIGATION)
+
+                    else:
+                        # Results from the DT are bad
+                        logger.debug(f"Mitigation NOT effective for threat {threat.uid}. Setting as NEW for new cycle.")
+                        threat.update_status(DetectedThreat.ThreatStatus.NEW)
+
+                    # Remove the completed DT job
+                    self._store.dt_job_delete(threat.uid)
+                
 
             if threat.get_status() == DetectedThreat.ThreatStatus.REINCIDENT:
                 # If threat is Reincident, propose a new mitigation action

@@ -1,4 +1,6 @@
 import requests
+from constants import Const
+from models.core_models import MitigationAction
 import config
 from utils.log_config import setup_logging
 
@@ -26,32 +28,29 @@ class CASClient:
             self.enabled = False
             self._logger.info(f"Integration to CKB is disabled.")
 
-    def _tune_mitigation_fields(self, mitigation_action):
+    def tune_mitigation(self, mitigation_action: MitigationAction):
         """
         Tune the fields of the mitigation action to match the expected format.
         """
+        if mitigation_action.name == "rate_limiting":
+            if 'rate' in mitigation_action.parameters.keys():
+                rate_value = mitigation_action.parameters['rate']
+                if isinstance(rate_value, str) and rate_value.endswith('mbps'):
+                    try:
+                        int_part = int(''.join(filter(str.isdigit, rate_value)))
+                        new_rate = f"{int_part + Const.CAS_RATE_MITITING_INCREMENT}mbps"
+                        mitigation_action.parameters['rate'] = new_rate
+                    except Exception as e:
+                        self._logger.error(f"Error tuning rate value: {e}")
+
+
+        
         # Example tuning logic, adjust as needed
         # if "percentage" in mitigation_action:
         #     mitigation_action["fields"]["percentage"] = int(
         #         mitigation_action["fields"]["percentage"]
         #     )
         return mitigation_action
-
-
-    def process_mitigation(self, intent, mitigations):
-        for mitigation in mitigations:
-            
-            result = self.validate(intent, mitigation)
-            
-            if result == self.VALID:
-                return mitigation
-            else:
-                if result == self.INVALID:
-                    self._logger.info(f"Mitigation {mitigation} is invalid, trying next mitigation")
-                    continue
-                elif result == self.PARTIAL:
-                    tuned_mitigation = self._tune_mitigation_fields(mitigation)
-                    return tuned_mitigation
                     
 
     def validate(self, intent, mitigation_action):
