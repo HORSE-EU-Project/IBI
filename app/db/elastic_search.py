@@ -45,28 +45,7 @@ class ElasticSearchClient(metaclass=ESClientMeta):
         Get the Elasticsearch client instance.
         """
         return self._es_client
-    
 
-    def delete_indices(self):
-        """
-        Delete all indices in Elasticsearch.
-        """
-        _to_delete = {
-            Const.INTENTS_INDEX, 
-            Const.MITIGATION_INDEX,
-            Const.ASSOCIATIONS_INDEX
-        }
-
-        for index in _to_delete:
-            try:
-                if self._es_client:
-                    response = self._es_client.indices.delete(index=index, ignore=[404])
-                    if response.get('acknowledged', False):
-                        logger.debug(f"Index '{index}' deleted successfully")
-                    else:
-                        logger.warning(f"Failed to delete index '{index}'")
-            except Exception as e:
-                logger.error(f"Error deleting index '{index}': {str(e)}")
 
     
     def pupulate_mitigations(self):
