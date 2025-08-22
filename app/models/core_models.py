@@ -86,10 +86,14 @@ class DetectedThreat:
         """
         Renew the detected threat's timeout.
         """
+        # Do not reopen a threat that is already mitigated
         if self.status == self.ThreatStatus.MITIGATED:
             return
+        # Only update the status to REINCIDENT if the threat is UNDER_MITIGATION
+        if self.status == self.ThreatStatus.UNDER_MITIGATION:
+            self.status = self.ThreatStatus.REINCIDENT
+        # Always update the last update time (extend the timeout)
         self.last_update = int(datetime.now().timestamp())
-        self.status = self.ThreatStatus.REINCIDENT
 
 
     def update_status(self, new_status: ThreatStatus):
