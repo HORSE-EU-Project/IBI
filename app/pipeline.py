@@ -73,7 +73,36 @@ class IntentPipeline:
         """
         logger.debug(f"Processing mitigation intent: {intent.get_uid()}")
         # Get mitigations for the intent
+        for threat in threats:
+            if threat.get_status() == DetectedThreat.ThreatStatus.NEW:
+                logger.debug(f"Processing threat: {threat.uid} (Status: NEW)")
+                # Query cKB
+                self.ckb.query_ckb(threat.threat_name)
+                available_actions = self.recommender.get_mitigations(threat)
+                if not available_actions:
+                    logger.warning(f"No mitigation found for threat: {threat.threat_name}")
+                    continue
+                # Parametrize the mitigation action
+                mitigation_action = self.recommender.configure_mitigation(threat, available_actions[0])
+                # Associate the mitigation action with the threat
+                self.recommender.associate_mitigation(threat.uid, mitigation_action)
+                # Test the mitigation action with CAS
+                # Test with CAS
+                cas_result = self.cas_client.validate(intent, mitigation_action)
+                        
+                while cas_result == self.cas_client.PARTIAL:
+                    mitigation_action = self.cas_client.tune_mitigation(mitigation_action)
+                    self._store.association_update(threat.uid, mitigation_action)
+                    cas_result = self.cas_client.validate(mitigation_action)
 
+                if cas_result == self.cas_client.INVALID:
+                    logger.debug(f"Mitigation {mitigation_action.uid} was rejected by CAS. Setting as NEW for new cycle.")
+                    threat.update_status(DetectedThreat.ThreatStatus.NEW)
+                
+                if cas_result == self.cas_client.VALID:
+                    logger.debug(f"Mitigation {mitigation_action.uid} was accepted by CAS. Sending to RTR and setting UNDER_MITIGATION.")
+                    self.rtr_client.enforce_mitigation(intent, mitigation_action)
+                    threat.update_status(DetectedThreat.ThreatStatus.UNDER_MITIGATION)
 
     def process_prevention_intents(self, intent, threats):
         """
@@ -85,7 +114,7 @@ class IntentPipeline:
         for threat in threats:
             # if threat is NEW, propose a prevention
             if threat.get_status() == DetectedThreat.ThreatStatus.NEW:
-                logger.debug(f"Processing: Intent: {intent.get_uid()}, Threat: {threat.uid} (NEW)")
+                logger.debug(f"Processing threat: {threat.uid} (Status: NEW)")
                 # Query cKB
                 self.ckb.query_ckb(threat.threat_name)
                 available_actions = self.recommender.get_mitigations(threat)
@@ -102,7 +131,7 @@ class IntentPipeline:
 
 
             if threat.get_status() == DetectedThreat.ThreatStatus.UNDER_EMULATION:
-                logger.debug(f"Processing: Intent: {intent.get_uid()}, Threat: {threat.uid} (UNDER EMULATION)")
+                logger.debug(f"Processing threat: {threat.uid} (Status: UNDER EMULATION)")
                 
                 # If threat is Under emulation/simulation on the DT
                 dt_job = self._store.dt_job_get_by_threat(threat.uid)
@@ -144,6 +173,7 @@ class IntentPipeline:
 
             if threat.get_status() == DetectedThreat.ThreatStatus.REINCIDENT:
                 # If threat is Reincident, propose a new mitigation action
-                logger.debug(f"Detected REINCIDENT threat: {threat.uid} for intent: {intent.get_uid()}")
+                logger.debug(f"Processing threat: {threat.uid} (Status: REINCIDENT). Setting as NEW for new cycle.")
+                threat.update_status(DetectedThreat.ThreatStatus.NEW)
                 pass
 
