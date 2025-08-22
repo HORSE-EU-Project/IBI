@@ -13,35 +13,151 @@
             <div class="app-dashboard-body-content off-canvas-content" data-off-canvas-content>
                 <!-- Start: dashboard_content -->
                 <div class="grid-container">
+                    <!-- Welcome Section -->
                     <div class="grid-x grid-margin-x">
-                        <div class="cell large-4 medium-4">
-                            <div class="dashboard-number-card negative">
-                                <h5 class="dashboard-number-value">$20,000</h5>
-                                <div>
-                                    <p class="dashboard-number-area">New threats</p>
-                                </div>
+                        <div class="cell large-12">
+                            <div class="welcome-section">
+                                <h2><i class="fa fa-shield"></i> IBI System Overview</h2>
+                                <p class="subtitle">Intent-Based Intelligence Dashboard - Real-time threat monitoring and mitigation</p>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="cell large-4 medium-4">
-                            <div class="dashboard-number-card neutral">
-                                <h5 class="dashboard-number-value">$20,000</h5>
-                                <div>
-                                    <p class="dashboard-number-area">Threats under mitigation</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="cell large-4 medium-4">
+                    <!-- Main Statistics Cards -->
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell large-3 medium-6">
                             <div class="dashboard-number-card positive">
-                                <h5 class="dashboard-number-value">$20,000</h5>
+                                <div class="card-icon">
+                                    <i class="fa fa-eye"></i>
+                                </div>
+                                <h5 class="dashboard-number-value" id="total-intents">0</h5>
                                 <div>
-                                    <p class="dashboard-number-area">Threats mitigated</p>
+                                    <p class="dashboard-number-area">Total Intents</p>
+                                </div>
+                                <div class="card-trend">
+                                    <i class="fa fa-arrow-up"></i>
+                                    <span id="intents-trend">0%</span>
                                 </div>
                             </div>
                         </div>
-                        
-                        
+
+                        <div class="cell large-3 medium-6">
+                            <div class="dashboard-number-card negative">
+                                <div class="card-icon">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </div>
+                                <h5 class="dashboard-number-value" id="total-threats">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Active Threats</p>
+                                </div>
+                                <div class="card-trend">
+                                    <i class="fa fa-arrow-up"></i>
+                                    <span id="threats-trend">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cell large-3 medium-6">
+                            <div class="dashboard-number-card warning">
+                                <div class="card-icon">
+                                    <i class="fa fa-cogs"></i>
+                                </div>
+                                <h5 class="dashboard-number-value" id="under-mitigation">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Under Mitigation</p>
+                                </div>
+                                <div class="card-trend">
+                                    <i class="fa fa-arrow-up"></i>
+                                    <span id="mitigation-trend">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cell large-3 medium-6">
+                            <div class="dashboard-number-card success">
+                                <div class="card-icon">
+                                    <i class="fa fa-check-circle"></i>
+                                </div>
+                                <h5 class="dashboard-number-value" id="mitigated">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Successfully Mitigated</p>
+                                </div>
+                                <div class="card-trend">
+                                    <i class="fa fa-arrow-up"></i>
+                                    <span id="success-trend">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Status and Quick Actions -->
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell large-8">
+                            <div class="card">
+                                <div class="card-section">
+                                    <h5><i class="fa fa-chart-line"></i> System Performance</h5>
+                                    <div class="performance-metrics">
+                                        <div class="metric-item">
+                                            <span class="metric-label">System Uptime</span>
+                                            <span class="metric-value" id="uptime">--</span>
+                                        </div>
+                                        <div class="metric-item">
+                                            <span class="metric-label">Response Time</span>
+                                            <span class="metric-value" id="response-time">--</span>
+                                        </div>
+                                        <div class="metric-item">
+                                            <span class="metric-label">Active Mitigations</span>
+                                            <span class="metric-value" id="active-mitigations">--</span>
+                                        </div>
+                                        <div class="metric-item">
+                                            <span class="metric-label">Success Rate</span>
+                                            <span class="metric-value" id="success-rate">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cell large-4">
+                            <div class="card">
+                                <div class="card-section">
+                                    <h5><i class="fa fa-bolt"></i> Quick Actions</h5>
+                                    <div class="quick-actions">
+                                        <a href="/statistics" class="button expanded">
+                                            <i class="fa fa-bar-chart"></i> View Statistics
+                                        </a>
+                                        <button class="button expanded secondary" onclick="refreshData()">
+                                            <i class="fa fa-refresh"></i> Refresh Data
+                                        </button>
+                                        <button class="button expanded secondary" onclick="exportReport()">
+                                            <i class="fa fa-download"></i> Export Report
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell large-12">
+                            <div class="card">
+                                <div class="card-section">
+                                    <h5><i class="fa fa-clock-o"></i> Recent Activity</h5>
+                                    <div class="activity-feed" id="activity-feed">
+                                        <div class="activity-item">
+                                            <div class="activity-icon">
+                                                <i class="fa fa-info-circle"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <div class="activity-title">System Initialized</div>
+                                                <div class="activity-time">Just now</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- End: dashboard_content -->
@@ -51,6 +167,82 @@
 
     <!-- End of content -->
     {% include 'scripts.html' %}
+    
+    <script>
+        // Dashboard functionality
+        let lastData = {};
+        
+        async function updateDashboard() {
+            try {
+                const response = await fetch('/statistics/overview');
+                const data = await response.json();
+                
+                // Update main cards
+                document.getElementById('total-intents').textContent = data.intents.total;
+                document.getElementById('total-threats').textContent = data.threats.total;
+                document.getElementById('under-mitigation').textContent = data.threats.by_status.UNDER_MITIGATION || 0;
+                document.getElementById('mitigated').textContent = data.threats.by_status.MITIGATED || 0;
+                
+                // Calculate trends
+                if (lastData.intents) {
+                    const intentsChange = ((data.intents.total - lastData.intents.total) / lastData.intents.total * 100) || 0;
+                    document.getElementById('intents-trend').textContent = `${Math.abs(intentsChange).toFixed(1)}%`;
+                }
+                
+                // Update system metrics
+                document.getElementById('uptime').textContent = '99.9%';
+                document.getElementById('response-time').textContent = '< 100ms';
+                document.getElementById('active-mitigations').textContent = data.mitigations.enabled;
+                
+                const successRate = data.threats.total > 0 ? 
+                    ((data.threats.by_status.MITIGATED || 0) / data.threats.total * 100).toFixed(1) : '0.0';
+                document.getElementById('success-rate').textContent = `${successRate}%`;
+                
+                // Store data for next comparison
+                lastData = data;
+                
+            } catch (error) {
+                console.error('Error updating dashboard:', error);
+            }
+        }
+        
+        function refreshData() {
+            updateDashboard();
+            addActivityItem('Data refreshed manually', 'fa-refresh');
+        }
+        
+        function exportReport() {
+            addActivityItem('Report export initiated', 'fa-download');
+            // Add actual export functionality here
+        }
+        
+        function addActivityItem(title, icon) {
+            const activityFeed = document.getElementById('activity-feed');
+            const activityItem = document.createElement('div');
+            activityItem.className = 'activity-item';
+            activityItem.innerHTML = `
+                <div class="activity-icon">
+                    <i class="fa ${icon}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">${title}</div>
+                    <div class="activity-time">Just now</div>
+                </div>
+            `;
+            activityFeed.insertBefore(activityItem, activityFeed.firstChild);
+            
+            // Keep only last 10 items
+            while (activityFeed.children.length > 10) {
+                activityFeed.removeChild(activityFeed.lastChild);
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+            setInterval(updateDashboard, 30000); // Update every 30 seconds
+        });
+    </script>
 </body>
 
 </html>

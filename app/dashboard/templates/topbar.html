@@ -1,16 +1,34 @@
 <div class="row expanded app-dashboard-top-nav-bar">
-    <div class="columns medium-2">
+    <div class="columns medium-3">
         <button data-toggle="app-dashboard-sidebar" class="menu-icon hide-for-medium"></button>
-        <a class="app-dashboard-logo">Foundation</a>
-    </div>
-    <div class="columns show-for-medium">
-        <div class="app-dashboard-search-bar-container">
-            <input class="app-dashboard-search" type="search" placeholder="Search">
-            <i class="app-dashboard-search-icon fa fa-search"></i>
+        <div class="logo-container">
+            <img src="/static/images/horse_logo.png" alt="Horse Logo" class="logo-image">
+            <div class="logo-text">
+                <span class="app-dashboard-logo">{{ APP_NAME }}</span>
+                <span class="version-text">v{{ APP_VERSION }}</span>
+            </div>
         </div>
     </div>
-    <div class="columns shrink app-dashboard-top-bar-actions">
-        <button href="#" class="button hollow">Logout</button>
-        <a href="#" height="30" width="30" alt=""><i class="fa fa-info-circle"></i></a>
+    <div class="columns medium-6 show-for-medium">
+        <div class="system-status">
+            <div class="status-indicator online">
+                <i class="fa fa-circle"></i>
+                <span>System Online</span>
+            </div>
+            <div class="last-update">
+                <i class="fa fa-clock-o"></i>
+                <span id="last-update-time">Just now</span>
+            </div>
+        </div>
+    </div>
+    <div class="columns medium-3 show-for-medium">
+        <div class="top-bar-actions">
+            <button class="button hollow small" onclick="refreshAllData()">
+                <i class="fa fa-refresh"></i> Refresh
+            </button>
+            <a href="#" class="help-link" title="Help">
+                <i class="fa fa-question-circle"></i>
+            </a>
+        </div>
     </div>
 </div>

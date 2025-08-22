@@ -1,0 +1,307 @@
+<!doctype html>
+<html class="no-js" lang="en" dir="ltr">
+{% include 'head.html' %}
+
+<body>
+    <!--  Start of content -->
+    <div class="app-dashboard shrink-medium">
+        {% include 'topbar.html' %}
+
+        <div class="app-dashboard-body off-canvas-wrapper">
+            {% include 'sidebar.html' %}
+            
+            <div class="app-dashboard-body-content off-canvas-content" data-off-canvas-content>
+                <!-- Start: dashboard_content -->
+                <div class="grid-container">
+                    <!-- Header Section -->
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell large-12">
+                            <div class="welcome-section">
+                                <h2><i class="fa fa-bar-chart"></i> IBI System Statistics</h2>
+                                <p class="subtitle">Comprehensive overview of intents, threats, and mitigation actions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overview Cards -->
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell large-3 medium-6">
+                            <div class="dashboard-number-card positive">
+                                <h5 class="dashboard-number-value" id="total-intents">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Total Intents</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cell large-3 medium-6">
+                            <div class="dashboard-number-card neutral">
+                                <h5 class="dashboard-number-value" id="active-intents">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Active Intents</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cell large-3 medium-6">
+                            <div class="dashboard-number-card negative">
+                                <h5 class="dashboard-number-value" id="total-threats">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Total Threats</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cell large-3 medium-6">
+                            <div class="dashboard-number-card positive">
+                                <h5 class="dashboard-number-value" id="total-mitigations">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Total Mitigations</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Threat Status Cards -->
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell large-12">
+                            <div class="section-header">
+                                <h4><i class="fa fa-shield"></i> Threat Status Overview</h4>
+                                <p>Current status distribution of detected threats</p>
+                            </div>
+                        </div>
+                        <div class="cell large-2 medium-4">
+                            <div class="dashboard-number-card negative">
+                                <h5 class="dashboard-number-value" id="new-threats">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">New</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cell large-2 medium-4">
+                            <div class="dashboard-number-card warning">
+                                <h5 class="dashboard-number-value" id="under-emulation-threats">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Under Emulation</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cell large-2 medium-4">
+                            <div class="dashboard-number-card neutral">
+                                <h5 class="dashboard-number-value" id="under-mitigation-threats">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Under Mitigation</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cell large-2 medium-4">
+                            <div class="dashboard-number-card negative">
+                                <h5 class="dashboard-number-value" id="reincident-threats">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Reincident</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cell large-2 medium-4">
+                            <div class="dashboard-number-card positive">
+                                <h5 class="dashboard-number-value" id="mitigated-threats">0</h5>
+                                <div>
+                                    <p class="dashboard-number-area">Mitigated</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Statistics Tables -->
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell large-6">
+                            <div class="card">
+                                <div class="card-section">
+                                    <h5><i class="fa fa-eye"></i> Recent Intents</h5>
+                                    <div class="table-scroll">
+                                        <table class="hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Type</th>
+                                                    <th>Threat</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="intents-table">
+                                                <!-- Populated by JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cell large-6">
+                            <div class="card">
+                                <div class="card-section">
+                                    <h5><i class="fa fa-exclamation-triangle"></i> Recent Threats</h5>
+                                    <div class="table-scroll">
+                                        <table class="hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Type</th>
+                                                    <th>Name</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="threats-table">
+                                                <!-- Populated by JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mitigation Actions -->
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell large-12">
+                            <div class="card">
+                                <div class="card-section">
+                                    <h5><i class="fa fa-cogs"></i> Mitigation Actions by Category</h5>
+                                    <div class="table-scroll">
+                                        <table class="hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Category</th>
+                                                    <th>Count</th>
+                                                    <th>Enabled</th>
+                                                    <th>Disabled</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="mitigations-table">
+                                                <!-- Populated by JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End: dashboard_content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- End of content -->
+    {% include 'scripts.html' %}
+    
+    <script>
+        // Add refresh indicator
+        function showRefreshIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'refresh-indicator';
+            indicator.textContent = 'Data updated';
+            document.body.appendChild(indicator);
+            
+            setTimeout(() => {
+                indicator.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                indicator.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(indicator);
+                }, 300);
+            }, 2000);
+        }
+
+        // Function to update dashboard with statistics
+        async function updateStatistics() {
+            try {
+                // Fetch overview statistics
+                const overviewResponse = await fetch('/statistics/overview');
+                const overview = await overviewResponse.json();
+                
+                // Update overview cards
+                document.getElementById('total-intents').textContent = overview.intents.total;
+                document.getElementById('active-intents').textContent = overview.intents.active;
+                document.getElementById('total-threats').textContent = overview.threats.total;
+                document.getElementById('total-mitigations').textContent = overview.mitigations.total;
+                
+                // Update threat status cards
+                document.getElementById('new-threats').textContent = overview.threats.by_status.NEW || 0;
+                document.getElementById('under-emulation-threats').textContent = overview.threats.by_status.UNDER_EMULATION || 0;
+                document.getElementById('under-mitigation-threats').textContent = overview.threats.by_status.UNDER_MITIGATION || 0;
+                document.getElementById('reincident-threats').textContent = overview.threats.by_status.REINCIDENT || 0;
+                document.getElementById('mitigated-threats').textContent = overview.threats.by_status.MITIGATED || 0;
+                
+                // Fetch detailed statistics
+                const intentsResponse = await fetch('/statistics/intents');
+                const intentsData = await intentsResponse.json();
+                
+                const threatsResponse = await fetch('/statistics/threats');
+                const threatsData = await threatsResponse.json();
+                
+                const mitigationsResponse = await fetch('/statistics/mitigations');
+                const mitigationsData = await mitigationsResponse.json();
+                
+                // Update intents table
+                const intentsTable = document.getElementById('intents-table');
+                intentsTable.innerHTML = '';
+                intentsData.intents.slice(0, 10).forEach(intent => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${intent.intent_type}</td>
+                        <td>${intent.threat}</td>
+                        <td><span class="label ${intent.status === 'active' ? 'success' : 'alert'}">${intent.status}</span></td>
+                    `;
+                    intentsTable.appendChild(row);
+                });
+                
+                // Update threats table
+                const threatsTable = document.getElementById('threats-table');
+                threatsTable.innerHTML = '';
+                threatsData.threats.slice(0, 10).forEach(threat => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${threat.threat_type}</td>
+                        <td>${threat.threat_name}</td>
+                        <td><span class="label">${threat.status}</span></td>
+                    `;
+                    threatsTable.appendChild(row);
+                });
+                
+                // Update mitigations table
+                const mitigationsTable = document.getElementById('mitigations-table');
+                mitigationsTable.innerHTML = '';
+                Object.entries(mitigationsData.grouped_by_category).forEach(([category, mitigations]) => {
+                    const enabled = mitigations.filter(m => m.enabled).length;
+                    const disabled = mitigations.filter(m => !m.enabled).length;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${category}</td>
+                        <td>${mitigations.length}</td>
+                        <td><span class="label success">${enabled}</span></td>
+                        <td><span class="label alert">${disabled}</span></td>
+                    `;
+                    mitigationsTable.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Error fetching statistics:', error);
+            }
+        }
+        
+        // Update statistics on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatistics();
+            showRefreshIndicator();
+        });
+        
+        // Update statistics every 30 seconds
+        setInterval(function() {
+            updateStatistics();
+            showRefreshIndicator();
+        }, 30000);
+    </script>
+</body>
+
+</html>

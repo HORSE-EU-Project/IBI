@@ -1,0 +1,19 @@
+### Test Statistics Overview Endpoint
+GET http://localhost:8000/statistics/overview
+Content-Type: application/json
+
+### Test Intents Statistics Endpoint
+GET http://localhost:8000/statistics/intents
+Content-Type: application/json
+
+### Test Threats Statistics Endpoint
+GET http://localhost:8000/statistics/threats
+Content-Type: application/json
+
+### Test Mitigations Statistics Endpoint
+GET http://localhost:8000/statistics/mitigations
+Content-Type: application/json
+
+### Test Associations Statistics Endpoint
+GET http://localhost:8000/statistics/associations
+Content-Type: application/json
