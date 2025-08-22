@@ -184,15 +184,22 @@ class DTJob:
     uid: str
     threat_id: str
     mitigation_id: str
+    mitigation_obj: MitigationAction = None
     kpi_before: Optional[int] = None  # KPI before the mitigation action
     kpi_after: Optional[int] = None  # KPI after the mitigation action
     status: JobStatus = None
 
-    def __init__(self, thread_id, migitation_id):
+    def __init__(self, thread_id: str, migitation_id: str):
         self.uid = str(uuid4())
         self.threat_id = thread_id
         self.mitigation_id = migitation_id
         self.status = DTJob.JobStatus.PENDING
+
+    def set_mitigation_obj(self, mitigation_obj: MitigationAction) -> None:
+        """
+        Set the mitigation object for the job.
+        """
+        self.mitigation_obj = mitigation_obj
 
     def update_kpi_before(self, kpi: int) -> None:
         """

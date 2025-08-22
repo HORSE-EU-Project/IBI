@@ -97,6 +97,6 @@ class Recommender:
         Get the mitigation host based on the threat and the mitigation action.
         """
         if mitigation.name == "udp_traffic_filter":
-            return "ceos2"
+            return mitigation.parameters["node"]
         else:
             return ""

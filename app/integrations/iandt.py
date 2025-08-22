@@ -123,6 +123,7 @@ class ImpactAnalysisDT:
 
     def enqueue_simulation(self, threat: DetectedThreat, action: MitigationAction):
         dt_job = DTJob(threat.uid, action.uid)
+        dt_job.set_mitigation_obj(action)
         measure_task = tuple([dt_job, ImpactAnalysisDT.JobType.MEASUREMENT])
         action_task = tuple([dt_job, ImpactAnalysisDT.JobType.SIMULATION])
         
@@ -155,11 +156,11 @@ class ImpactAnalysisDT:
         Send a measurement request to the Impact Analysis Digital Twin.
         """
         # Get the threat name from the detected threat
-        threat_name = self._store.threat_get(dt_job.threat_id).threat_name
-        # TODO: Fixed for the PoC, but it should be dynamic based on the threat
+        threat_obj = self._store.threat_get(dt_job.threat_id)
+        mitigation_obj = dt_job.mitigation_obj
         message = self._messages["monitor"]
         message["id"] = dt_job.uid
-        message["attack"] = self._dt_attack_name(threat_name)
+        message["attack"] = self._dt_attack_name(threat_obj.threat_name)
         message["what-condition"]["KPIs"]["element"]["node"] = "ceos2"
         message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
         message["what-condition"]["KPIs"]["duration"] = "15s"
@@ -174,8 +175,9 @@ class ImpactAnalysisDT:
         # Get the threat name from the detected threat
         threat_name = self._store.threat_get(dt_job.threat_id).threat_name
         # Get the mitigation action from the store
-        mitigation = self._store.mitigation_get(dt_job.mitigation_id)
-        match mitigation.name:
+        mitigation_obj = dt_job.mitigation_obj  # Mitigation object from the job
+
+        match mitigation_obj.name:
              case "dns_rate_limiting" | "rate_limiting":
                 message = self._messages["rate_limit"]
                 # Action parameters
@@ -184,19 +186,19 @@ class ImpactAnalysisDT:
                 message["if-condition"]["action"]["unit"] = "mbps"
                 message["if-condition"]["action"]["duration"] = "15s"
                 # Where to apply the mitigation
-                message["if-condition"]["element"]["node"] = "ceos2"
-                message["if-condition"]["element"]["interface"] = "eth4"
+                message["if-condition"]["element"]["node"] = mitigation_obj.parameters["node"] if "node" in mitigation_obj.parameters else "ceos2"
+                message["if-condition"]["element"]["interface"] = mitigation_obj.parameters["interface"] if "interface" in mitigation_obj.parameters else "eth4"
              
              case "block_pod_address":
                 message = self._messages["block"]
                 # Action parameters
                 message["if-condition"]["action"]["type"] = "block_pod_ip"
-                message["if-condition"]["action"]["value"] = "internet"
+                message["if-condition"]["action"]["value"] = mitigation_obj.parameters["blocked_pod"] if "blocked_pod" in mitigation_obj.parameters else "internet"
                 message["if-condition"]["action"]["unit"] = "*"
                 message["if-condition"]["action"]["duration"] = "15s"
                 # Where to apply the mitigation
-                message["if-condition"]["element"]["node"] = "ceos2"
-                message["if-condition"]["element"]["interface"] = "eth4"
+                message["if-condition"]["element"]["node"] = mitigation_obj.parameters["node"] if "node" in mitigation_obj.parameters else "ceos2"
+                message["if-condition"]["element"]["interface"] = mitigation_obj.parameters["interface"] if "interface" in mitigation_obj.parameters else "eth4"
 
         # TODO: Fixed for the PoC, but it should be dynamic based on the threat
         # General configuration for the message
