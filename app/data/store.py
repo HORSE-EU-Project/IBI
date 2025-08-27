@@ -25,6 +25,7 @@ class InMemoryStore:
             self._associations: Dict[str, List[MitigationAction]] = {}
             self._dt_jobs: List[DTJob] = []
             self._dt_available: bool = True
+            self._ibi_compromised: bool = False
             self._logger = setup_logging(__name__)
             self._initialized = True
 

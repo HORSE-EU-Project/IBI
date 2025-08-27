@@ -26,6 +26,13 @@ class IntentPipeline:
 
     def process_intents(self):
 
+        if self._store.ibi_compromised:
+            logger.warning("######################################################################")
+            logger.warning("#  The component should be manually restarted.                       #")
+            logger.warning("#  The IBI component cannot proceed because it might be compromised. #")
+            logger.warning("######################################################################")
+            return
+
         # Expire threats according to their timeout
         self._store.expire_old_threats()
 

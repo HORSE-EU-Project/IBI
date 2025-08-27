@@ -90,6 +90,13 @@ class CASClient:
                 # Check the answer from CAS
                 if response.status_code == 200:
                     answer = response.json()
+                    
+                    # Checking for intent spoofing
+                    if "continue" in answer.keys() and bool(answer.get("continue")) == False:
+                        self._logger.debug(f"CAS validation failed for intent spoofing. Attack of type {intent.threat} not detected.")
+                        self._store.ibi_compromised = True
+                        return self.INVALID
+
                     # Mitigation is 100% compliant
                     if answer.get("allow") == "true":
                         self._logger.info(f"CAS validation successful for intent mitigation: {mitigation_action.uid}")
