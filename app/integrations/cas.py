@@ -1,7 +1,8 @@
 import requests
-from constants import Const
-from models.core_models import MitigationAction
 import config
+from constants import Const
+from models.core_models import CoreIntent, MitigationAction
+from recommender import Recommender
 from utils.log_config import setup_logging
 
 class CASClient:
@@ -21,6 +22,7 @@ class CASClient:
             "Content-Type": "application/json",
         }
         self.cas_url = config.CAS_URL
+        self._recommender = Recommender()
         if self.cas_url and self.cas_url != "":
             self.enabled = True
             self.cas_url = f"{self.cas_url}/api/external-data"
@@ -30,8 +32,16 @@ class CASClient:
 
     def tune_mitigation(self, mitigation_action: MitigationAction):
         """
-        Tune the fields of the mitigation action to match the expected format.
+        This method tunes the fields of the given mitigation action to match the expected format
+        required by the Compliance Assurance Service (CAS).
+
+        Args:
+            mitigation_action (MitigationAction): The mitigation action object whose fields need to be tuned.
+
+        Returns:
+            MitigationAction: The tuned mitigation action with updated fields as required by CAS.
         """
+        # TODO: use graphRAG to send context to LLM and tune the fields using generative AI
         if mitigation_action.name == "rate_limiting":
             if 'rate' in mitigation_action.parameters.keys():
                 rate_value = mitigation_action.parameters['rate']
@@ -42,36 +52,28 @@ class CASClient:
                         mitigation_action.parameters['rate'] = new_rate
                     except Exception as e:
                         self._logger.error(f"Error tuning rate value: {e}")
-
-
-        
-        # Example tuning logic, adjust as needed
-        # if "percentage" in mitigation_action:
-        #     mitigation_action["fields"]["percentage"] = int(
-        #         mitigation_action["fields"]["percentage"]
-        #     )
         return mitigation_action
                     
 
-    def validate(self, intent, mitigation_action):
+    def validate(self, intent: CoreIntent, mitigation_action: MitigationAction):
+        """
+        Validate a mitigation action for a given intent using the Compliance Assurance Service (CAS).
+
+        This method sends the intent and mitigation action details to the CAS endpoint for validation.
+        It returns one of three possible validation results:
+            - VALID: The mitigation action is fully compliant.
+            - INVALID: The mitigation action is not compliant.
+            - PARTIAL: The mitigation action is partially compliant (some requirements are met).
+
+        Args:
+            intent (CoreIntent): The intent object containing threat and context information.
+            mitigation_action (MitigationAction): The mitigation action to be validated.
+
+        Returns:
+            str: One of the class constants (VALID, INVALID, PARTIAL) indicating the validation result.
+        """
         # TODO: implement validation logic
-        return self.VALID
-        doc_body = {
-            "input": {
-                "command": "add",
-                "intent_type": intent.get("intent_type"),
-                "threat": intent.get("threat"),
-                "attacked_host": intent.get("host"),
-                "mitigation_host": "dns-s",
-                "action": {
-                    "name": "random",
-                    "intent_id": intent.get("id"),
-                    "fields": {"percentage": 50},
-                },
-                "duration": intent.get("duration"),
-                "intent_id": intent.get("id"),
-            }
-        }
+        doc_body = self._cas_message(intent, mitigation_action)
         if not self.enabled:
             self._logger.warning(f"CAS is not enabled. Sending data to logging system.")
             self._logger.info(f"Document body: {doc_body}")
@@ -89,18 +91,55 @@ class CASClient:
                 if response.status_code == 200:
                     answer = response.json()
                     if answer.get("allow") == "true":
-                        self._logger.info(f"CAS validation successful for intent ID: {intent_id}")
+                        self._logger.info(f"CAS validation successful for intent mitigation: {mitigation_action.uid}")
                         return self.VALID
                     elif answer.get("allow") == "false":
-                        if int(answer.get("pass_percentage")) == 0:
+                        if int(answer.get("pass_percentage")) == 0: 
                             return self.INVALID
                         else:
                             return self.PARTIAL
                     else:
-                        self._logger.warning(f"CAS validation failed for intent ID: {intent_id}")
+                        self._logger.warning(f"CAS validation failed for intent mitigation: {mitigation_action.uid}")
                 else:
                     self._logger.error(f"CAS validation failed with status code: {response.status_code}")
 
             except requests.exceptions.RequestException as e:
                 self._logger.error(f"Error sending document to CAS: {e}")
             return self.VALID
+
+
+    def _cas_message(self, intent: CoreIntent, mitigation_action: MitigationAction) -> str:
+        """
+        Generate the CAS message body for validation.
+
+        This method constructs the message payload to be sent to the CAS (Central Authorization Service)
+        for validating a mitigation action against a given intent. The message includes details about
+        the intent, the mitigation action, and relevant fields required by CAS.
+
+        Args:
+            intent (CoreIntent): The intent object containing threat and context information.
+            mitigation_action (MitigationAction): The mitigation action to be validated.
+
+        Returns:
+            str: The message body (as a dictionary) to be sent to CAS for validation.
+        """
+        fields_template = {}
+        for key, value in mitigation_action.parameters.items():
+            fields_template[key] = value
+            self._logger.debug(f"Field {key} with value {value} added to the action template")
+
+        action_template = {
+            "name": mitigation_action.name,
+            "fields": fields_template
+        }
+        message_template = {
+            "command": "add",
+            "intent_type": intent.intent_type.value,
+            "threat": intent.threat,
+            "attacked_host": intent.host,
+            "mitigation_host": self._recommender.get_mitigation_host(intent, mitigation_action),
+            "action": action_template,
+            "duration": intent.duration,
+            "intent_id": intent.uid
+        }
+        return message_template
