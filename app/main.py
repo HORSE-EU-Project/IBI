@@ -71,13 +71,9 @@ def populate_database():
     MitigationsController.dump_mitigation_actions
     
 
-
 """
 Main entry point
 """
 if __name__ == "__main__":
-    # Flush data in Elasticsearch
-    if config.ES_CLEAN:
-        # Populate data in Elasticsearch
-        populate_database()
+    populate_database()
     uvicorn.run(app, host=Const.APP_HOST, port=Const.APP_PORT)
