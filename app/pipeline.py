@@ -26,7 +26,7 @@ class IntentPipeline:
 
     def process_intents(self):
 
-        if self._store.ibi_compromised:
+        if self._store._ibi_compromised:
             logger.warning("######################################################################")
             logger.warning("#  The component should be manually restarted.                       #")
             logger.warning("#  The IBI component cannot proceed because it might be compromised. #")
@@ -109,7 +109,8 @@ class IntentPipeline:
                 if cas_result == self.cas_client.VALID:
                     logger.debug(f"Mitigation {mitigation_action.uid} was accepted by CAS. Sending to RTR and setting UNDER_MITIGATION.")
                     self.rtr_client.enforce_mitigation(intent, mitigation_action)
-                    threat.update_status(DetectedThreat.ThreatStatus.UNDER_MITIGATION)
+                    threat.update_status(DetectedThreat.ThreatStatus.MITIGATED)
+
 
     def process_prevention_intents(self, intent, threats):
         """
@@ -142,9 +143,6 @@ class IntentPipeline:
                 
                 # If threat is Under emulation/simulation on the DT
                 dt_job = self._store.dt_job_get_by_threat(threat.uid)
-                print('#' * 100)
-                print(dt_job)
-                print('#' * 100)
                 # DT workflow is complete?
                 if dt_job and dt_job.status == DTJob.JobStatus.COMPLETED:
                     # Results are good?
@@ -167,7 +165,7 @@ class IntentPipeline:
                         if cas_result == self.cas_client.VALID:
                             logger.debug(f"Mitigation {mitigation_action.uid} was accepted by CAS. Sending to RTR and setting UNDER_MITIGATION.")
                             self.rtr_client.enforce_mitigation(intent, mitigation_action)
-                            threat.update_status(DetectedThreat.ThreatStatus.UNDER_MITIGATION)
+                            threat.update_status(DetectedThreat.ThreatStatus.MITIGATED)
 
                     else:
                         # Results from the DT are bad
