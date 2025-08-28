@@ -62,7 +62,9 @@ class IntentPipeline:
                 logger.warning(f"Unknown intent type: {intent.intent_type} for intent: {intent.get_uid()}")
                 continue
 
+        # Process IA-NDT jobs
         self.iadt.process_queued_jobs()
+        
         
 
     def update_expired_threats(self, threats):
