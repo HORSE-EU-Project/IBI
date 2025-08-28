@@ -36,7 +36,7 @@ class CoreIntent:
         self.start_time = int(datetime.now().timestamp())
         self.end_time = self.start_time + self.duration
         # Initialize expectations
-        self.expectations = []
+        self.description = self._generate_description(dte_intent)
 
     def get_uid(self) -> str:
         return self.uid
@@ -46,9 +46,34 @@ class CoreIntent:
         Check if the intent has timed out.
         """
         return datetime.now().timestamp() > self.end_time
+
+    def _generate_description(self, dte_intent: DTEIntent) -> str:
+        """
+        Generate a description for the intent.
+        """
+        # Generate a declarative description of the intent based on RFC9315 and the provided table.
+        # The description should summarize the intent in a human-readable, declarative way.
+        # Example: "Mitigate ddos_amplification on hosts ['host1'] for 600s using udp_traffic_filter"
+        # If dte_intent has an 'action' attribute, include it; otherwise, omit.
+
+        # Compose the main parts
+        intent_type = getattr(dte_intent, "intent_type", "unknown")
+        threat = getattr(dte_intent, "threat", "unknown")
+        hosts = getattr(dte_intent, "host", [])
+        duration = getattr(dte_intent, "duration", None)
+        action = getattr(dte_intent, "action", None)
+        # Try to get a friendly name for the intent type
+        intent_type_str = str(intent_type).capitalize()
+        threat_str = str(threat)
+        hosts_str = f" on hosts {hosts}" if hosts else ""
+        duration_str = f" for {duration}s" if duration else ""
+
+        description = f"{intent_type_str} {threat_str}{hosts_str}{duration_str}".strip()
+        return description
+    
     
     def __repr__(self):
-        return f"CoreIntent(uid={self.uid}, intent_type={self.intent_type}, threat={self.threat}, host={self.host}, duration={self.duration}, start_time={self.start_time}, end_time={self.end_time}, expectations={self.expectations}, satisfied={self.satisfied})"
+        return f"CoreIntent(uid={self.uid}, intent_type={self.intent_type}, threat={self.threat}, host={self.host}, duration={self.duration}, start_time={self.start_time}, end_time={self.end_time}, description={self.description}, satisfied={self.satisfied})"
     
 
 class DetectedThreat:
