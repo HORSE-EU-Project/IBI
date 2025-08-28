@@ -39,7 +39,7 @@ content-type: application/json
 
 {
     "intent_type": "mitigation",
-    "threat": "ntp_ddos",
+    "threat": "ddos_amplification",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }
@@ -73,7 +73,7 @@ content-type: application/json
 
 {
     "intent_type": "mitigation",
-    "threat": "dns_ddos",
+    "threat": "multidomain",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }
@@ -84,7 +84,7 @@ content-type: application/json
 
 {
     "intent_type": "detection",
-    "threat": "pfcp",
+    "threat": "signaling_pfcp",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }
@@ -95,7 +95,7 @@ content-type: application/json
 
 {
     "intent_type": "mitigation",
-    "threat": "nef",
+    "threat": "nf_exposure",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }
@@ -106,7 +106,7 @@ content-type: application/json
 
 {
     "intent_type": "detection",
-    "threat": "pfcp",
+    "threat": "signaling_pfcp",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }
@@ -117,7 +117,7 @@ content-type: application/json
 
 {
     "intent_type": "mitigation",
-    "threat": "dns_ddos",
+    "threat": "poisoning_and_amplification",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }
