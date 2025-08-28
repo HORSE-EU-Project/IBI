@@ -235,12 +235,6 @@ class ImpactAnalysisDT:
                 print(f"Error sending workflow to Impact Analysis Digital Twin: {e}")
 
 
-    def update_intent_status(self, intent_id, status):
-        """
-        Update the status of an intent in the Impact Analysis Digital Twin.
-        """
-        # TODO: update status from NDT
-
     def log_received_answer(self, answer_dict):
         """
         Log the received answer from the Impact Analysis Digital Twin.
