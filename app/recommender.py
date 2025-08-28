@@ -46,6 +46,8 @@ class Recommender:
             return None
         else :
             logger.debug(f"Found {len(mitigations)} mitigations for threat: {threat.threat_name} of type: {threat.threat_type}")
+            # Order mitigations by priority (ascending)            
+            mitigations.sort(key=lambda m: m.priority) 
             return mitigations
         
 
