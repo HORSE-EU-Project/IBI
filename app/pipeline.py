@@ -153,7 +153,13 @@ class IntentPipeline:
                 if cas_result == self.cas_client.VALID:
                     logger.debug(f"Mitigation {mitigation_action.uid} was accepted by CAS. Sending to RTR and setting UNDER_MITIGATION.")
                     self.rtr_client.enforce_mitigation(intent, mitigation_action)
-                    threat.update_status(DetectedThreat.ThreatStatus.MITIGATED)
+                    threat.update_status(DetectedThreat.ThreatStatus.UNDER_MITIGATION)
+
+            if threat.get_status() == DetectedThreat.ThreatStatus.REINCIDENT:
+                # If threat is Under mitigation, propose a new mitigation action
+                logger.debug(f"Processing threat: {threat.uid} (Status: REINCIDENT). Setting as NEW for new cycle.")
+                threat.update_status(DetectedThreat.ThreatStatus.NEW)
+                pass
 
 
     def process_prevention_intents(self, intent, threats):
