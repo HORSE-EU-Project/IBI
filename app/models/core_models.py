@@ -23,7 +23,7 @@ class CoreIntent:
     duration: int
     start_time: Optional[int] = None
     end_time: Optional[int] = None
-    expectations: List[Expectation]
+    description: str
     satisfied: bool = False
     
     def __init__(self, dte_intent: DTEIntent):
@@ -71,7 +71,7 @@ class CoreIntent:
         description = f"{intent_type_str} {threat_str}{hosts_str}{duration_str}".strip()
         return description
     
-    
+
     def __repr__(self):
         return f"CoreIntent(uid={self.uid}, intent_type={self.intent_type}, threat={self.threat}, host={self.host}, duration={self.duration}, start_time={self.start_time}, end_time={self.end_time}, description={self.description}, satisfied={self.satisfied})"
     
