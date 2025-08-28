@@ -79,7 +79,6 @@ class CASClient:
         Returns:
             str: One of the class constants (VALID, INVALID, PARTIAL) indicating the validation result.
         """
-        # TODO: implement validation logic
         doc_body = self._cas_message(intent, mitigation_action)
         if not self.enabled:
             self._logger.warning(f"CAS is not enabled. Sending data to logging system.")
