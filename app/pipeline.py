@@ -64,8 +64,50 @@ class IntentPipeline:
 
         # Process IA-NDT jobs
         self.iadt.process_queued_jobs()
+        # Check if intent is satisfied
+        self.check_intent_fulfillment(intents, threats)
+        return
         
+
+    def check_intent_fulfillment(self, intents, threats):
+        """
+        Check if each CoreIntent is fulfilled by examining threats.
+        An intent is NOT satisfied if there are any threats with status in 
+        [NEW, UNDER_EMULATION, UNDER_MITIGATION, REINCIDENT] with corresponding 
+        threat_type and threat_name as the intent_type and threat.
+        """
+        logger.debug("Checking intent fulfillment...")
         
+        for intent in intents:
+            logger.debug(f"Checking fulfillment for intent: {intent.get_uid()}")
+            
+            # Find threats that match this intent's type and threat name
+            matching_threats = [
+                threat for threat in threats 
+                if (threat.threat_type == intent.intent_type and 
+                    threat.threat_name == intent.threat)
+            ]
+            
+            # Check if any matching threats have unsatisfied statuses
+            unsatisfied_threats = [
+                threat for threat in matching_threats
+                if threat.get_status() in [
+                    DetectedThreat.ThreatStatus.NEW,
+                    DetectedThreat.ThreatStatus.UNDER_EMULATION,
+                    DetectedThreat.ThreatStatus.UNDER_MITIGATION,
+                    DetectedThreat.ThreatStatus.REINCIDENT
+                ]
+            ]
+            
+            # Intent is satisfied if there are no unsatisfied threats
+            if len(unsatisfied_threats) == 0:
+                intent.set_fulfilled(True)
+                logger.debug(f"Intent {intent.get_uid()} is SATISFIED")
+            else:
+                intent.set_fulfilled(False)
+                logger.debug(f"Intent {intent.get_uid()} is NOT SATISFIED - found {len(unsatisfied_threats)} unsatisfied threats")
+        return
+
 
     def update_expired_threats(self, threats):
         for t in threats:

@@ -24,7 +24,7 @@ class CoreIntent:
     start_time: Optional[int] = None
     end_time: Optional[int] = None
     description: str
-    satisfied: bool = False
+    fulfilled: bool = False
     
     def __init__(self, dte_intent: DTEIntent):
         self.uid = str(uuid4())
@@ -70,10 +70,16 @@ class CoreIntent:
 
         description = f"{intent_type_str} {threat_str}{hosts_str}{duration_str}".strip()
         return description
+
+    def set_fulfilled(self, fulfilled: bool) -> None:
+        """
+        Set the satisfied status of the intent.
+        """
+        self.fulfilled = fulfilled
     
 
     def __repr__(self):
-        return f"CoreIntent(uid={self.uid}, intent_type={self.intent_type}, threat={self.threat}, host={self.host}, duration={self.duration}, start_time={self.start_time}, end_time={self.end_time}, description={self.description}, satisfied={self.satisfied})"
+        return f"CoreIntent(uid={self.uid}, intent_type={self.intent_type}, threat={self.threat}, host={self.host}, duration={self.duration}, start_time={self.start_time}, end_time={self.end_time}, description={self.description}, satisfied={self.fulfilled})"
     
 
 class DetectedThreat:
