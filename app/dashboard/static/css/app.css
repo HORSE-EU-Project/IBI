@@ -338,3 +338,36 @@ table tbody tr:hover {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
 }
+
+/* Alert Callout Styling */
+
+.alert-callout-border {
+    width: 100%;
+    padding: 1.3rem;
+    border-left-width: 0.5125rem;
+    border-left-color: #cacaca;
+}
+
+.alert-callout-border.radius {
+    border-radius: 0.6rem;
+  }
+  
+.alert-callout-border strong {
+    color: #0a0a0a;
+}
+
+.alert-callout-border .close-button {
+    position: absolute;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.alert-callout-border.alert {
+    border-left-color: #cc4b37;
+}
+
+.alert-callout-border.alert strong {
+    color: #cc4b37;
+}

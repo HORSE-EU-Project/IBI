@@ -34,6 +34,7 @@ def get_intents(request: Request):
         })
     return {"intents": intents_list}
 
+
 @router.get("/stats/intents-summary")
 def get_intents_summary(request: Request):
     """Get intents summary counts"""
@@ -47,6 +48,7 @@ def get_intents_summary(request: Request):
         "not_fulfilled": not_fulfilled,
         "total": total
     }
+
 
 @router.get("/stats/threats")
 def get_threats(request: Request):
@@ -73,6 +75,7 @@ def get_threats(request: Request):
         })
     return {"threats": threats_list}
 
+
 @router.get("/stats/threat-status")
 def get_threat_status(request: Request):
     """Get threat status summary counts"""
@@ -93,6 +96,7 @@ def get_threat_status(request: Request):
         "total": total
     }
 
+
 @router.get("/stats/mitigations")
 def get_mitigations(request: Request):
     """Get all mitigation actions"""
@@ -111,8 +115,20 @@ def get_mitigations(request: Request):
     return {"mitigations": mitigations_list}
 
 
-@router.get("/stats/hosts")
-def get_hosts(request: Request):
-    """Get hosts information"""
-    return {"hosts": []}
+@router.get("/stats/ibi")
+def get_ibi_status(request: Request):
+    """Return General Status of the IBI"""
+    store = InMemoryStore()
+    status = "running" if not store._ibi_compromised else "stopped"
+    return {"status": status}
 
+
+"""
+Used only for testing purposes
+"""
+@router.post("/stats/ibi-test")
+def set_ibi_status(request: Request):
+    """Set the IBI status to compromised"""
+    store = InMemoryStore()
+    store._ibi_compromised = not store._ibi_compromised
+    return {"status": "ok"}

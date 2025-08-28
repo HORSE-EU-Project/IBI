@@ -41,6 +41,10 @@ function setupNavigation() {
 // Load dashboard data
 async function loadDashboardData() {
     try {
+        // Load IBI status
+        const ibiStatus = await fetchAPI('/stats/ibi');
+        updateIBIStatus(ibiStatus);
+        
         // Load intents summary
         const intentsSummary = await fetchAPI('/stats/intents-summary');
         updateIntentsSummary(intentsSummary);
@@ -81,6 +85,11 @@ async function fetchAPI(endpoint) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
     return await response.json();
+}
+
+// Update IBI status
+function updateIBIStatus(data) {
+    $('#ibi-alert').toggle(data.status === 'stopped');
 }
 
 // Update intents summary cards
