@@ -20,8 +20,8 @@ class MitigationsController:
             MitigationAction(name="execute_test_1", category="mitigation", threats=["hello_world"], fields=["test_id", "modules"]),
             MitigationAction(name="execute_test_2", category="prevention", threats=["hello_world"], fields=["test_id", "modules"]),
             # Demo 1
-            MitigationAction(name="udp_traffic_filter", category="mitigation", threats=["ddos_amplification"], fields=["protocol", "source_ip_filter", "destination_port"]),
-            MitigationAction(name="ntp_access_control", category="mitigation", threats=["ddos_amplification"], fields=["authorized_hosts", "mode"]),
+            MitigationAction(name="udp_traffic_filter", category="mitigation", threats=["ddos_amplification", "ntp_ddos"], fields=["protocol", "source_ip_filter", "destination_port"]),
+            MitigationAction(name="ntp_access_control", category="mitigation", threats=["ddos_amplification", "ntp_ddos"], fields=["authorized_hosts", "mode"]),
             # Demo 2
             MitigationAction(name="dns_rate_limiting", category="prevention", threats=["dns_amplification"], fields=["rate", "source_ip_filter"]),
             MitigationAction(name="rate_limiting", category="prevention", threats=["dns_amplification"], fields=["device", "interface", "rate"]),
@@ -38,10 +38,13 @@ class MitigationsController:
             # Demo 6
             MitigationAction(name="firewall_pfcp_requests", category="detection", threats=["signaling_pfcp"], fields=["drop_percentage", "request_types"]),
             MitigationAction(name="validate_smf_integrity", category="detection", threats=["signaling_pfcp"], fields=["check", "action"]),
+            # Demo 7
             MitigationAction(name="filter_malicious_access", category="mitigation", threats=["nf_exposure"], fields=["actor", "response"]),
             MitigationAction(name="api_rate_limiting", category="mitigation", threats=["nf_exposure"], fields=["limit"]),
+            # Demo 8
             MitigationAction(name="firewall_pfcp_requests", category="detection", threats=["signaling_pfcp"], fields=["drop_percentage", "request_types"]),
             MitigationAction(name="validate_smf_integrity", category="detection", threats=["signaling_pfcp"], fields=["check", "action"]),
+            # Demo 9
             MitigationAction(name="dns_rate_limiting", category="mitigation", threats=["poisoning_and_amplification"], fields=["rate", "source_ip_filter"]),
             MitigationAction(name="rate_limiting", category="mitigation", threats=["poisoning_and_amplification"], fields=["device", "interface", "rate"]),
             MitigationAction(name="block_pod_address", category="mitigation", threats=["poisoning_and_amplification"], fields=["blocked_pod", "device", "interface"])
