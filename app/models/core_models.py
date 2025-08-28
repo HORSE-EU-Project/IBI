@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from uuid import uuid4
 from constants import Const
-from .api_models import DTEIntent
+from .api_models import DTEIntent, DTEIntentType
 from enum import Enum
 
 class Expectation:
@@ -63,7 +63,10 @@ class CoreIntent:
         duration = getattr(dte_intent, "duration", None)
         action = getattr(dte_intent, "action", None)
         # Try to get a friendly name for the intent type
-        intent_type_str = str(intent_type).capitalize()
+        if intent_type in [DTEIntentType.PREVENTION]:
+            intent_type_str = "Prevent"
+        elif intent_type in [DTEIntentType.MITIGATION, DTEIntentType.DETECTION]:
+            intent_type_str = "Mitigate"
         threat_str = str(threat)
         hosts_str = f" on hosts {hosts}" if hosts else ""
         duration_str = f" for {duration}s" if duration else ""

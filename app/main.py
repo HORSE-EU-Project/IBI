@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from constants import Const
 from utils.log_config import setup_logging
-from routers import ping, intents, iandt, dashboard
+from routers import ping, intents, iandt, dashboard, stats
 from pipeline import IntentPipeline
 from controllers.mitigations_controller import MitigationsController
 
@@ -42,6 +42,7 @@ app.include_router(dashboard.router, prefix="")
 app.include_router(ping.router)
 app.include_router(intents.router)
 app.include_router(iandt.router)
+app.include_router(stats.router)
 
 # Register static files
 app.mount("/static", StaticFiles(directory="app/dashboard/static"), name="static")

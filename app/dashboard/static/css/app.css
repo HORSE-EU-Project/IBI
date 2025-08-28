@@ -1,0 +1,340 @@
+/* Custom Dashboard Styles */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Top Bar Styling */
+.top-bar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.top-bar-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    background: #2c3e50;
+    color: white;
+    min-height: calc(100vh - 80px);
+    margin-top: 60px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 16.66667%; /* large-2 */
+    z-index: 999;
+}
+
+.sidebar-content {
+    padding: 1rem;
+}
+
+.sidebar .callout.primary {
+    background: #34495e;
+    border: none;
+    margin-bottom: 1rem;
+}
+
+.sidebar .vertical.menu {
+    background: transparent;
+    margin: 0;
+}
+
+.sidebar .vertical.menu a {
+    color: #ecf0f1;
+    padding: 0.75rem;
+    border-bottom: 1px solid #34495e;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.sidebar .vertical.menu a:hover,
+.sidebar .vertical.menu a.active {
+    background: #3498db;
+    color: white;
+}
+
+.sidebar .vertical.menu i {
+    margin-right: 0.5rem;
+    width: 20px;
+}
+
+/* Main Content Area */
+.main-content {
+    margin-left: 16.66667%; /* large-2 */
+    margin-top: 80px;
+    padding: 2rem;
+    min-height: calc(100vh - 80px);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1024px) {
+    .sidebar {
+        width: 25%; /* medium-3 */
+    }
+    .main-content {
+        margin-left: 25%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: relative;
+        margin-top: 0;
+        min-height: auto;
+    }
+    .main-content {
+        margin-left: 0;
+        margin-top: 0;
+        padding: 1rem;
+    }
+    .top-bar {
+        position: relative;
+    }
+}
+
+/* Section Titles */
+.section-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #3498db;
+}
+
+/* Card Styling - Smaller Cards */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 1rem;
+    height: 120px; /* Fixed height for smaller cards */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.card-section {
+    padding: 1rem;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Success Card (Green) */
+.success-card {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+}
+
+.success-icon {
+    color: #2ecc71;
+    margin-bottom: 0.5rem;
+}
+
+/* Alert Card (Red) */
+.alert-card {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+}
+
+.alert-icon {
+    color: #e74c3c;
+    margin-bottom: 0.5rem;
+}
+
+/* Warning Card (Yellow) */
+.warning-card {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+}
+
+.warning-icon {
+    color: #f39c12;
+    margin-bottom: 0.5rem;
+}
+
+/* Primary Card (Blue) */
+.primary-card {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+.primary-icon {
+    color: #3498db;
+    margin-bottom: 0.5rem;
+}
+
+/* Secondary Card (Orange) */
+.secondary-card {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    color: white;
+}
+
+.secondary-icon {
+    color: #e67e22;
+    margin-bottom: 0.5rem;
+}
+
+/* Table Styling */
+.table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+table {
+    margin-bottom: 0;
+}
+
+table thead th {
+    background: #34495e;
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 1rem;
+}
+
+table tbody td {
+    padding: 1rem;
+    border-bottom: 1px solid #ecf0f1;
+    vertical-align: middle;
+}
+
+table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+/* Status Labels */
+.status-label {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-fulfilled {
+    color: #27ae60;
+}
+
+.status-not-fulfilled {
+    color: #e74c3c;
+}
+
+.status-new {
+    color: #f39c12;
+}
+
+.status-under-emulation {
+    color: #3498db;
+}
+
+.status-under-mitigation {
+    color: #e74c3c;
+}
+
+.status-mitigated {
+    color: #27ae60;
+}
+
+/* Loading Animation */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #7f8c8d;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #ecf0f1;
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 0.5rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Page Navigation */
+.page-content {
+    min-height: calc(100vh - 80px);
+}
+
+/* Text Utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: #7f8c8d;
+}
+
+/* Card Count Styling - Smaller */
+.card h4,
+.card h5 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+.card h5 {
+    font-size: 1.5rem;
+}
+
+.card p {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+/* Icon Styling - Smaller */
+.card i {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Smooth Transitions */
+* {
+    transition: all 0.2s ease;
+}
+
+/* Grid adjustments for smaller cards */
+.grid-x.grid-margin-x {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
+.grid-x.grid-margin-x > .cell {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
