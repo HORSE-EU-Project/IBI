@@ -43,7 +43,7 @@ def setup_logging(current_file=None):
         formatter = CustomFormatter(
             # '%(name)s - %(levelname)s - %(asctime)s - %(message)s'
             # '%(levelname)s: \t %(name)s - %(asctime)s - %(message)s'
-            '%(levelname)s: \t  %(name)s - %(message)s'
+            '%(levelname)s: \t  [%(name)s] %(message)s'
         )
         # Log to console
         console_handler = logging.StreamHandler()
