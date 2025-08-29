@@ -119,7 +119,12 @@ def get_mitigations(request: Request):
 def get_ndt_queue(request: Request):
     """Get stats about IA-NDT queue"""
     store = InMemoryStore()
-    ndt_queue_size = len(store._dt_jobs)
+    ndt_queue_size = 0
+    for job in store._dt_jobs:
+        if job.kpi_before is None and job.kpi_after is None:
+            ndt_queue_size=+2
+        else:
+            ndt_queue_size =+1
     ndt_status = "available" if store._dt_available else "busy"
     return {"queue_size": ndt_queue_size, "ndt_status": ndt_status}
 

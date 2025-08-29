@@ -52,6 +52,10 @@ async function loadDashboardData() {
         // Load threat status
         const threatStatus = await fetchAPI('/stats/threat-status');
         updateThreatStatus(threatStatus);
+
+        // Load IA-NDT status
+        const ndtStatus = await fetchAPI('/stats/ndt');
+        updateNdtStatus(ndtStatus);
         
         // Load intents table
         const intents = await fetchAPI('/stats/intents');
@@ -105,6 +109,27 @@ function updateThreatStatus(data) {
     $('#threats-under-mitigation').text(data.under_mitigation);
     $('#threats-reincident').text(data.reincident);
     $('#threats-mitigated').text(data.mitigated);
+}
+
+// Update IA-NDT status cards
+function updateNdtStatus(data) {
+    $('#ndt-queue-size').text(data.queue_size);
+    if (data.ndt_status === "available") {
+        $('#ndt-status').text("Available");
+        // go two divs up and change the class of the parent
+        $('#ndt-status').parent().parent().removeClass("primary-card");
+        $('#ndt-status').parent().parent().addClass("success-card");
+        // go to sibling i element and change the icon
+        $('#ndt-status').siblings('i').removeClass("primary-icon");
+        $('#ndt-status').siblings('i').addClass("success-icon");
+    } else {
+        $('#ndt-status').text("Busy");
+        $('#ndt-status').parent().parent().removeClass("success-card");
+        $('#ndt-status').parent().parent().addClass("primary-card");
+        // go to sibling i element and change the icon
+        $('#ndt-status').siblings('i').removeClass("success-icon");
+        $('#ndt-status').siblings('i').addClass("primary-icon");
+    }
 }
 
 // Update intents table
@@ -264,13 +289,4 @@ $(document).on('opened.zf.tooltip', function() {
     // Tooltip opened
 });
 
-// // Add smooth scrolling for better UX
-// $('a[href^="#"]').on('click', function(event) {
-//     const target = $(this.getAttribute('href'));
-//     if (target.length) {
-//         event.preventDefault();
-//         $('html, body').stop().animate({
-//             scrollTop: target.offset().top - 100
-//         }, 1000);
-//     }
-// });
+
