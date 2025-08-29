@@ -115,6 +115,15 @@ def get_mitigations(request: Request):
     return {"mitigations": mitigations_list}
 
 
+@router.get("/stats/ndt")
+def get_ndt_queue(request: Request):
+    """Get stats about IA-NDT queue"""
+    store = InMemoryStore()
+    ndt_queue_size = len(store._dt_jobs)
+    ndt_status = "available" if store._dt_available else "busy"
+    return {"queue_size": ndt_queue_size, "ndt_status": ndt_status}
+
+
 @router.get("/stats/ibi")
 def get_ibi_status(request: Request):
     """Return General Status of the IBI"""
