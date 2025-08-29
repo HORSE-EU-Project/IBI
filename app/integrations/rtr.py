@@ -29,14 +29,15 @@ class RTR:
         self.rtr_username = config.RTR_USER
         self.rtr_password = config.RTR_PASSWORD
         self.rtr_email = config.RTR_EMAIL
+        self._enabled = bool(self.rtr_url and self.rtr_username and self.rtr_password)
         # call login method to authenticate
-        self.access_token = None
+        self.access_token = ""
         self.reg_headers = {
             "accept": "application/json",
             "Content-Type": "application/json",
         }
-        self._register()
-        self._login()
+        # self._register()
+        # self._login()
         self._initialized = True
 
     def _register(self):
@@ -140,7 +141,7 @@ class RTR:
 
 
     def send_workflow(self, workflow):
-        if not self.access_token:
+        if not self._enabled:
             self._logger.error(
                 "Connection to RTR is not established. The workflow will be printed to the log."
             )

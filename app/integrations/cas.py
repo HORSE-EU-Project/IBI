@@ -19,7 +19,7 @@ class CASClient:
     PARTIAL = "partial"
 
     _cas_actions = {
-        "rate_limiting": "router_rate_limiting",
+        # "rate_limiting": "router_rate_limiting",
     }
 
     def __init__(self):
@@ -80,16 +80,17 @@ class CASClient:
             str: One of the class constants (VALID, INVALID, PARTIAL) indicating the validation result.
         """
         doc_body = self._cas_message(intent, mitigation_action)
+        doc_body = json.dumps(doc_body)
         if not self.enabled:
             self._logger.warning(f"CAS is not enabled. Sending data to logging system.")
-            self._logger.info(f"Document body: {doc_body}")
+            self._logger.info(f"Document body: " + doc_body)
             return self.VALID
         else:
             try:
                 response = requests.post(
                     f"{self.cas_url}",
                     headers=self.headers,
-                    json=doc_body,
+                    data=doc_body,
                 )
                 # response.raise_for_status()
                 self._logger.debug(f"CAS document sent: {doc_body}")
@@ -118,6 +119,7 @@ class CASClient:
                         self._logger.warning(f"CAS validation failed for intent mitigation: {mitigation_action.uid}")
                 else:
                     self._logger.error(f"CAS validation failed with status code: {response.status_code}")
+                    self._logger.error(f"CAS response: {response.text}")
 
             except requests.exceptions.RequestException as e:
                 self._logger.error(f"Error sending document to CAS: {e}")
@@ -156,7 +158,7 @@ class CASClient:
             "attacked_host": intent.host,
             "mitigation_host": self._recommender.get_mitigation_host(intent, mitigation_action),
             "action": action_template,
-            "duration": intent.duration,
+            "duration": str(intent.duration),
             "intent_id": intent.uid
         }}
         return message_template
