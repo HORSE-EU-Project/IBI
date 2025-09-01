@@ -18,15 +18,6 @@ with open(yml_file) as f:
 
 
 """
-Expose the Elasticsearch connection parameters
-"""
-ES_HOST = parameters["elasticsearch"]["ip"]
-ES_PORT = parameters["elasticsearch"]["port"]
-ES_URL = f"http://{ES_HOST}:{ES_PORT}"
-ES_CLEAN = parameters["elasticsearch"]["reset"]
-
-
-"""
 Knowledge Base (CKB) connection parameters
 """
 CKB_URL = parameters["ckb"]["url"]

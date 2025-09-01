@@ -1,11 +1,5 @@
 # Configuration file for the IBI application
 
-# Elasticsearch configuration
-elasticsearch:
-  ip: 'localhost'
-  port: '9200'
-  reset: true
-
 ########################################
 #                                      #
 #     Test Only (log to STDOUT)        #
@@ -37,13 +31,14 @@ iadt:
   url: ''
   # url: 'http://10.19.2.23:5005'
 rtr:
-  url: ''
-  # url: 'http://10.19.2.19:8000'
+  # url: ''
+  url: 'http://10.19.2.19:8000'
   username: 'horse-6g'
   password: 'horse-6g'
   email: 'user3@horse-6g.eu'
 cas:
-  url: 'http://10.19.2.15:8080'
+  url: ''
+  # url: 'http://10.19.2.15:8080'
 syslog:
   ip: '127.0.0.1'  # Default local syslog server
 
