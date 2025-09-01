@@ -206,7 +206,7 @@ class IntentPipeline:
                         while cas_result == self.cas_client.PARTIAL:
                             mitigation_action = self.cas_client.tune_mitigation(mitigation_action)
                             self._store.association_update(threat.uid, mitigation_action)
-                            cas_result = self.cas_client.validate(mitigation_action)
+                            cas_result = self.cas_client.validate(intent, mitigation_action)
 
                         if cas_result == self.cas_client.INVALID:
                             logger.debug(f"Mitigation {mitigation_action.uid} was rejected by CAS. Setting as NEW for new cycle.")
