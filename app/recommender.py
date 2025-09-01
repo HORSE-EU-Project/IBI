@@ -113,7 +113,7 @@ class Recommender:
                 mitigation.define_field("actor", "malicious")
                 mitigation.define_field("response", "immediate")
             elif mitigation.name == "api_rate_limiting":
-                mitigation.define_field("limit", "X requests per minute")
+                mitigation.define_field("limit", "1000")
             elif mitigation.name == "dns_rate_limiting":
                 mitigation.define_field("rate", "9")
                 mitigation.define_field("source_ip_filter", "0.0.0.0/0")
