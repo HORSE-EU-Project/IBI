@@ -37,7 +37,8 @@ iadt:
   url: ''
   # url: 'http://10.19.2.23:5005'
 rtr:
-  url: 'http://10.19.2.19:8000'
+  url: ''
+  # url: 'http://10.19.2.19:8000'
   username: 'horse-6g'
   password: 'horse-6g'
   email: 'user3@horse-6g.eu'
@@ -169,14 +170,14 @@ mitigation_actions:
   # Demo 6
   - name: "firewall_pfcp_requests"
     category: "detection"
-    threats: ["signaling_pfcp"]
+    threats: ["pfcp_deletion", "pfcp_establishment", "pfcp_modification"]
     fields: ["drop_percentage", "request_types"]
     priority: 0
     enabled: true
   
   - name: "validate_smf_integrity"
     category: "detection"
-    threats: ["signaling_pfcp"]
+    threats: ["pfcp_deletion", "pfcp_establishment", "pfcp_modification"]
     fields: ["check", "action"]
     priority: 0
     enabled: true
