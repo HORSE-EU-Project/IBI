@@ -36,8 +36,8 @@ class RTR:
             "accept": "application/json",
             "Content-Type": "application/json",
         }
-        # self._register()
-        # self._login()
+        self._register()
+        self._login()
         self._initialized = True
 
     def _register(self):
@@ -56,6 +56,9 @@ class RTR:
             )
             response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
             self._logger.info(f"RTR registration successful: {response.status_code}")
+        except requests.exceptions.HTTPError as e:
+            if hasattr(e, "response") and e.response is not None:
+                self._logger.info(f"RTR registration error response: {e.response.text}")
         except requests.exceptions.MissingSchema as e:
             self._logger.info(f"CKB integration is disabled. Sending query to logging system.")
             self._logger.info(f"{ json.dumps(reg_data) }")  
@@ -80,24 +83,30 @@ class RTR:
         if not self.rtr_url or not self.rtr_username or not self.rtr_password:
             self._logger.error("RTR service URL, username, or password not configured.")
             return
-        login_data = {
-            "grant_type": "",
-            "username": self.rtr_username,
-            "password": self.rtr_password,
-            "scope": "",
-            "client_id": "",
-            "client_secret": "",
+        login_data = (
+                f"username={self.rtr_username}"
+                f"&password={self.rtr_password}"
+                f"&scope="
+                f"&client_id="
+                f"&client_secret="
+            )
+        login_headers = {
+            "accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
         }
         # POST LOGIN REQUEST
         try:
+            # Use requests.post with the correct URL, headers, and data as in the curl command
             response = requests.post(
-                f"{self.rtr_url}/login", headers=self.reg_headers, data=login_data
+                f"{self.rtr_url}/login",
+                headers=login_headers,
+                data=login_data
             )
             response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
-            self._logger.info(f"RTR login successful: {response.status_code}")
+            self._logger.debug(f"RTR login successful: {response.status_code}")
             if "access_token" in response.json():
                 self.access_token = response.json()["access_token"]
-                self._logger.info(f"Authentication token: {self.access_token}")
+                self._logger.debug(f"Authentication token: {self.access_token}")
         except requests.exceptions.ConnectionError as e:
             self._logger.error(f"Error connecting to RTR service during login: {e}")
             raise  # Re-raise the exception after logging
@@ -131,7 +140,7 @@ class RTR:
             "command": "add",
             "intent_type": intent.intent_type.value,
             "threat": intent.threat,
-            "attacked_host": intent.host,
+            "attacked_host": intent.host[0] if intent.host else "",
             "mitigation_host": self._recommender.get_mitigation_host(intent, mitigation_action),
             "action": action_template,
             "duration": intent.duration,
@@ -160,8 +169,13 @@ class RTR:
                 headers=headers_for_action_post,
                 json=workflow,
             )
-            response.raise_for_status()
-            self._logger.info(f"Workflow sent successfully: {response.status_code}")
+            # response.raise_for_status()
+            if response.status_code in [200, 201]:
+                self._logger.info(f"Workflow sent successfully: {response.status_code}")
+            elif response.status_code == 400:
+                self._logger.info(f"Workflow exists: {response.status_code} {response.text}")
+            else:
+                self._logger.error(f"Workflow sent failed: {response.status_code} {response.text}")
         except requests.exceptions.ConnectionError as e:
             self._logger.error(
                 f"Error connecting to RTR service when sending workflow: {e}"
