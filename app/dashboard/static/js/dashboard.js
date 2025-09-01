@@ -165,7 +165,7 @@ function updateThreatsTable(threats) {
     tbody.empty();
     
     if (threats.length === 0) {
-        tbody.append('<tr><td colspan="6" class="text-center">No threats found</td></tr>');
+        tbody.append('<tr><td colspan="7" class="text-center">No threats found</td></tr>');
         return;
     }
     
