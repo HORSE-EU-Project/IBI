@@ -37,7 +37,7 @@ class CASClient:
             self.enabled = False
             self._logger.info(f"Integration to CKB is disabled.")
 
-    def tune_mitigation(self, mitigation_action: MitigationAction):
+    def tune_mitigation(self, mitigation_action: MitigationAction, error_msg: str = ""):
         """
         This method tunes the fields of the given mitigation action to match the expected format
         required by the Compliance Assurance Service (CAS).
@@ -59,6 +59,14 @@ class CASClient:
                         mitigation_action.parameters['rate'] = new_rate
                     except Exception as e:
                         self._logger.error(f"Error tuning rate value: {e}")
+        if mitigation_action.name == "dns_rate_limiting":
+            if 'rate' in mitigation_action.parameters.keys():
+                try:
+                    rate_value = int(mitigation_action.parameters['rate'])
+                    rate_value = rate_value + Const.CAS_RATE_MITITING_INCREMENT
+                    mitigation_action.parameters['rate'] = rate_value
+                except Exception as e:
+                    self._logger.error(f"Error tuning rate value: {e}")
         return mitigation_action
                     
 
@@ -92,7 +100,7 @@ class CASClient:
                     headers=self.headers,
                     data=doc_body,
                 )
-                # response.raise_for_status()
+                response.raise_for_status()
                 self._logger.debug(f"CAS document sent: {doc_body}")
                 # Check the answer from CAS
                 if response.status_code == 200:
@@ -113,6 +121,7 @@ class CASClient:
                             # Mitigation is 0% compliant (should select another mitigation action)
                             return self.INVALID
                         else:
+                            self._logger.debug(f"CAS validation if partial. Got: {answer}")
                             # Mitigation is partially compliant (mitigation actions should be tuned)
                             return self.PARTIAL
                     else:
@@ -121,10 +130,11 @@ class CASClient:
                 else:
                     self._logger.error(f"CAS validation failed with status code: {response.status_code}")
                     self._logger.error(f"CAS response: {response.text}")
-
             except requests.exceptions.RequestException as e:
                 self._logger.error(f"Error sending document to CAS: {e}")
-            # Catch any other result (since no other return statement were reached)
+            except Exception as e:
+                self._logger.error(f"Error sending document to CAS: {e}")
+                raise
             return self.INVALID
 
 
