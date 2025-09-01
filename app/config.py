@@ -57,6 +57,11 @@ External Syslog server (SIAM Integration)
 SYSLOG_IP = parameters["syslog"]["ip"]
 SYSLOG_PORT = parameters["syslog"].get("port", 514)  # Default syslog port is 514
 
+"""
+Mitigation Actions configuration
+"""
+MITIGATION_ACTIONS = parameters.get("mitigation_actions", [])
+
 # whatif_receive_url = "http://" + host + ":" + port + parameters["to_receive_whatif"]
 # whatif_send_url = parameters["san_api_url"]
 # workflow_url = parameters["rtr_api_url"]

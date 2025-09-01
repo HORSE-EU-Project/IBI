@@ -142,7 +142,7 @@ class InMemoryStore:
     def mitigation_add(self, action: MitigationAction) -> None:
         with self._data_lock:
             self._available_actions[action.uid] = action
-            self._logger.info(f"Mitigation action added: {action.uid}")
+            self._logger.debug(f"Mitigation action added: {action.uid}")
 
 
     def mitigation_get(self, key: str) -> Optional[MitigationAction]:
