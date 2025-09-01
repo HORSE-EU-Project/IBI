@@ -19,6 +19,9 @@ class DTEIntent(BaseModel):
     host: list
     duration: int
 
+    def __str__(self) -> str:
+        return f"DTEIntent(intent_type={self.intent_type.value}, threat={self.threat}, host={self.host}, duration={self.duration})"
+
 """
 IANDT related models
 """
