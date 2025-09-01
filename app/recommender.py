@@ -79,8 +79,8 @@ class Recommender:
 
         elif mitigation.category == MitigationAction.MitigationCategory.PREVENTION:
             if mitigation.name == "dns_rate_limiting":
-                mitigation.define_field("rate", "20")
-                mitigation.define_field("source_ip_filter", threat.hosts[0] if threat.hosts else "0.0.0.0/0")
+                mitigation.define_field("rate", "9")
+                mitigation.define_field("source_ip_filter", "0.0.0.0/0")
             elif mitigation.name == "rate_limiting":
                 mitigation.define_field("device", "ceos2")
                 mitigation.define_field("interface", "eth4")
@@ -115,8 +115,8 @@ class Recommender:
             elif mitigation.name == "api_rate_limiting":
                 mitigation.define_field("limit", "X requests per minute")
             elif mitigation.name == "dns_rate_limiting":
-                mitigation.define_field("rate", "20")
-                mitigation.define_field("source_ip_filter", threat.hosts[0] if threat.hosts else "0.0.0.0/0")
+                mitigation.define_field("rate", "9")
+                mitigation.define_field("source_ip_filter", "0.0.0.0/0")
             elif mitigation.name == "rate_limiting":
                 mitigation.define_field("device", "ceos2")
                 mitigation.define_field("interface", "eth4")
@@ -139,7 +139,7 @@ class Recommender:
         elif mitigation.name == "ntp_access_control":
             result = ""
         elif mitigation.name == "dns_rate_limiting":
-            result = "dns-s"
+            result = "ceos2"
         elif mitigation.name == "rate_limiting":
             result = mitigation.parameters.get("device", "ceos2")
         elif mitigation.name == "block_pod_address":
