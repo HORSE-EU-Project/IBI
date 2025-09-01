@@ -2,7 +2,7 @@ from constants import Const
 from typing import List
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
-from models.core_models import DetectedThreat, MitigationAction
+from models.core_models import CoreIntent, DetectedThreat, MitigationAction
 
 logger = setup_logging(__name__)
 
@@ -93,12 +93,35 @@ class Recommender:
             # TODO: parametrize other mitigation actions here
         return mitigation
 
-    def get_mitigation_host(self, threat: DetectedThreat, mitigation: MitigationAction) -> str:
-        # TODO: implement this method with the values according to the mitigation action
+    def get_mitigation_host(self, intent: CoreIntent, mitigation: MitigationAction) -> str:
         """
         Get the mitigation host based on the threat and the mitigation action.
         """
         if mitigation.name == "udp_traffic_filter":
-            return mitigation.parameters["node"]
+            if "node" in mitigation.parameters:
+                result = mitigation.parameters.get("node", "ceos2")
+            else:
+                result = "ceos2"
+        elif mitigation.name == "ntp_access_control":
+            result = ""
+        elif mitigation.name == "dns_rate_limiting":
+            result = "dns-s"
+        elif mitigation.name == "rate_limiting":
+            result = mitigation.parameters.get("device", "ceos2")
+        elif mitigation.name == "block_pod_address":
+            result = "ceos2"
+        elif mitigation.name == "block_ues_multidomain":
+            result = "ceos2"
+        elif mitigation.name == "define_dns_servers":
+            result = "dns-c1"
+        elif mitigation.name == "firewall_pfcp_requests":
+            result = "ceos2"
+        elif mitigation.name == "validate_smf_integrity":
+            result = "smf_host"
+        elif mitigation.name == "filter_malicious_access":
+            result = "ceos2"
+        elif mitigation.name == "api_rate_limiting":
+            result = "ceos2"
         else:
-            return ""
+            result = ""
+        return result

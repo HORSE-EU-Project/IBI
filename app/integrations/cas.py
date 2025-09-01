@@ -116,7 +116,8 @@ class CASClient:
                             # Mitigation is partially compliant (mitigation actions should be tuned)
                             return self.PARTIAL
                     else:
-                        self._logger.warning(f"CAS validation failed for intent mitigation: {mitigation_action.uid}")
+                        self._logger.warning(f"CAS validation failed! Mitigation = {mitigation_action.uid}")
+                        self._logger.debug(f"CAS response: {answer}")
                 else:
                     self._logger.error(f"CAS validation failed with status code: {response.status_code}")
                     self._logger.error(f"CAS response: {response.text}")
