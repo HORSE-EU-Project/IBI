@@ -94,48 +94,46 @@ class CASClient:
             self._logger.info(f"Document body: " + doc_body)
             return self.VALID
         else:
-            try:
-                response = requests.post(
-                    f"{self.cas_url}",
-                    headers=self.headers,
-                    data=doc_body,
-                )
-                response.raise_for_status()
-                self._logger.debug(f"CAS document sent: {doc_body}")
-                # Check the answer from CAS
-                if response.status_code == 200:
-                    answer = response.json()
-                    
-                    # Checking for intent spoofing
-                    if "continue" in answer.keys() and bool(answer.get("continue")) == False:
-                        self._logger.debug(f"CAS validation failed for intent spoofing. Attack of type {intent.threat} not detected.")
-                        self._store._ibi_compromised = True
-                        return self.INVALID
+            self._logger.debug(f"CAS message to be sent: {doc_body}")
+            response = requests.post(
+                f"{self.cas_url}",
+                headers=self.headers,
+                data=doc_body,
+                timeout=2,
+            )
+            response.raise_for_status()
+            # Check the answer from CAS
+            if response.status_code == 200:
+                answer = response.json()
+                
+                # Checking for intent spoofing
+                if "continue" in answer.keys() and bool(answer.get("continue")) == False:
+                    self._logger.debug(f"CAS validation failed for intent spoofing. Attack of type {intent.threat} not detected.")
+                    self._store._ibi_compromised = True
+                    return self.INVALID
 
-                    # Mitigation is 100% compliant
-                    if bool(answer.get("allow")) == True:
-                        self._logger.info(f"CAS validation successful for intent mitigation: {mitigation_action.uid}")
-                        return self.VALID
-                    elif bool(answer.get("allow")) == False:
-                        if int(answer.get("pass_percentage")) == 0: 
-                            # Mitigation is 0% compliant (should select another mitigation action)
-                            return self.INVALID
-                        else:
-                            self._logger.debug(f"CAS validation if partial. Got: {answer}")
-                            # Mitigation is partially compliant (mitigation actions should be tuned)
-                            return self.PARTIAL
+                # Mitigation is 100% compliant
+                if bool(answer.get("allow")) == True:
+                    self._logger.info(f"CAS validation SUCCEEDED: Mitigation: {mitigation_action.uid}")
+                    return self.VALID
+                elif bool(answer.get("allow")) == False:
+                    if int(answer.get("pass_percentage")) == 0: 
+                        # Mitigation is 0% compliant (should select another mitigation action)
+                        self._logger.info(f"CAS validation FAILED: Mitigation: {mitigation_action.uid}")
+                        return self.INVALID
                     else:
-                        self._logger.warning(f"CAS validation failed! Mitigation = {mitigation_action.uid}")
-                        self._logger.debug(f"CAS response: {answer}")
+                        self._logger.info(f"CAS validation SUCCEEDED (PARTIAL): Mitigation: {mitigation_action.uid}")
+                        self._logger.debug(f"CAS validation if partial. Got: {answer}")
+                        # Mitigation is partially compliant (mitigation actions should be tuned)
+                        return self.PARTIAL
                 else:
-                    self._logger.error(f"CAS validation failed with status code: {response.status_code}")
-                    self._logger.error(f"CAS response: {response.text}")
-            except requests.exceptions.RequestException as e:
-                self._logger.error(f"Error sending document to CAS: {e}")
-            except Exception as e:
-                self._logger.error(f"Error sending document to CAS: {e}")
-                raise
-            return self.INVALID
+                    self._logger.warning(f"CAS validation FAILED! Mitigation = {mitigation_action.uid}")
+                    self._logger.debug(f"CAS response: {answer}")
+            else:
+                self._logger.error(f"CAS validation FAILED with status code: {response.status_code}")
+                self._logger.error(f"CAS response: {response.text}")
+                return self.INVALID
+            
 
 
     def _cas_message(self, intent: CoreIntent, mitigation_action: MitigationAction) -> str:
@@ -153,9 +151,17 @@ class CASClient:
         Returns:
             str: The message body (as a dictionary) to be sent to CAS for validation.
         """
+        intent_type_mapping = {
+            "mitigation": "mitigation",
+            "prevention": "prevention",
+            "detection": "mitigation"
+        }
         fields_template = {}
         for key, value in mitigation_action.parameters.items():
-            fields_template[key] = value
+            if mitigation_action.name == "firewall_pfcp_requests" and key == "request_types":
+                fields_template[key] = [value]
+            else:
+                fields_template[key] = value
             self._logger.debug(f"Field {key} with value {value} added to the action template")
 
         action_template = {
@@ -164,7 +170,7 @@ class CASClient:
         }
         message_template = {"input": {
             "command": "add",
-            "intent_type": intent.intent_type.value,
+            "intent_type": intent_type_mapping.get(intent.intent_type.value),
             "threat": intent.threat,
             "attacked_host": intent.host,
             "mitigation_host": self._recommender.get_mitigation_host(intent, mitigation_action),
