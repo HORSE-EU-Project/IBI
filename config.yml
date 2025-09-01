@@ -170,14 +170,14 @@ mitigation_actions:
   # Demo 6
   - name: "firewall_pfcp_requests"
     category: "detection"
-    threats: ["pfcp_deletion", "pfcp_establishment", "pfcp_modification"]
+    threats: ["pfcp_deletion", "pfcp_establishment", "pfcp_modification", "signaling_pfcp"]
     fields: ["drop_percentage", "request_types"]
     priority: 0
     enabled: true
   
   - name: "validate_smf_integrity"
     category: "detection"
-    threats: ["pfcp_deletion", "pfcp_establishment", "pfcp_modification"]
+    threats: ["pfcp_deletion", "pfcp_establishment", "pfcp_modification", "signaling_pfcp"]
     fields: ["check", "action"]
     priority: 0
     enabled: true
