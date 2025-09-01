@@ -105,10 +105,10 @@ class CASClient:
                         return self.INVALID
 
                     # Mitigation is 100% compliant
-                    if answer.get("allow") == "true":
+                    if bool(answer.get("allow")) == True:
                         self._logger.info(f"CAS validation successful for intent mitigation: {mitigation_action.uid}")
                         return self.VALID
-                    elif answer.get("allow") == "false":
+                    elif bool(answer.get("allow")) == False:
                         if int(answer.get("pass_percentage")) == 0: 
                             # Mitigation is 0% compliant (should select another mitigation action)
                             return self.INVALID
