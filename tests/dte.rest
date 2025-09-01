@@ -78,16 +78,39 @@ content-type: application/json
     "duration": 600
 }
 
-### Demo 6
+### Demo 6-1
 POST http://127.0.0.1:8000/intents HTTP/1.1
 content-type: application/json
 
 {
     "intent_type": "detection",
-    "threat": "signaling_pfcp",
+    "threat": "pfcp_deletion",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }
+
+### Demo 6-2
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "detection",
+    "threat": "pfcp_establishment",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 6-3
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "detection",
+    "threat": "pfcp_modification",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
 
 ### Demo 7
 POST http://127.0.0.1:8000/intents HTTP/1.1
