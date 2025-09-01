@@ -1,4 +1,4 @@
-from constants import Const
+import json
 from typing import List
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
@@ -66,9 +66,17 @@ class Recommender:
         
         :param mitigation: MitigationAction object
         """
+        # TODO: Add wrapper to external LLM to configure the mitigation action
         if mitigation.category == MitigationAction.MitigationCategory.DETECTION:
             # configure detection mitigation action
-            pass
+            if mitigation.name == "firewall_pfcp_requests":
+                request_type = threat.threat_name.split("_")[1].capitalize()
+                mitigation.define_field("drop_percentage", "90%")
+                mitigation.define_field("request_types", request_type)
+            elif mitigation.name == "validate_smf_integrity":
+                mitigation.define_field("check", "true")
+                mitigation.define_field("action", "block")
+
         elif mitigation.category == MitigationAction.MitigationCategory.PREVENTION:
             if mitigation.name == "dns_rate_limiting":
                 mitigation.define_field("rate", "20")
@@ -81,8 +89,7 @@ class Recommender:
                 mitigation.define_field("blocked_pod", "attacker")
                 mitigation.define_field("device", "ceos2")
                 mitigation.define_field("interface", "eth4")
-            # configure prevention mitigation action
-            pass
+
         elif mitigation.category == MitigationAction.MitigationCategory.MITIGATION:
             # configure mitigation action
             if mitigation.name == "udp_traffic_filter":
@@ -90,7 +97,34 @@ class Recommender:
                 mitigation.define_field("source_ip_filter", threat.hosts[0])
                 mitigation.define_field("destination_port", "123")  # Example port for NTP
             
-            # TODO: parametrize other mitigation actions here
+            elif mitigation.name == "ntp_access_control":
+                host_list = ["dns-c1", "dns-c2", "dns-c3", "dns-c4", "dns-c5", "dns-c6", "dns-c7", "dns-c8", "dns-c9", "dns-c10"]
+                mitigation.define_field("authorized_hosts", json.dumps(host_list))
+                mitigation.define_field("mode", "whitelist")
+            
+            elif mitigation.name == "block_ues_multidomain":
+                mitigation.define_field("domains", json.dumps(["UPC", "CNIT"]))
+                mitigation.define_field("rate_limiting", "generic")
+            
+            elif mitigation.name == "define_dns_servers":
+                mitigation.define_field("dns_servers", json.dumps(["dns-s"]))
+            
+            elif mitigation.name == "filter_malicious_access":
+                mitigation.define_field("actor", "malicious")
+                mitigation.define_field("response", "immediate")
+            elif mitigation.name == "api_rate_limiting":
+                mitigation.define_field("limit", "X requests per minute")
+            elif mitigation.name == "dns_rate_limiting":
+                mitigation.define_field("rate", "20")
+                mitigation.define_field("source_ip_filter", threat.hosts[0] if threat.hosts else "0.0.0.0/0")
+            elif mitigation.name == "rate_limiting":
+                mitigation.define_field("device", "ceos2")
+                mitigation.define_field("interface", "eth4")
+                mitigation.define_field("rate", "10mbps")
+            elif mitigation.name == "block_pod_address":
+                mitigation.define_field("blocked_pod", "attacker")
+                mitigation.define_field("device", "ceos2")
+                mitigation.define_field("interface", "eth4")
         return mitigation
 
     def get_mitigation_host(self, intent: CoreIntent, mitigation: MitigationAction) -> str:
