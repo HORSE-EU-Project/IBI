@@ -135,7 +135,6 @@ class CASClient:
                 return self.INVALID
             
 
-
     def _cas_message(self, intent: CoreIntent, mitigation_action: MitigationAction) -> str:
         """
         Generate the CAS message body for validation.
@@ -160,6 +159,10 @@ class CASClient:
         for key, value in mitigation_action.parameters.items():
             if mitigation_action.name == "firewall_pfcp_requests" and key == "request_types":
                 fields_template[key] = [value]
+            elif mitigation_action.name == "rate_limiting" and key == "rate":
+                fields_template[key] = f"{value}mbps"
+            elif mitigation_action.name == "dns_rate_limiting" and key == "rate":
+                fields_template[key] = f"{value}mbps"
             else:
                 fields_template[key] = value
             self._logger.debug(f"Field {key} with value {value} added to the action template")
