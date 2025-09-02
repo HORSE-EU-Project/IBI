@@ -25,22 +25,22 @@
 #     UPC Testbed configuration        #
 #                                      #
 ########################################
-ckb:
-  url: 'http://10.19.2.18'
-iadt:
-  url: ''
-  # url: 'http://10.19.2.23:5005'
-rtr:
-  # url: ''
-  url: 'http://10.19.2.19:8000'
-  username: 'horse-6g'
-  password: 'horse-6g'
-  email: 'user3@horse-6g.eu'
-cas:
-  url: ''
-  # url: 'http://10.19.2.15:8080'
-syslog:
-  ip: '127.0.0.1'  # Default local syslog server
+# ckb:
+#   url: 'http://10.19.2.18'
+# iadt:
+#   url: ''
+#   # url: 'http://10.19.2.23:5005'
+# rtr:
+#   # url: ''
+#   url: 'http://10.19.2.19:8000'
+#   username: 'horse-6g'
+#   password: 'horse-6g'
+#   email: 'user3@horse-6g.eu'
+# cas:
+#   url: ''
+#   # url: 'http://10.19.2.15:8080'
+# syslog:
+#   ip: '127.0.0.1'  # Default local syslog server
 
 
 ########################################
@@ -48,17 +48,17 @@ syslog:
 #        UMU Testbed configuration     #
 #                                      #
 ########################################
-# ckb:
-#   url: 'http://10.208.11.73'
-# iadt:
-#   url: 'http://10.208.11.74:5005'
-# rtr:
-#   url: 'http://10.208.11.73:8000'
-#   username: 'horse-6g'
-#   password: 'horse-6g'
-#   email: 'user3@horse-6g.eu'
-# cas:
-#   url: 'http://10.208.11.73:8000'  # Check port
+ckb:
+  url: 'http://10.208.11.73'
+iadt:
+  url: 'http://10.208.11.74:5005'
+rtr:
+  url: ''
+  username: 'horse-6g'
+  password: 'horse-6g'
+  email: 'user3@horse-6g.eu'
+cas:
+  url: ''  # Check port
 
 # CNIT Testbed configuration
 # ckb:
