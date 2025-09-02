@@ -25,6 +25,6 @@ class Const:
     IADT_PPS_THRESHOLD = 0.5
 
     # CAS related constants (parameter tuning)
-    CAS_RATE_MITITING_INCREMENT = 1
+    CAS_RATE_LIMITTING_INCREMENT = 1
 
 

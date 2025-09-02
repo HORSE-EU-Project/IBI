@@ -55,7 +55,7 @@ class CASClient:
                 if isinstance(rate_value, str) and rate_value.endswith('mbps'):
                     try:
                         int_part = int(''.join(filter(str.isdigit, rate_value)))
-                        new_rate = f"{int_part + Const.CAS_RATE_MITITING_INCREMENT}mbps"
+                        new_rate = f"{int_part + Const.CAS_RATE_LIMITTING_INCREMENT}mbps"
                         mitigation_action.parameters['rate'] = new_rate
                     except Exception as e:
                         self._logger.error(f"Error tuning rate value: {e}")
