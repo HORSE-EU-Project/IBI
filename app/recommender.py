@@ -73,18 +73,21 @@ class Recommender:
                 request_type = threat.threat_name.split("_")[1].capitalize()
                 mitigation.define_field("drop_percentage", "90%")
                 mitigation.define_field("request_types", request_type)
+            
             elif mitigation.name == "validate_smf_integrity":
                 mitigation.define_field("check", "true")
                 mitigation.define_field("action", "block")
 
         elif mitigation.category == MitigationAction.MitigationCategory.PREVENTION:
             if mitigation.name == "dns_rate_limiting":
-                mitigation.define_field("rate", "9")
+                mitigation.define_field("rate", "9mbps")
                 mitigation.define_field("source_ip_filter", "0.0.0.0/0")
+            
             elif mitigation.name == "rate_limiting":
                 mitigation.define_field("device", "ceos2")
                 mitigation.define_field("interface", "eth4")
                 mitigation.define_field("rate", "10mbps")
+            
             elif mitigation.name == "block_pod_address":
                 mitigation.define_field("blocked_pod", "attacker")
                 mitigation.define_field("device", "ceos2")
@@ -112,15 +115,19 @@ class Recommender:
             elif mitigation.name == "filter_malicious_access":
                 mitigation.define_field("actor", "malicious")
                 mitigation.define_field("response", "immediate")
+            
             elif mitigation.name == "api_rate_limiting":
                 mitigation.define_field("limit", "1000")
+            
             elif mitigation.name == "dns_rate_limiting":
-                mitigation.define_field("rate", "9")
+                mitigation.define_field("rate", "9mbps")
                 mitigation.define_field("source_ip_filter", "0.0.0.0/0")
+            
             elif mitigation.name == "rate_limiting":
                 mitigation.define_field("device", "ceos2")
                 mitigation.define_field("interface", "eth4")
                 mitigation.define_field("rate", "10mbps")
+            
             elif mitigation.name == "block_pod_address":
                 mitigation.define_field("blocked_pod", "attacker")
                 mitigation.define_field("device", "ceos2")
