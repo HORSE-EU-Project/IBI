@@ -270,6 +270,8 @@ class ImpactAnalysisDT:
         names = {
             "dns_ddos": "DDoS_DNS",
             "ddos_download": "DDoS_reverse",
+            "ddos_download_link": "DDoS_Downlink",
+            "dns_amplification": "DNS_Amplification",
         }
         return names.get(from_threat, from_threat)
     
