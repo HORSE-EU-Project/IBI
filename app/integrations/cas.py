@@ -49,7 +49,7 @@ class CASClient:
             MitigationAction: The tuned mitigation action with updated fields as required by CAS.
         """
         # TODO: use graphRAG to send context to LLM and tune the fields using generative AI
-        if mitigation_action.name == "rate_limiting":
+        if mitigation_action.name in  ["rate_limiting", "dns_rate_limiting"]:
             if 'rate' in mitigation_action.parameters.keys():
                 rate_value = mitigation_action.parameters['rate']
                 if isinstance(rate_value, str) and rate_value.endswith('mbps'):
@@ -59,14 +59,6 @@ class CASClient:
                         mitigation_action.parameters['rate'] = new_rate
                     except Exception as e:
                         self._logger.error(f"Error tuning rate value: {e}")
-        if mitigation_action.name == "dns_rate_limiting":
-            if 'rate' in mitigation_action.parameters.keys():
-                try:
-                    rate_value = int(mitigation_action.parameters['rate'])
-                    rate_value = rate_value + Const.CAS_RATE_MITITING_INCREMENT
-                    mitigation_action.parameters['rate'] = rate_value
-                except Exception as e:
-                    self._logger.error(f"Error tuning rate value: {e}")
         return mitigation_action
                     
 
@@ -99,7 +91,7 @@ class CASClient:
                 f"{self.cas_url}",
                 headers=self.headers,
                 data=doc_body,
-                timeout=2,
+                timeout=6,
             )
             response.raise_for_status()
             # Check the answer from CAS
@@ -153,16 +145,12 @@ class CASClient:
         intent_type_mapping = {
             "mitigation": "mitigation",
             "prevention": "prevention",
-            "detection": "mitigation"
+            "detection": "detection"
         }
         fields_template = {}
         for key, value in mitigation_action.parameters.items():
             if mitigation_action.name == "firewall_pfcp_requests" and key == "request_types":
                 fields_template[key] = [value]
-            elif mitigation_action.name == "rate_limiting" and key == "rate":
-                fields_template[key] = f"{value}mbps"
-            elif mitigation_action.name == "dns_rate_limiting" and key == "rate":
-                fields_template[key] = f"{value}mbps"
             else:
                 fields_template[key] = value
             self._logger.debug(f"Field {key} with value {value} added to the action template")
