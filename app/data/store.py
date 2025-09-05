@@ -153,7 +153,15 @@ class InMemoryStore:
     def mitigation_get_all(self) -> List[MitigationAction]:
         with self._data_lock:
             return [action for action in self._available_actions.values()]
-        
+
+    
+    def mitigation_update(self, key: str, action: MitigationAction) -> bool:
+        with self._data_lock:
+            if key in self._available_actions:
+                self._available_actions[key] = action
+                self._logger.debug(f"Mitigation action updated: {key}")
+                return True
+            return False     
 
     """
     Keeps track of associations between the MitigationAction and Threat
