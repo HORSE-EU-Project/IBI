@@ -1,241 +1,192 @@
-# Intent-Based Interface
+# HORSE Intent-Based Interface (IBI)
 
-The IBI is a software prototype developed within the scope of 
-[HORSE project](ibi-api). The main goal of the module is to match intents that 
-represent the desired state of the system or network and apply policies to 
-achieve those states or, in other words, to fulfill the intents. Currently, the 
-IBI can receive intents encoded as JSON files through a RESTful API or a 
-graphical user interface (GUI). The receives security intents that could be 
-mitigation or prevention intents regarding threats affecting the network. Within 
-the IBI, the intents are processed and matched with the policies that are sent 
-to the [RTR module](https://github.com/HORSE-EU-Project/RTR).
+[![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
+[![License](https://img.shields.io/badge/License-EU%20Project-orange.svg)](https://github.com/HORSE-EU-Project)
 
-## Development
-- Download the application code:
+The **Intent-Based Interface (IBI)** is a software prototype developed within the scope of the [HORSE project](https://horse-6g.eu). The IBI serves as a critical component for matching intents that represent the desired state of network systems and applying policies to achieve those states.
+
+## 🎯 Overview
+
+The IBI receives security and QoS intents through a RESTful API or graphical user interface (GUI). It processes these intents and matches them with appropriate policies that are then sent to the [RTR (Reliable Trust Resilience
+) module](https://github.com/HORSE-EU-Project/RTR) for execution.
+
+### Key Features
+
+- **Security Intent Processing**: Handles mitigation and prevention intents for network threats
+- **QoS Management**: Processes quality-of-service requirements for various network protocols
+- **Digital Twin Integration**: Supports what-if analysis through IADT (Intent-Aware Digital Twin)
+- **Real-time Dashboard**: Web-based interface for monitoring and management
+- **RESTful API**: Comprehensive API for programmatic access
+- **Docker Support**: Containerized deployment for development and production
+
+## 🏗️ Architecture
+
 ```
-git clone https://github.com/HORSE-EU-Project/IBI.git
+┌─────────────────┐     ┌─────────────────┐    ┌─────────────────┐
+│   Web Dashboard │     │   REST API      │    │   External      │
+│                 │     │                 │    │   Integrations  │
+└─────────┬───────┘     └─────────┬───────┘    └─────────┬───────┘
+          │                       │                      │
+          └───────────────────────┼──────────────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │      IBI Core Engine      │
+                    │  ┌─────────────────────┐  │
+                    │  │  Intent Pipeline    │  │
+                    │  │  Policy Matcher     │  │
+                    │  │  Mitigation Ctrl    │  │
+                    │  └─────────────────────┘  │
+                    └─────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │    External Modules       │
+                    │  ┌─────────────────────┐  │
+                    │  │   RTR Module        │  │
+                    │  │   IADT Module       │  │
+                    │  │   CAS Module        │  │
+                    │  │   CKB Module        │  │
+                    │  └─────────────────────┘  │
+                    └───────────────────────────┘
 ```
 
-- Enter the project directory
-```
-cd IBI
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.13+
+- Docker and Docker Compose
+- [uv](https://github.com/astral-sh/uv) package manager
+
+### Development Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/HORSE-EU-Project/IBI.git
+   cd IBI
+   ```
+
+2. **Install dependencies**
+   ```bash
+   uv sync
+   source .venv/bin/activate
+   ```
+
+3. **Run the application**
+   ```bash
+   uv run app/main.py
+   ```
+
+The application will be available at:
+- **API**: http://localhost:8070 (Change in [Constatnts file](app/constants.py))
+- **Dashboard**: http://localhost:8070
+
+## 🐳 Docker Deployment
+
+### Production Environment
+
+1. Build the Docker image
+```bash
+# Build the Docker image
+docker compose -f docker-compose.prod.yml build
 ```
 
-- Run Elastic Search on a local docker instance
+2. Adjust the configurations according to IP addresses used in the testbed
 ```
-docker run --rm --name es01-dev -p 127.0.0.1:9200:9200 -p 127.0.0.1:9300:9300 -e "discovery.type=single-node" -e "xpack.security.enabled=false" -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" elastic/elasticsearch:9.0.3
-```
-
-- Install project dependencies
-```
-uv sync
-source .venv/bin/activate
+vim ~/config.yml
 ```
 
-- Run the application
-```
-uv run app/main.py
+# Run the production environment
+docker compose -f docker-compose.prod.yml up
 ```
 
-# Deployment in testbeds without Github access
-
-Create a .tar.gz of the project
+### Development Environment (deprecated)
 
 ```bash
-cd ..
-tar -cvzf horse-ibi.tar.gz --exclude='horse-ibi/.venv' --exclude='horse-ibi/__pycache__' --exclude='horse-ibi/*.pyc' --exclude='horse-ibi/*.git' horse-ibi/
+# Build and run development environment
+docker compose -f docker-compose.dev.yml build
+docker compose -f docker-compose.dev.yml up
 ```
 
-Copy the .tar.gz file to the testbed over SCP:
+> **Note**: The development environment uses volume mounting for live code reloading, while production creates a snapshot of the codebase.
+
+## 📡 API Reference
+
+### Security Intents
+
+#### Mitigation Intent
 ```bash
-scp horse-ibi.tar.gz user@REMOTE_IP:~
-```
-
-Extract the .tar.gz file on the testbed
-```bash
-tar -xzf horse-ibi.tar.gz
-``` 
-
-## Installation
-
-- Download the application code:
-    ```
-    git clone https://github.com/HORSE-EU-Project/IBI.git
-    ```
-- Change the current directory to IBI.
-    ```
-    cd IBI
-
-- Build and run the software as Docker container:
-  - Production environment
-    - Build the Docker Image
-    ```
-    docker compose -f docker-compose.prod.yml build
-    ```
-    - Create configuration file
-      ```
-      mkdir config
-      cp ./app/config.yml ./config/prod.yml
-      ```
-    - Run the Production Environment docker image:
-      ```
-      docker compose -f docker-compose.prod.yml up
-      ```
-> The production environment takes the current snapshot of the files in the
-> current directory, creates a container image with the files and runs the 
-> created image (further changes in the local files will only be applied to the
-> container image when the image is rebuilt.)
-
-  - Development environment
-    ```
-    docker compose -f docker-compose.dev.yml build 
-    docker compose -f docker-compose.dev.yml up
-    ```
-
-> The development environment does not copy files to a Docker image. Instead, 
-> it maps (binds) the filesystem from the local folder to the docker app. It is 
-> useful for development, because changes in the local file system are 
-> automatically applied to the containerized application (in other words, you do 
-> not need to rebuild the docker image to see the changes).
-
-- Stop the execution of the software:
-  - Production environment
-    ```
-    docker compose -f docker-compose.prod.yml down
-    ```
-  - Development environment
-    ```
-    docker compose -f docker-compose.dev.yml down
-    ```
-
-# Accessing the service
-- The API is available at your local IP address (or localhost), on port 7777.
-- The ElasticSearch Instance is exposted at port 9200 and 9300, also at your local IP (or localhost).
-
-# API Call examples
-
-## Security intents
-```
-  # Example 1 
-  {
+curl -X POST http://localhost:8070/intents \
+  -H "Content-Type: application/json" \
+  -d '{
     "intent_type": "mitigation",
     "threat": "ddos_dns",
-    "host": ['dns-c5'],
-    "duration": 9650
-  }
-
-  # Example 2
-  {
-    "intent_type": "mitigation",
-    "threat": "ddos_dns",
-    "host": ['dns-c1', 'dns-c2',
-    'gnb', 'upf',
-    'dns-c4'],
+    "host": ["dns-c1", "dns-c2", "gnb", "upf"],
     "duration": 3000
-  }
+  }'
+```
 
-  # Example 3
-  {
+#### Prevention Intent
+```bash
+curl -X POST http://localhost:8070/intents \
+  -H "Content-Type: application/json" \
+  -d '{
     "intent_type": "prevention",
-    "threat": "ddos_dns",
-    "host": ['dns-c6', 'dns-c8'],
-    "duration": 400
-  }
+    "threat": "dns_amplification",
+    "host": ["0.0.0.0", "1.1.1.1", "8.8.8.8"],
+    "duration": 1200
+  }'
 ```
 
-## Operator's QoS requirements
+## 🔧 Configuration
 
-```
-  {
-    'intent_type': 'qos_ntp',
-    'name': 'reliability',
-    'value': 0.9,
-    'unit': '1',
-    'host': ['dns-s', 'dns-c1']
-  }
+The application uses YAML configuration files located in `config.yml`. Key configuration sections include:
 
-  {
-    'intent_type': 'qos_ntp',
-    'name': 'reliability',
-    'value': 90,
-    'unit': '%',
-    'host': ['dns-s', 'dns-c1']
-  }
+- **External Module URLs**: RTR, IADT, CAS, CKB endpoints
+- **Mitigation Actions**: Predefined actions for different threat types
+- **Testbed Settings**: Environment-specific configurations
 
-  {
-    'intent_type': 'qos_dns',
-    'name': 'latency',
-    'value': 0.2,
-    'unit': 'ms',
-    'host': ['dns-s', 'dns-c1']
-  }
+### Supported Threat Types
 
-  {
-    'intent_type': 'qos_dns',
-    'name': 'latency',
-    'value': 0.15,
-    'unit': 'μs',
-    'host': ['dns-s', 'dns-c1']
-  }
+- `ddos_dns` - DNS-based DDoS attacks
+- `dns_amplification` - DNS amplification attacks
+- `ntp_ddos` - NTP-based DDoS attacks
+- `ddos_download_link` - Download link DDoS attacks
+- `multidomain` - Multi-domain attacks
+- `pfcp_deletion/establishment/modification` - PFCP signaling attacks
+- `nf_exposure` - Network function exposure attacks
+- `poisoning_and_amplification` - DNS poisoning and amplification
 
-  {
-    'intent_type': 'qos_dns',
-    'name': 'latency',
-    'value': 1.0,
-    'unit': 's',
-    'host': ['dns-s', 'dns-c1']
-  }
+## 🧪 Check if the module is online
 
-  {
-    'intent_type': 'qos_pfcp',
-    'name': 'bandwidth',
-    'value': 5000,
-    'unit': 'mbps',
-    'host': ['dns-s', 'dns-c1']
-  }
+Run the provided test files:
 
-  {
-    'intent_type': 'qos_pfcp',
-    'name': 'bandwidth',
-    'value': 24,
-    'unit': 'gbps',
-    'host': ['dns-s', 'dns-c1']
-  }
-  
-  {
-    'intent_type': 'qos_pfcp',
-    'name': 'bandwidth',
-    'value': 60000,
-    'unit': 'kbps',
-    'host': ['dns-s', 'dns-c1']
-  }
-  
-  {
-    'intent_type': 'qos_pfcp',
-    'name': 'bandwidth',
-    'value': 859000,
-    'unit': 'bps',
-    'host': ['dns-s', 'dns-c1']
-  }
+```bash
+# REST API tests
+curl -X GET http://localhost:8070/ping
 ```
 
-## DT what-if responses (only for prevention intents)
-```
-  # Host dns-c6
-  {
-    "id": "ZX9TOSZNV",
-    "host": 'dns-c6',
-    "kpi_measured": "bandwidth",
-    "kpi_value": "1000",
-    "kpi_unit": "mbps"
-  }
-  
-  # Host dns-c8
-  {
-    "id": "HTGFS9W9W",
-    "host": 'dns-c8',
-    "kpi_measured": "latency",
-    "kpi_value": "0.5",
-    "kpi_unit": "ms"
-  }
-```
+## 📊 Monitoring
+
+Access the web dashboard at `http://localhost:8070/dashboard` for:
+- Real-time intent processing status
+- System performance metrics
+- Threat mitigation statistics
+
+This project is developed under the HORSE EU project framework.
+
+## 🔗 Related Projects
+
+- [HORSE RTR Module](https://github.com/HORSE-EU-Project/RTR) - Reliable Trust Resilience
+- [HORSE IADT Module](https://github.com/HORSE-EU-Project/IADT) - Impact Analisys Digital Twin
+- [HORSE CAS Module](https://github.com/HORSE-EU-Project/CAS) - Compliance Assessment Component
+
+---
+
+**HORSE Project** - Horizon Europe Research and Innovation Programme
+This repository is part of the HORSE project. HORSE project has received funding from the 
+Smart Networks and Services Joint Undertaking (SNS JU) under the European Union’s Horizon 
+Europe research and innovation programme under Grant Agreement No 101096342.
+
+For more details about the project, visit the HORSE project [website](https://www.horse-6g.eu/) 
+or the [LinkedIn page](https://www.linkedin.com/company/horse-project-eu/).
