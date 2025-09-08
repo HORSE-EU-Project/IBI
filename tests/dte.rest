@@ -1,36 +1,23 @@
-### Demo 0
 POST http://127.0.0.1:8000/intents HTTP/1.1
 content-type: application/json
 
 {
     "intent_type": "mitigation",
     "threat": "hello_world",
-    "host": [],
-    "duration": 5
-}
-
-### Demo 0
-
-POST http://127.0.0.1:8000/intents HTTP/1.1
-content-type: application/json
-
-{
-    "intent_type": "mitigation",
-    "threat": "hello_world",
-    "host": ["192.168.0.1", "192.168.0.2"],
-    "duration": 5
-}
-
-### Demo 0
-
-POST http://127.0.0.1:8000/intents HTTP/1.1
-content-type: application/json
-
-{
-    "intent_type": "prevention",
-    "threat": "helloworld",
-    "host": [""],
+    "host": ["1.2.3.4", "2.3.4.5"],
     "duration": 600
+}
+
+### Demo 0
+
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "mitigation",
+    "threat": "dns_amplification",
+    "host": ["dnsserver"],
+    "duration": 1200
 }
 
 #### Demo 1
@@ -123,13 +110,46 @@ content-type: application/json
     "duration": 600
 }
 
-### Demo 8
+### Demo 8-1
 POST http://127.0.0.1:8000/intents HTTP/1.1
 content-type: application/json
 
 {
     "intent_type": "detection",
     "threat": "signaling_pfcp",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 8-2
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "detection",
+    "threat": "pfcp_deletion",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 8-3
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "detection",
+    "threat": "pfcp_establishment",
+    "host": ["192.168.56.5", "192.168.56.3"],
+    "duration": 600
+}
+
+### Demo 8-4
+POST http://127.0.0.1:8000/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "detection",
+    "threat": "pfcp_modification",
     "host": ["192.168.56.5", "192.168.56.3"],
     "duration": 600
 }
