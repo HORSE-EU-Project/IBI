@@ -158,7 +158,7 @@ class Recommender:
         elif mitigation.name == "firewall_pfcp_requests":
             result = "ceos2"
         elif mitigation.name == "validate_smf_integrity":
-            result = "smf_host"
+            result = "5g-core"
         elif mitigation.name == "filter_malicious_access":
             result = "ceos2"
         elif mitigation.name == "api_rate_limiting":
