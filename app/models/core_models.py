@@ -150,7 +150,8 @@ class DetectedThreat:
         """
         Check if the detected threat has expired.
         """
-        return datetime.now().timestamp() > self.last_update + Const.THREAT_TIMEOUT
+        curr_time = datetime.now().timestamp()
+        return curr_time > self.end_time
 
     def __repr__(self):
         return f"DetectedThreat(uid={self.uid}, threat_type={self.threat_type}, threat_name={self.threat_name}, hosts={self.hosts}, start_time={self.start_time}, end_time={self.end_time}, last_update={self.last_update}, status={self.status})"
