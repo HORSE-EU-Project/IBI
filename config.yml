@@ -104,21 +104,13 @@ mitigation_actions:
     category: "mitigation"
     threats: ["ddos_amplification", "ntp_ddos"]
     fields: ["protocol", "source_ip_filter", "destination_port"]
-    priority: 1
+    priority: 0
     enabled: true
   
   - name: "block_pod_address"
     category: "mitigation"
     threats: ["dns_amplification"]
     fields: ["blocked_pod", "device", "interface"]
-    priority: 1
-    enabled: true
-  
-  # Demo 1
-  - name: "udp_traffic_filter"
-    category: "mitigation"
-    threats: ["ddos_amplification", "ntp_ddos"]
-    fields: ["protocol", "source_ip_filter", "destination_port"]
     priority: 0
     enabled: true
   
@@ -134,14 +126,14 @@ mitigation_actions:
     category: "prevention"
     threats: ["dns_amplification"]
     fields: ["rate", "source_ip_filter"]
-    priority: 10
+    priority: 2
     enabled: true
   
   - name: "rate_limiting"
     category: "prevention"
     threats: ["dns_amplification"]
     fields: ["device", "interface", "rate"]
-    priority: 10
+    priority: 2
     enabled: true
   
   - name: "block_pod_address"
