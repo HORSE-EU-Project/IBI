@@ -1,7 +1,8 @@
-from utils.log_config import setup_logging
-from models.core_models import CoreIntent, DetectedThreat, MitigationAction, DTJob
 import threading
 from typing import Dict, List, Optional
+from datetime import datetime
+from models.core_models import CoreIntent, DTJob, DetectedThreat, MitigationAction
+from utils.log_config import setup_logging
 
 
 class InMemoryStore:
@@ -133,6 +134,8 @@ class InMemoryStore:
             for threat in list(self._threats.values()):
                 if threat.is_expired():
                     threat.status = DetectedThreat.ThreatStatus.MITIGATED
+                    # Should update the "Last Update?"
+                    threat.last_update = int(datetime.now().timestamp())
                     self._logger.info(f"Threat expired: {threat.uid}")
 
 
