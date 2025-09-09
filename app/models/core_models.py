@@ -34,7 +34,8 @@ class CoreIntent:
         self.host = dte_intent.host
         self.duration = dte_intent.duration
         self.start_time = int(datetime.now().timestamp())
-        self.end_time = self.start_time + self.duration
+        # Intent will be valid for the duration of the intent (Received from DTE)
+        self.end_time = self.start_time + self.duration   
         # Initialize expectations
         self.description = self._generate_description(dte_intent)
 
