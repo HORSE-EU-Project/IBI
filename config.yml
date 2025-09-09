@@ -2,7 +2,7 @@
 
 # Elasticsearch configuration
 ibi:
-  log_level: 'DEBUG'
+  log_level: 'INFO'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 ########################################
 #                                      #

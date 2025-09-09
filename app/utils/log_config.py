@@ -1,5 +1,6 @@
 import logging
 from constants import Const
+import config
 
 class CustomFormatter(logging.Formatter):
     """
@@ -13,6 +14,7 @@ class CustomFormatter(logging.Formatter):
     red = '\x1b[38;5;196m'
     bold_red = '\x1b[31;1m'
     reset = '\x1b[0m'
+
 
     def __init__(self, fmt):
         super().__init__()
@@ -36,8 +38,8 @@ def setup_logging(current_file=None):
         current_file = Const.APP_NAME
         
     logger = logging.getLogger(current_file)
-    logger.setLevel(logging.DEBUG)
-
+    log_level = getattr(logging, config.IBI_LOG_LEVEL) if config.IBI_LOG_LEVEL in logging.getLevelNamesMapping().keys() else logging.DEBUG
+    logger.setLevel(log_level)
     if not logger.handlers:
         # Define log format
         formatter = CustomFormatter(

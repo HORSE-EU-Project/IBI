@@ -16,6 +16,10 @@ yml_file = os.path.join(files_directory, "config.yml")
 with open(yml_file) as f:
     parameters = yaml.safe_load(f)
 
+"""
+HORSE IBI configuration
+"""
+IBI_LOG_LEVEL = parameters["ibi"]["log_level"]
 
 """
 Knowledge Base (CKB) connection parameters
