@@ -15,7 +15,7 @@ class Const:
 
     # Server related
     APP_HOST = "0.0.0.0"
-    APP_PORT = 8070
+    APP_PORT = 8001
 
     # Intent processing loop
     THREAD_INTENT_WAIT = 5.0
