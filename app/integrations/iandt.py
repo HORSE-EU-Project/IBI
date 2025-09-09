@@ -339,6 +339,6 @@ class ImpactAnalysisDT:
             mock_response["what"]["KPIs"]["result"]["value"] = "20000"
         else:
             # Simulation response - lower packet rate (after mitigation)
-            mock_response["what"]["KPIs"]["result"]["value"] = "8000"
+            mock_response["what"]["KPIs"]["result"]["value"] = "700"
         
         return mock_response
