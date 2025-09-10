@@ -1,0 +1,29 @@
+### Variables
+@hostname = 10.19.2.17
+@port = 8001
+@host = {{hostname}}:{{port}}
+
+### Request 1
+# Accept since a DDOS attack on DNS servers is detected
+POST http://{{host}}/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "detection",
+    "threat": "dns_amplification",
+    "host": ["dns-c1", "dns-c2", "dns-c3"],
+    "duration": 600
+}
+
+
+### Request 2
+# Reject since the intent and threat differ from the detected ones
+POST http://{{host}}/intents HTTP/1.1
+content-type: application/json
+
+{
+    "intent_type": "detection",
+    "threat": "signaling_pfcp",
+    "host": ["dns-c1", "dns-c2", "dns-c3"],
+    "duration": 600
+}
