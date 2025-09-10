@@ -21,8 +21,13 @@ body {
 }
 
 .top-bar-title {
-    font-weight: 600;
-    font-size: 1.2rem;
+    font-weight: 800;
+    font-size: 1.6rem;
+}
+
+.top-bar-left {
+    display: flex;
+    align-items: baseline;
 }
 
 /* Sidebar Styling */
@@ -30,7 +35,7 @@ body {
     background: #2c3e50;
     color: white;
     min-height: calc(100vh - 80px);
-    margin-top: 60px;
+    margin-top: 75px;
     position: fixed;
     left: 0;
     top: 0;
@@ -39,7 +44,8 @@ body {
 }
 
 .sidebar-content {
-    padding: 1rem;
+    margin-top: 1rem;
+    padding: 0.5rem;
 }
 
 .sidebar .callout.primary {

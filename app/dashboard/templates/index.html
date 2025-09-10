@@ -1,30 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HORSE IBI - Intent-based Interface</title>
-    <link rel="icon" href="/static/img/icon-32x32.png" sizes="32x32" />
-    <link rel="icon" href="/static/img/icon-192x192.png" sizes="192x192" />
-    <!-- Foundation CSS -->
-    <link rel="stylesheet" href="/static/css/foundation.min.css">
-    <link rel="stylesheet" href="/static/css/font-awesome.css">
-    <link rel="stylesheet" href="/static/css/app.css">
-    
-    <!-- Foundation JS -->
-    <script src="/static/js/vendor/jquery.js"></script>
-    <script src="/static/js/vendor/what-input.js"></script>
-    <script src="/static/js/vendor/foundation.js"></script>
-    <script src="/static/js/app.js"></script>
-</head>
+{% include "head.html" %}
 <body>
     <!-- Top bar -->
-    <div class="top-bar">
-        <div class="top-bar-left">
-            <img src="/static/img/horse_logo.png" alt="HORSE IBI Logo" style="height: 40px; vertical-align: middle; margin-right: 1rem;">
-            <span class="top-bar-title">HORSE Project - Intent-based Interface</span>
-        </div>
-    </div>
+    {% include "topbar.html" %}
 
     <!-- Main layout with always-visible sidebar -->
     <div class="grid-container fluid">
@@ -35,211 +14,16 @@
 
             <!-- Main Content Area -->
             <div class="cell medium-9 large-10 main-content">
+
                 <!-- Dashboard Page -->
-                <div id="dashboard-page" class="page-content">
-                    
-                    <!-- IBI Interrupted Alert -->
-                    <div class="grid-x grid-margin-x" id="ibi-alert" style="display:none;">
-                        <div class="cell">
-                            <div data-closable class="callout alert-callout-border alert radius">
-                                <strong>Error</strong> - The IBI was interrupted because of a possible intent spoofing.
-                                <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
-                                  <span aria-hidden="true">&times;</span>
-                                </button>
-                              </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Intents Summary Section -->
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell">
-                            <h3 class="section-title">Intents</h3>
-                        </div>
-                    </div>
-                    
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell medium-3 large-2">
-                            <div class="card success-card">
-                                <div class="card-section text-center">
-                                    <i class="fas fa-check-circle fa-2x success-icon"></i>
-                                    <h4 id="fulfilled-count">0</h4>
-                                    <p>Fulfilled</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cell medium-3 large-2">
-                            <div class="card alert-card">
-                                <div class="card-section text-center">
-                                    <i class="fas fa-times-circle fa-2x alert-icon"></i>
-                                    <h4 id="not-fulfilled-count">0</h4>
-                                    <p>Not-Fulfilled</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {% include "page_dashboard.html" %}
 
-                    <!-- Threats Summary Section -->
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell">
-                            <h3 class="section-title">Threats</h3>
-                        </div>
-                    </div>
-                    
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell medium-3 large-2">
-                            <div class="card warning-card">
-                                <div class="card-section text-center">
-                                    <i class="fas fa-exclamation-triangle fa-2x warning-icon"></i>
-                                    <h5 id="threats-new">0</h5>
-                                    <p>New</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cell medium-3 large-2">
-                            <div class="card primary-card">
-                                <div class="card-section text-center">
-                                    <i class="fas fa-tools fa-2x primary-icon"></i>
-                                    <h5 id="threats-under-emulation">0</h5>
-                                    <p>Under Emulation</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cell medium-3 large-2">
-                            <div class="card secondary-card">
-                                <div class="card-section text-center">
-                                    <i class="fas fa-clock fa-2x secondary-icon"></i>
-                                    <h5 id="threats-under-mitigation">0</h5>
-                                    <p>Under Mitigation</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cell medium-3 large-2">
-                            <div class="card alert-card">
-                                <div class="card-section text-center">
-                                    <i class="fas fa-redo fa-2x alert-icon"></i>
-                                    <h5 id="threats-reincident">0</h5>
-                                    <p>Reincident</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cell medium-3 large-2">
-                            <div class="card success-card">
-                                <div class="card-section text-center">
-                                    <i class="fas fa-check fa-2x success-icon"></i>
-                                    <h5 id="threats-mitigated">0</h5>
-                                    <p>Mitigated</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- IA-NDT Queue Section -->
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell">
-                            <h3 class="section-title">IA-NDT Status</h3>
-                        </div>
-                    </div>
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell small-4 medium-4 large-2">
-                            <div class="card info-card">
-                                <div class="card-section text-center">
-                                    <i class="fas fa-tasks fa-2x info-icon"></i>
-                                    <h5 id="ndt-queue-size">0</h5>
-                                    <p>Queue Size</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cell small-4 medium-4 large-2">
-                            <div class="card success-card">
-                                <div class="card-section text-center">
-                                    <i class="fas fa-robot fa-2x success-icon"></i>
-                                    <h5 id="ndt-status">Unknown</h5>
-                                    <p>IA-NDT Status</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Intents Table Section -->
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell">
-                            <h3 class="section-title">Intents</h3>
-                            <div class="table-container">
-                                <table class="hover">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Description</th>
-                                            <th>Status</th>
-                                            <th>Created</th>
-                                            <th>Expires</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="intents-table-body">
-                                        <tr>
-                                            <td colspan="6" class="text-center">Loading...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Threats Table Section -->
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell">
-                            <h3 class="section-title">Threats</h3>
-                            <div class="table-container">
-                                <table class="hover">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Type</th>
-                                            <th>Status</th>
-                                            <th>Hosts</th>
-                                            <th>Reported</th>
-                                            <th>Last Update</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="threats-table-body">
-                                        <tr>
-                                            <td colspan="7" class="text-center">Loading...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Intents Page -->
+                {% include "page_intents.html" %}
 
                 <!-- Mitigations Page -->
-                <div id="mitigations-page" class="page-content" style="display: none;">
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell">
-                            <h3 class="section-title">Mitigation Actions</h3>
-                            <div class="table-container">
-                                <table class="hover">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Category</th>
-                                            <th>Threats</th>
-                                            <th>Priority</th>
-                                            <th>Enabled</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="mitigations-table-body">
-                                        <tr>
-                                            <td colspan="7" class="text-center">Loading...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {% include "page_mitigations.html" %}
+
             </div>
         </div>
     </div>

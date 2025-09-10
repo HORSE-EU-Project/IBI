@@ -30,7 +30,8 @@ def get_intents(request: Request):
             "updated_at": (
                 datetime.fromtimestamp(intent.end_time, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                 if intent.end_time is not None else None
-            )
+            ),
+            "uid": intent.uid
         })
     return {"intents": intents_list}
 

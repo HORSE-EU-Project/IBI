@@ -11,7 +11,7 @@ $(document).ready(function() {
     loadDashboardData();
         
     // Auto-refresh data every 5 seconds
-    setInterval(loadDashboardData, 5 * 1000);
+    setInterval(loadDashboardData, 2 * 1000);
 });
 
 // Navigation setup
@@ -34,6 +34,8 @@ function setupNavigation() {
             loadDashboardData();
         } else if (page === 'mitigations') {
             loadMitigationsData();
+        } else if (page === 'intents') {
+            loadIntentsManagementData();
         }
     });
 }
@@ -60,6 +62,7 @@ async function loadDashboardData() {
         // Load intents table
         const intents = await fetchAPI('/stats/intents');
         updateIntentsTable(intents.intents);
+        updateIntentManagementTable(intents.intents);
         
         // Load threats table
         const threats = await fetchAPI('/stats/threats');
@@ -82,9 +85,22 @@ async function loadMitigationsData() {
     }
 }
 
+// Load intents data
+async function loadIntentsManagementData() {
+    try {
+        const intents = await fetchAPI('/stats/intents');
+        updateIntentManagementTable(intents.intents);
+    } catch (error) {
+        console.error('Error loading intents data:', error);
+        showError('Failed to load intents data');
+    }
+}
+
 // Generic API fetch function
-async function fetchAPI(endpoint) {
-    const response = await fetch(endpoint);
+async function fetchAPI(endpoint, method = 'GET') {
+    const response = await fetch(endpoint, {
+        method: method,
+    });
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -213,6 +229,34 @@ function updateMitigationsTable(mitigations) {
     });
 }
 
+// Update intent management table
+function updateIntentManagementTable(intents) {
+    const tbody = $('#intent-management-table-body');
+    tbody.empty();
+    
+    if (intents.length === 0) {
+        tbody.append('<tr><td colspan="7" class="text-center">No intents found</td></tr>');
+        return;
+    }
+    
+    intents.forEach(intent => {
+        const statusClass = intent.status === 'fulfilled' ? 'status-fulfilled' : 'status-not-fulfilled';
+        const statusText = intent.status === 'fulfilled' ? 'Fulfilled' : 'Not Fulfilled';
+        
+        const row = `
+            <tr>
+                <td>${intent.id}</td>
+                <td>${intent.description}</td>
+                <td><span class="status-label ${statusClass}">${statusText}</span></td>
+                <td>${formatDate(intent.created_at)}</td>
+                <td>${formatDate(intent.updated_at)}</td>
+                <td><a href="#" class="delete-intent fa fa-trash" data-intent-id="${intent.uid}" onclick="deleteIntent('${intent.uid}', event)"></a></td>
+            </tr>
+        `;
+        tbody.append(row);
+    });
+}
+
 // Helper functions
 function getStatusClass(status) {
     const statusMap = {
@@ -228,7 +272,6 @@ function getStatusClass(status) {
 }
 
 function getMitigationStatusClass(status) {
-    console.log(status);
     const statusMap = {
         'true': 'status-completed',
         'false': 'status-in-progress'
@@ -277,6 +320,18 @@ function showError(message) {
     errorDiv.find('.close-button').on('click', () => {
         errorDiv.fadeOut(() => errorDiv.remove());
     });
+}
+
+function deleteIntent(intentId) {
+    fetchAPI(
+        `/intents/${intentId}`, 
+        'DELETE'
+    ).then(response => {
+        console.log(response);
+    }).catch(error => {
+        console.error('Error deleting intent:', error);
+    });
+    loadIntentsManagementData();
 }
 
 // Add loading states

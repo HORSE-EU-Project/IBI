@@ -60,3 +60,9 @@ class DTEController:
         self._storage.intent_add(new_core_intent)
         logger.info(f"Intent {new_core_intent.get_uid()} created successfully.")
         return self.RETURN_STATUS_CREATED
+
+    def delete_intent(self, intent_id: str):
+        """
+        Delete an intent from the storage.
+        """
+        self._storage.intent_remove(intent_id)

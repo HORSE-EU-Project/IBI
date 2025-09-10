@@ -37,3 +37,9 @@ def post_intent(dte_intent: DTEIntent, response:Response):
 def put_intent(dte_intent: DTEIntent):
     logger.debug(f"Redirecting to post_intent for intent: {dte_intent}")
     post_intent(dte_intent)
+
+@router.delete("/intents/{intent_id}")
+def delete_intent(intent_id: str):
+    logger.debug(f"Deleting intent {intent_id}")
+    controller.delete_intent(intent_id)
+    return {"deleted": intent_id}
