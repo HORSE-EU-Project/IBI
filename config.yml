@@ -65,18 +65,26 @@ syslog:
 # syslog:
 #   ip: '127.0.0.1'  # Default local syslog server
 
-# CNIT Testbed configuration
+########################################
+#                                      #
+#    CNIT Testbed configuration        #
+#                                      #
+########################################
 # ckb:
-#   url: 'http://XXX.XXX.XXX.XXX'
+#   url: 'http://192.168.130.111'
 # iadt:
-#   url: 'http://XXX.XXX.XXX.XXX:5005'
+#   url: ''
+#   # url: 'http://10.19.2.23:5005'
 # rtr:
-#   url: 'http://XXX.XXX.XXX.XXX:8000'
+#   url: ''
+#   # url: 'http://192.168.130.62:8000'
 #   username: 'horse-6g'
 #   password: 'horse-6g'
 #   email: 'user3@horse-6g.eu'
 # cas:
-#   url: 'http://XXX.XXX.XXX.XXX:5005'  # Check port
+#   url: 'http://192.168.130.48:8080'
+# syslog:
+#   ip: '127.0.0.1'  # Default local syslog server
 
 
 ########################################
@@ -107,13 +115,6 @@ mitigation_actions:
     priority: 0
     enabled: true
   
-  - name: "block_pod_address"
-    category: "mitigation"
-    threats: ["dns_amplification"]
-    fields: ["blocked_pod", "device", "interface"]
-    priority: 0
-    enabled: true
-  
   - name: "ntp_access_control"
     category: "mitigation"
     threats: ["ddos_amplification", "ntp_ddos"]
@@ -126,7 +127,7 @@ mitigation_actions:
     category: "prevention"
     threats: ["dns_amplification"]
     fields: ["rate", "source_ip_filter"]
-    priority: 2
+    priority: 0
     enabled: true
   
   - name: "rate_limiting"
@@ -140,7 +141,7 @@ mitigation_actions:
     category: "prevention"
     threats: ["dns_amplification"]
     fields: ["blocked_pod", "device", "interface"]
-    priority: 0
+    priority: 2
     enabled: true
   
   # Demo 3
