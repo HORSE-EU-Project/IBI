@@ -163,8 +163,8 @@ class ImpactAnalysisDT:
         message["attack"] = self._dt_attack_name(threat_obj.threat_name)
         message["what-condition"]["KPIs"]["element"]["node"] = "ceos2"
         message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
-        message["what-condition"]["KPIs"]["duration"] = "15s"
-        message["if-condition"]["action"]["duration"] = "15s"
+        message["what-condition"]["KPIs"]["duration"] = "30s"
+        message["if-condition"]["action"]["duration"] = "30s"
         return message
 
 
@@ -184,7 +184,7 @@ class ImpactAnalysisDT:
                 message["if-condition"]["action"]["type"] = "rate_limit"
                 message["if-condition"]["action"]["value"] = "10"
                 message["if-condition"]["action"]["unit"] = "mbps"
-                message["if-condition"]["action"]["duration"] = "15s"
+                message["if-condition"]["action"]["duration"] = "30s"
                 # Where to apply the mitigation
                 message["if-condition"]["element"]["node"] = mitigation_obj.parameters["node"] if "node" in mitigation_obj.parameters else "ceos2"
                 message["if-condition"]["element"]["interface"] = mitigation_obj.parameters["interface"] if "interface" in mitigation_obj.parameters else "eth4"
@@ -195,7 +195,7 @@ class ImpactAnalysisDT:
                 message["if-condition"]["action"]["type"] = "block_pod_ip"
                 message["if-condition"]["action"]["value"] = mitigation_obj.parameters["blocked_pod"] if "blocked_pod" in mitigation_obj.parameters else "internet"
                 message["if-condition"]["action"]["unit"] = "*"
-                message["if-condition"]["action"]["duration"] = "15s"
+                message["if-condition"]["action"]["duration"] = "30s"
                 # Where to apply the mitigation
                 message["if-condition"]["element"]["node"] = mitigation_obj.parameters["node"] if "node" in mitigation_obj.parameters else "ceos2"
                 message["if-condition"]["element"]["interface"] = mitigation_obj.parameters["interface"] if "interface" in mitigation_obj.parameters else "eth4"
