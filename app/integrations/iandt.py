@@ -34,8 +34,8 @@ class ImpactAnalysisDT:
             "what-condition": {
                 "KPIs": {
                     "element": {"node": "dns-c1", "interface": "eth1"},
-                    "metric": "packets-per-second",
-                    "duration": "30s",
+                    "metric": "bytes-per-second",
+                    "duration": "15s",
                 }
             },
             "if-condition": {
@@ -87,7 +87,7 @@ class ImpactAnalysisDT:
                 "KPIs": {
                     "element": {"node": "dns-c1", "interface": "eth1"},
                     "metric": "packets-per-second",
-                    "duration": "30s",
+                    "duration": "15s",
                 }
             },
             "if-condition": {
@@ -157,7 +157,6 @@ class ImpactAnalysisDT:
         """
         # Get the threat name from the detected threat
         threat_obj = self._store.threat_get(dt_job.threat_id)
-        mitigation_obj = dt_job.mitigation_obj
 
         if threat_obj.threat_name == "dns_amplification":
             what_device = "ceos3"
@@ -188,36 +187,44 @@ class ImpactAnalysisDT:
         # Get the mitigation action from the store
         mitigation_obj = dt_job.mitigation_obj  # Mitigation object from the job
 
-        match mitigation_obj.name:
-             case "dns_rate_limiting" | "rate_limiting":
-                message = self._messages["rate_limit"]
-                # Action parameters
-                message["if-condition"]["action"]["type"] = "rate_limit"
-                message["if-condition"]["action"]["value"] = "10"
-                message["if-condition"]["action"]["unit"] = "mbps"
-                message["if-condition"]["action"]["duration"] = "30s"
-                # Where to apply the mitigation
-                message["if-condition"]["element"]["node"] = mitigation_obj.parameters["node"] if "node" in mitigation_obj.parameters else "ceos2"
-                message["if-condition"]["element"]["interface"] = mitigation_obj.parameters["interface"] if "interface" in mitigation_obj.parameters else "eth4"
-             
-             case "block_pod_address":
-                message = self._messages["block"]
-                # Action parameters
-                message["if-condition"]["action"]["type"] = "block_pod_ip"
-                message["if-condition"]["action"]["value"] = mitigation_obj.parameters["blocked_pod"] if "blocked_pod" in mitigation_obj.parameters else "internet"
-                message["if-condition"]["action"]["unit"] = "*"
-                message["if-condition"]["action"]["duration"] = "30s"
-                # Where to apply the mitigation
-                message["if-condition"]["element"]["node"] = mitigation_obj.parameters["node"] if "node" in mitigation_obj.parameters else "ceos2"
-                message["if-condition"]["element"]["interface"] = mitigation_obj.parameters["interface"] if "interface" in mitigation_obj.parameters else "eth4"
+        if mitigation_obj.name == "dns_rate_limiting" | "rate_limiting":
+            message = self._messages["rate_limit"]
+            
+            if threat_name == "dns_amplification":
+                message["what-condition"]["KPIs"]["element"]["node"] = "ceos3"
+                message["what-condition"]["KPIs"]["element"]["interface"] = "eth2"
+                message["if-condition"]["element"]["node"] = "ceos3"
+                message["if-condition"]["element"]["interface"] = "eth2"
+                message["if-condition"]["element"]["network"] = "*"
+                message["if-condition"]["element"]["ref"] = "ceos3_eth2_*"
+            
+            elif threat_name in ["ddos_download", "ddos_download_link"]:
+                message["what-condition"]["KPIs"]["element"]["node"] = "dns-c1"
+                message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
+                message["if-condition"]["element"]["node"] = "ceos2"
+                message["if-condition"]["element"]["interface"] = "eth1"
+                message["if-condition"]["element"]["network"] = "*"
+                message["if-condition"]["element"]["ref"] = "ceos2_eth1_*"
 
-        # TODO: Fixed for the PoC, but it should be dynamic based on the threat
-        # General configuration for the message
-        message["id"] = dt_job.uid
-        message["attack"] = self._dt_attack_name(threat_name)
-        message["what-condition"]["KPIs"]["element"]["node"] = "ceos3"
-        message["what-condition"]["KPIs"]["element"]["interface"] = "eth2"
-        message["what-condition"]["KPIs"]["duration"] = "15s"
+        elif mitigation_obj.name == "block_pod_address":
+            message = self._messages["block"]
+            if threat_name == "dns_amplification":
+                message["what-condition"]["KPIs"]["element"]["node"] = "ceos3"
+                message["what-condition"]["KPIs"]["element"]["interface"] = "eth2"
+                message["if-condition"]["action"]["value"] = "dns-c1"
+                message["if-condition"]["element"]["node"] = "ceos3"
+                message["if-condition"]["element"]["interface"] = "eth1"
+                message["if-condition"]["element"]["network"] = "*"
+                message["if-condition"]["element"]["ref"] = "ceos3_eth1_*"
+            
+            elif threat_name in ["ddos_download", "ddos_download_link"]:
+                message["what-condition"]["KPIs"]["element"]["node"] = "dns-c1"
+                message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
+                message["if-condition"]["action"]["value"] = "internet"
+                message["if-condition"]["element"]["node"] = "ceos2"
+                message["if-condition"]["element"]["interface"] = "eth1"
+                message["if-condition"]["element"]["network"] = "*"
+                message["if-condition"]["element"]["ref"] = "ceos2_eth1_*"
         return message
 
 
