@@ -40,7 +40,7 @@ content-type: application/json
 {
     "intent_type": "prevention",
     "threat": "dns_amplification",
-    "host": ["192.168.56.5", "192.168.56.3"],
+    "host": ["dns-c2", "dns-c3"],
     "duration": 600
 }
 
@@ -52,7 +52,7 @@ content-type: application/json
 {
     "intent_type": "prevention",
     "threat": "ddos_download_link",
-    "host": ["192.168.56.5", "192.168.56.3"],
+    "host": ["dns-c2", "dns-c3"],
     "duration": 1200
 }
 
