@@ -158,11 +158,22 @@ class ImpactAnalysisDT:
         # Get the threat name from the detected threat
         threat_obj = self._store.threat_get(dt_job.threat_id)
         mitigation_obj = dt_job.mitigation_obj
+
+        if threat_obj.threat_name == "dns_amplification":
+            what_device = "ceos3"
+            what_iface = "eth2"
+        elif threat_obj.threat_name in ["ddos_download", "ddos_download_link"]:
+            what_device = "dns-c1"
+            what_iface = "eth1"
+        else:
+            what_device = "ceos3"
+            what_iface = "eth2"
+
         message = self._messages["monitor"]
         message["id"] = dt_job.uid
         message["attack"] = self._dt_attack_name(threat_obj.threat_name)
-        message["what-condition"]["KPIs"]["element"]["node"] = "ceos2"
-        message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
+        message["what-condition"]["KPIs"]["element"]["node"] = what_device
+        message["what-condition"]["KPIs"]["element"]["interface"] = what_iface
         message["what-condition"]["KPIs"]["duration"] = "30s"
         message["if-condition"]["action"]["duration"] = "30s"
         return message
@@ -204,8 +215,8 @@ class ImpactAnalysisDT:
         # General configuration for the message
         message["id"] = dt_job.uid
         message["attack"] = self._dt_attack_name(threat_name)
-        message["what-condition"]["KPIs"]["element"]["node"] = "ceos2"
-        message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
+        message["what-condition"]["KPIs"]["element"]["node"] = "ceos3"
+        message["what-condition"]["KPIs"]["element"]["interface"] = "eth2"
         message["what-condition"]["KPIs"]["duration"] = "15s"
         return message
 
@@ -269,7 +280,7 @@ class ImpactAnalysisDT:
         """
         names = {
             "dns_ddos": "DDoS_DNS",
-            "ddos_download": "DDoS_reverse",
+            "ddos_download": "DDoS_Downlink",
             "ddos_download_link": "DDoS_Downlink",
             "dns_amplification": "DNS_Amplification",
         }
@@ -304,6 +315,7 @@ class ImpactAnalysisDT:
         thread = threading.Thread(target=send_mock_response, daemon=True)
         thread.start()
         self._logger.info(f"Scheduled mock response for message ID: {original_message.get('id', 'unknown')}")
+
 
     def _create_mock_response(self, original_message: dict) -> dict:
         """
