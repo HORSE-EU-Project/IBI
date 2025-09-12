@@ -235,6 +235,8 @@ class ImpactAnalysisDT:
                 message["if-condition"]["element"]["interface"] = "eth1"
                 message["if-condition"]["element"]["network"] = "*"
                 message["if-condition"]["element"]["ref"] = "ceos2_eth1_*"
+        # Alaways update the id of the DT Job
+        message["id"] = dt_job.uid
         return message
 
 
@@ -368,6 +370,6 @@ class ImpactAnalysisDT:
             mock_response["what"]["KPIs"]["result"]["value"] = "20000"
         else:
             # Simulation response - lower packet rate (after mitigation)
-            mock_response["what"]["KPIs"]["result"]["value"] = "700"
+            mock_response["what"]["KPIs"]["result"]["value"] = "18000"
         
         return mock_response
