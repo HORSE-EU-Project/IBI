@@ -134,14 +134,24 @@ class ImpactAnalysisDT:
 
     def process_queued_jobs(self):
         if self._queue and self._store.dt_is_available():
-            (dt_task, task_type) = self._queue.pop(0)  # Task type is either MEASUREMENT or SIMULATION
-            if not self._store.dt_job_exists(dt_task):
-                self._store.dt_job_add(dt_task)
+            (current_job, job_type) = self._queue.pop(0)  # Task type is either MEASUREMENT or SIMULATION
+            if not self._store.dt_job_exists(current_job):
+                self._store.dt_job_add(current_job)
             
-            if task_type == ImpactAnalysisDT.JobType.MEASUREMENT:
-                message = self._get_monitor_msg(dt_task)
-            elif task_type == ImpactAnalysisDT.JobType.SIMULATION:
-                message = self._get_simulation_msg(dt_task)
+            if job_type == ImpactAnalysisDT.JobType.MEASUREMENT:
+                # if there is already a measurement value for the same threat, 
+                # copy the value and skipt the measurement task
+                # Workaround: IA-NDT cannot handle multiple measurement requests for the same threat
+                for existing_dt_job in self._store._dt_jobs:
+                    if existing_dt_job.threat_id == current_job.threat_id and existing_dt_job.kpi_before is not None:
+                        current_job.update_kpi_before(existing_dt_job.kpi_before)
+                        self._store.dt_job_update(current_job.uid, current_job)
+                        self._logger.debug(f"Skipping measurement task for threat {current_job.threat_id} because it already has a measurement value")
+                        return
+                # If there is no measurement value for the same threat, send the measurement request
+                message = self._get_monitor_msg(current_job)
+            elif job_type == ImpactAnalysisDT.JobType.SIMULATION:
+                message = self._get_simulation_msg(current_job)
             # Send the message via REST API
             self.send_iandt_message(message)
         else:
