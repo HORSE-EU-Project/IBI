@@ -7,7 +7,7 @@ content-type: application/json
 {
     "intent_type": "prevention",
     "threat": "dns_amplification",
-    "host": ["dnsserver"],
+    "host": ["dns-c1"],
     "duration": 1200
 }
 
@@ -18,7 +18,7 @@ content-type: application/json
 {
     "intent_type": "mitigation",
     "threat": "dns_amplification",
-    "host": ["dnsserver"],
+    "host": ["dns-c1"],
     "duration": 1200
 }
 
@@ -29,7 +29,7 @@ content-type: application/json
 {
     "intent_type": "mitigation",
     "threat": "ddos_amplification",
-    "host": ["192.168.56.5", "192.168.56.3"],
+    "host": ["172.22.1.1"],
     "duration": 600
 }
 
