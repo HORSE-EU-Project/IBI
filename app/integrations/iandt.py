@@ -197,7 +197,7 @@ class ImpactAnalysisDT:
         # Get the mitigation action from the store
         mitigation_obj = dt_job.mitigation_obj  # Mitigation object from the job
 
-        if mitigation_obj.name == "dns_rate_limiting" | "rate_limiting":
+        if mitigation_obj.name in ["dns_rate_limiting", "rate_limiting"]:
             message = self._messages["rate_limit"]
             
             if threat_name == "dns_amplification":
