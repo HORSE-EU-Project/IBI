@@ -93,14 +93,28 @@ class Recommender:
                 mitigation.define_field("source_ip_filter", "0.0.0.0/0")
             
             elif mitigation.name == "rate_limiting":
-                mitigation.define_field("device", "ceos2")
-                mitigation.define_field("interface", "eth4")
-                mitigation.define_field("rate", "10mbps")
+                if threat.threat_name == "dns_amplification":
+                    mitigation.define_field("device", "ceos3")
+                    mitigation.define_field("interface", "eth2")
+                elif threat.threat_name in ["ddos_download", "ddos_download_link"]:
+                    mitigation.define_field("device", "ceos2")
+                    mitigation.define_field("interface", "eth1")
+                else:
+                    mitigation.define_field("device", "ceos2")
+                    mitigation.define_field("interface", "eth4")                
+                mitigation.define_field("rate", "8mbps")
             
             elif mitigation.name == "block_pod_address":
                 mitigation.define_field("blocked_pod", "attacker")
-                mitigation.define_field("device", "ceos2")
-                mitigation.define_field("interface", "eth4")
+                if threat.threat_name == "dns_amplification":
+                    mitigation.define_field("device", "ceos3")
+                    mitigation.define_field("interface", "eth1")
+                elif threat.threat_name in ["ddos_download", "ddos_download_link"]:
+                    mitigation.define_field("device", "ceos2")
+                    mitigation.define_field("interface", "eth1")
+                else:
+                    mitigation.define_field("device", "ceos2")
+                    mitigation.define_field("interface", "eth4")
 
         elif mitigation.category == MitigationAction.MitigationCategory.MITIGATION:
             # configure mitigation action
