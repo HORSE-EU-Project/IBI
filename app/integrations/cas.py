@@ -93,7 +93,7 @@ class CASClient:
                 data=doc_body,
                 timeout=6,
             )
-            response.raise_for_status()
+            # response.raise_for_status()
             # Check the answer from CAS
             if response.status_code == 200:
                 answer = response.json()
@@ -121,6 +121,11 @@ class CASClient:
                 else:
                     self._logger.warning(f"CAS validation FAILED! Mitigation = {mitigation_action.uid}")
                     self._logger.debug(f"CAS response: {answer}")
+            
+            if response.status_code == 500:
+                self._store._ibi_compromised = True
+                return self.INVALID
+
             else:
                 self._logger.error(f"CAS validation FAILED with status code: {response.status_code}")
                 self._logger.error(f"CAS response: {response.text}")

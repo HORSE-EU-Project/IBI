@@ -77,6 +77,15 @@ class Recommender:
             elif mitigation.name == "validate_smf_integrity":
                 mitigation.define_field("check", "true")
                 mitigation.define_field("action", "block")
+            
+            elif mitigation.name == "dns_rate_limiting":
+                mitigation.define_field("rate", "9mbps")
+                mitigation.define_field("source_ip_filter", "0.0.0.0/0")
+            
+            elif mitigation.name == "ntp_access_control":
+                host_list = ["dns-c1", "dns-c2", "dns-c3", "dns-c4", "dns-c5", "dns-c6", "dns-c7", "dns-c8", "dns-c9", "dns-c10"]
+                mitigation.define_field("authorized_hosts", json.dumps(host_list))
+                mitigation.define_field("mode", "whitelist")
 
         elif mitigation.category == MitigationAction.MitigationCategory.PREVENTION:
             if mitigation.name == "dns_rate_limiting":
