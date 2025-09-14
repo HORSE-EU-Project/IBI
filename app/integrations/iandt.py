@@ -142,11 +142,13 @@ class ImpactAnalysisDT:
                 # if there is already a measurement value for the same threat, 
                 # copy the value and skipt the measurement task
                 # Workaround: IA-NDT cannot handle multiple measurement requests for the same threat
-                for existing_dt_job in self._store._dt_jobs:
+                
+                for existing_dt_job in self._store.dt_job_get_all(expired=True):
                     if existing_dt_job.threat_id == current_job.threat_id and existing_dt_job.kpi_before is not None:
                         current_job.update_kpi_before(existing_dt_job.kpi_before)
                         self._store.dt_job_update(current_job.uid, current_job)
-                        self._logger.debug(f"Skipping measurement task for threat {current_job.threat_id} because it already has a measurement value")
+                        self._logger.debug(f"Skipping measurement task for threat {current_job.threat_id}")
+                        self._logger.debug(f"Threat already has a measurement KPI value")
                         return
                 # If there is no measurement value for the same threat, send the measurement request
                 message = self._get_monitor_msg(current_job)
@@ -368,8 +370,11 @@ class ImpactAnalysisDT:
         if action_type == "monitor":
             # Monitor response - higher packet rate (before mitigation)
             mock_response["what"]["KPIs"]["result"]["value"] = "20000"
-        else:
+        elif action_type == "rate_limit":
             # Simulation response - lower packet rate (after mitigation)
             mock_response["what"]["KPIs"]["result"]["value"] = "18000"
+        elif action_type == "block_pod_ip":
+            # Simulation response - lower packet rate (after mitigation)
+            mock_response["what"]["KPIs"]["result"]["value"] = "5000"
         
         return mock_response

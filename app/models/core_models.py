@@ -220,6 +220,7 @@ class DTJob:
     class JobStatus(Enum):
         PENDING = "PENDING"
         COMPLETED = "COMPLETED"
+        EXPIRED = "EXPIRED"
 
     uid: str
     threat_id: str

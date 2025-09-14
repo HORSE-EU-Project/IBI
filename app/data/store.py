@@ -194,9 +194,9 @@ class InMemoryStore:
     def dt_job_add(self, job: DTJob) -> None:
         with self._data_lock:
             # Throw an exception if a DTJob with the same threat_id already exists
-            for existing_job in self._dt_jobs:
-                if existing_job.threat_id == job.threat_id:
-                    raise Exception(f"DTJob with threat_id {job.threat_id} already exists.")
+            # for existing_job in self._dt_jobs:
+            #     if existing_job.threat_id == job.threat_id:
+            #         raise Exception(f"DTJob with threat_id {job.threat_id} already exists.")
             self._dt_jobs.append(job)
             self._logger.debug(f"IA-NDT job added: {job.uid}")
 
@@ -214,14 +214,14 @@ class InMemoryStore:
     def dt_job_get(self, job_id: str) -> Optional[DTJob]:
         with self._data_lock:
             for job in self._dt_jobs:
-                if job.uid == job_id:
+                if job.uid == job_id and job.status not in [DTJob.JobStatus.EXPIRED]:
                     return job
             return None
 
     def dt_job_get_by_threat(self, threat_id: str) -> Optional[DTJob]:
         with self._data_lock:
             for job in self._dt_jobs:
-                if job.threat_id == threat_id:
+                if job.threat_id == threat_id and job.status not in [DTJob.JobStatus.EXPIRED]:
                     return job
             return None
 
@@ -233,13 +233,15 @@ class InMemoryStore:
         with self._data_lock:
             for existing_job in self._dt_jobs:
                 if existing_job.threat_id == job.threat_id and \
-                    existing_job.mitigation_id == job.mitigation_id:
+                    existing_job.mitigation_id == job.mitigation_id and \
+                    existing_job.status not in [DTJob.JobStatus.EXPIRED]:
                     return True
             return False
 
-    def dt_job_get_all(self) -> List[DTJob]:
+    def dt_job_get_all(self, expired: bool = False) -> List[DTJob]:
         with self._data_lock:
-            return self._dt_jobs
+            return [job for job in self._dt_jobs if job.status not in [DTJob.JobStatus.EXPIRED] or expired]
+
 
     def dt_job_delete(self, thread_id: str) -> bool:
         """
@@ -248,8 +250,8 @@ class InMemoryStore:
         """
         with self._data_lock:
             for idx, job in enumerate(self._dt_jobs):
-                if job.threat_id == thread_id:
-                    del self._dt_jobs[idx]
+                if job.threat_id == thread_id and job.status not in [DTJob.JobStatus.EXPIRED]:
+                    self._dt_jobs[idx].status = DTJob.JobStatus.EXPIRED
                     self._logger.debug(f"IA-NDT job deleted: {job.uid}")
                     return True
             return False
