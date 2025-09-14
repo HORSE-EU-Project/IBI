@@ -9,19 +9,19 @@ ibi:
 #     Test Only (log to STDOUT)        #
 #                                      #
 ########################################
-# ckb:
-#   url: ''
-# iadt:
-#   url: ''
-# rtr:
-#   url: ''
-#   username: 'horse-6g'
-#   password: 'horse-6g'
-#   email: 'user3@horse-6g.eu'
-# cas:
-#   url: ''
-# syslog:
-#   ip: '127.0.0.1'  # Default local syslog server
+ckb:
+  url: ''
+iadt:
+  url: ''
+rtr:
+  url: ''
+  username: 'horse-6g'
+  password: 'horse-6g'
+  email: 'user3@horse-6g.eu'
+cas:
+  url: ''
+syslog:
+  ip: '127.0.0.1'  # Default local syslog server
 
 
 ########################################
@@ -141,7 +141,7 @@ mitigation_actions:
     category: "prevention"
     threats: ["dns_amplification"]
     fields: ["blocked_pod", "device", "interface"]
-    priority: 2
+    priority: 1
     enabled: true
   
   # Demo 3
