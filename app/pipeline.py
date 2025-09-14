@@ -199,7 +199,7 @@ class IntentPipeline:
                     if self.iadt.check_results(threat.uid, dt_job.kpi_before, dt_job.kpi_after):
                         # Recover the mitigation action linked to the thread
                         mitigation_actions = self._store.association_get(threat.uid)
-                        mitigation_action = mitigation_actions[0] if mitigation_actions else None
+                        mitigation_action = mitigation_actions[-1] if mitigation_actions else None
                         # Test with CAS
                         cas_result = self.cas_client.validate(intent, mitigation_action)
                         
