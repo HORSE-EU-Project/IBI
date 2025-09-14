@@ -145,7 +145,7 @@ class InMemoryStore:
     def mitigation_add(self, action: MitigationAction) -> None:
         with self._data_lock:
             self._available_actions[action.uid] = action
-            self._logger.debug(f"Mitigation action added: {action.uid}")
+            self._logger.debug(f"Mitigation action added: {action.uid} -- {action.name}")
 
 
     def mitigation_get(self, key: str) -> Optional[MitigationAction]:
@@ -174,7 +174,7 @@ class InMemoryStore:
             if threat_id not in self._associations:
                 self._associations[threat_id] = []
             self._associations[threat_id].append(mitigation)
-            self._logger.debug(f"Association added for intent {threat_id} with mitigation {mitigation.uid}")
+            self._logger.debug(f"Association added for intent {threat_id} with mitigation {mitigation.uid} -- {mitigation.name}")
 
 
     def association_get(self, threat_id: str) -> Optional[List[MitigationAction]]:
