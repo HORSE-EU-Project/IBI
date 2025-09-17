@@ -34,7 +34,7 @@ class ImpactAnalysisDT:
             "what-condition": {
                 "KPIs": {
                     "element": {"node": "dns-c1", "interface": "eth1"},
-                    "metric": "bytes-per-second",
+                    "metric": "packets-per-second",
                     "duration": "15s",
                 }
             },
