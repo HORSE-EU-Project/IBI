@@ -63,7 +63,7 @@ content-type: application/json
 {
     "intent_type": "mitigation",
     "threat": "multidomain",
-    "host": ["192.168.56.5", "192.168.56.3"],
+    "host": ["dns-cnit", "dns-upc"],
     "duration": 600
 }
 
