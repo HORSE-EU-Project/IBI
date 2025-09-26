@@ -30,7 +30,7 @@ class Recommender:
         for m in self._store.mitigation_get_all():
             if threat.threat_type == m.category \
                 and threat.threat_name in m.threats:
-                # Appens mitigation action if type and name of the threat match
+                # Appends mitigation action if type and name of the threat match
                 associations  = self._store.association_get(threat.uid)
                 if not associations:
                     # If there are no associations, add the mitigation
@@ -129,8 +129,16 @@ class Recommender:
                 mitigation.define_field("mode", "whitelist")
             
             elif mitigation.name == "block_ues_multidomain":
-                mitigation.define_field("domains", json.dumps(["UPC", "CNIT"]))
-                mitigation.define_field("rate_limiting", "generic")
+                str_hosts = "".join(threat.hosts).lower()
+                if "upc" in str_hosts:
+                    mitigation.define_field("domains", ["UPC"])
+                    mitigation.define_field("rate_limiting", "10mbps")
+                elif "cnit" in str_hosts:
+                    mitigation.define_field("domains", ["CNIT"])
+                    mitigation.define_field("rate_limiting", "0mbps")
+                else:
+                    mitigation.define_field("domains", ["ND"])
+                    mitigation.define_field("rate_limiting", "00mbps")
             
             elif mitigation.name == "define_dns_servers":
                 mitigation.define_field("dns_servers", json.dumps(["dns-s"]))
@@ -175,7 +183,7 @@ class Recommender:
         elif mitigation.name == "block_pod_address":
             result = "ceos2"
         elif mitigation.name == "block_ues_multidomain":
-            result = "ceos2"
+            result = "ceos3"
         elif mitigation.name == "define_dns_servers":
             result = "dns-c1"
         elif mitigation.name == "firewall_pfcp_requests":

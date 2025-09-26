@@ -180,7 +180,7 @@ class InMemoryStore:
     def association_get(self, threat_id: str) -> Optional[List[MitigationAction]]:
         with self._data_lock:
             return self._associations.get(threat_id)
-        return None
+
 
     def association_update(self, threat_id: str, mitigation: MitigationAction) -> bool:
         with self._data_lock:

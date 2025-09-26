@@ -6,6 +6,7 @@ from constants import Const
 from .api_models import DTEIntent, DTEIntentType
 from enum import Enum
 
+
 class Expectation:
     name: str
     value: str
@@ -25,7 +26,7 @@ class CoreIntent:
     end_time: Optional[int] = None
     description: str
     fulfilled: bool = False
-    
+
     def __init__(self, dte_intent: DTEIntent):
         self.uid = str(uuid4())
         # Import from DTE Intent
@@ -35,7 +36,7 @@ class CoreIntent:
         self.duration = dte_intent.duration
         self.start_time = int(datetime.now().timestamp())
         # Intent will be valid for the duration of the intent (Received from DTE)
-        self.end_time = self.start_time + self.duration   
+        self.end_time = self.start_time + self.duration
         # Initialize expectations
         self.description = self._generate_description(dte_intent)
 
@@ -68,11 +69,15 @@ class CoreIntent:
             intent_type_str = "Prevent"
         elif intent_type in [DTEIntentType.MITIGATION, DTEIntentType.DETECTION]:
             intent_type_str = "Mitigate"
-        threat_str = str(threat)
-        hosts_str = f" on hosts {hosts}" if hosts else ""
+        threat_str = str(threat) + " attack"
+        if threat == "multidomain":
+            hosts_str = f" on domains {', '.join(hosts)}" if hosts else ""
+        else:
+            hosts_str = f" on host(s) {', '.join(hosts)}" if hosts else ""
         duration_str = f" for {duration}s" if duration else ""
 
-        description = f"{intent_type_str} {threat_str}{hosts_str}{duration_str}".strip()
+        description = f"{intent_type_str} {threat_str}{hosts_str}{duration_str}".strip(
+        )
         return description
 
     def set_fulfilled(self, fulfilled: bool) -> None:
@@ -80,11 +85,10 @@ class CoreIntent:
         Set the satisfied status of the intent.
         """
         self.fulfilled = fulfilled
-    
 
     def __repr__(self):
         return f"CoreIntent(uid={self.uid}, intent_type={self.intent_type}, threat={self.threat}, host={self.host}, duration={self.duration}, start_time={self.start_time}, end_time={self.end_time}, description={self.description}, satisfied={self.fulfilled})"
-    
+
 
 class DetectedThreat:
     """
@@ -106,16 +110,15 @@ class DetectedThreat:
     end_time: Optional[int] = None
     last_update: Optional[int] = None
     status: ThreatStatus = ThreatStatus.NEW
-    
-    def __init__(self, dte_intent: DTEIntent):
+
+    def __init__(self, dte_intent: DTEIntent, host: Optional[str] = None):
         self.uid = str(uuid4())
         self.threat_type = dte_intent.intent_type
         self.threat_name = dte_intent.threat
-        self.hosts = dte_intent.host
+        self.hosts = [host] if host else dte_intent.host
         self.start_time = int(datetime.now().timestamp())
         self.end_time = self.start_time + Const.THREAT_TIMEOUT
         self.last_update = self.start_time
-
 
     def renew(self) -> None:
         """
@@ -130,7 +133,6 @@ class DetectedThreat:
         # Always update the last update time (extend the timeout)
         self.last_update = int(datetime.now().timestamp())
 
-
     def update_status(self, new_status: ThreatStatus):
         """
         Update the status of the detected threat.
@@ -138,13 +140,11 @@ class DetectedThreat:
         self.status = new_status
         self.last_update = int(datetime.now().timestamp())
 
-
     def get_status(self) -> ThreatStatus:
         """
         Get the current status of the detected threat.
         """
         return self.status
-    
 
     def is_expired(self) -> bool:
         """
@@ -155,6 +155,31 @@ class DetectedThreat:
 
     def __repr__(self):
         return f"DetectedThreat(uid={self.uid}, threat_type={self.threat_type}, threat_name={self.threat_name}, hosts={self.hosts}, start_time={self.start_time}, end_time={self.end_time}, last_update={self.last_update}, status={self.status})"
+
+
+class DetectedThreatBuilder:
+    """
+    Builder for detected threats.
+    It allows to build a detected threat from a DTEIntent.
+    It also supports returning multiple threats from a DTEIntent when 
+    the threat is of type "multidomain".
+    """
+
+    def __init__(self):
+        self.dte_intent = None
+        self.threats = []
+
+    def build(self, dte_intent: DTEIntent) -> List[DetectedThreat]:
+        """
+        Build a detected threat from a DTEIntent.
+        """
+        self.dte_intent = dte_intent
+        if self.dte_intent.threat == "multidomain":
+            for host in self.dte_intent.host:
+                self.threats.append(DetectedThreat(self.dte_intent, host))
+        else:
+            self.threats = [DetectedThreat(self.dte_intent)]
+        return self.threats
 
 
 class MitigationAction:
@@ -188,7 +213,7 @@ class MitigationAction:
     def define_field(self, field_name: str, field_value: Any) -> None:
         """
         Define a field for the mitigation action.
-        
+
         :param field_name: Name of the field
         :param field_value: Value of the field
         """
@@ -208,7 +233,7 @@ class MitigationAction:
 
     def __repr__(self):
         return json.dumps(self.to_dict(), indent=4)
-    
+
 
 class DTJob:
     """
@@ -245,7 +270,7 @@ class DTJob:
     def update_kpi_before(self, kpi: int) -> None:
         """
         Update the KPI before applying the mitigation action.
-        
+
         :param kpi: KPI value before the mitigation action
         """
         self.kpi_before = kpi
@@ -253,11 +278,11 @@ class DTJob:
     def update_kpi_after(self, kpi: int) -> None:
         """
         Update the KPI after applying the mitigation action.
-        
+
         :param kpi: KPI value after the mitigation action
         """
         self.kpi_after = kpi
-        
+
     def update_status(self, status: JobStatus) -> None:
         """
         Update the status of the job.
