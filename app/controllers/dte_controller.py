@@ -1,3 +1,6 @@
+from ast import List
+from fastapi import HTTPException
+from requests import HTTPError
 from data.store import InMemoryStore
 from models.api_models import DTEIntent
 from models.core_models import CoreIntent, DetectedThreat, DetectedThreatBuilder
@@ -30,6 +33,10 @@ class DTEController:
         If it does not exist, it creates a new intent.
         """
         logger.info(f"Processing intent request from DTE: {dte_intent}")
+
+        if dte_intent.threat not in self.__get_valid_threats():
+            logger.warning(f"Unknown intent type: {dte_intent.intent_type} for intent: {dte_intent.get_uid()}")
+            raise HTTPException(status_code=400, detail="Unknown intent type")
 
         # Infere system state from the request
         # It a simlar threat exists, renew it, otherwise create a new one
@@ -70,3 +77,14 @@ class DTEController:
         Delete an intent from the storage.
         """
         self._storage.intent_remove(intent_id)
+
+    def __get_valid_threats(self) -> List[str]:
+        """
+        Get all valid threats from the storage.
+        """
+        threats = List[str]()
+        for mitigation in self._storage.mitigation_get_all():
+            for threat in mitigation.threats:
+                if threat not in threats:
+                    threats.append(threat)
+        return threats
