@@ -174,3 +174,6 @@ cython_debug/
 *.un~
 config/*.un~
 .fetch-client/
+
+# Project specific files
+config.yml
