@@ -35,7 +35,7 @@ class DTEController:
         logger.info(f"Processing intent request from DTE: {dte_intent}")
 
         if dte_intent.threat not in self.__get_valid_threats():
-            logger.warning(f"Unknown intent type: {dte_intent.intent_type} for intent: {dte_intent.get_uid()}")
+            logger.warning(f"Unknown intent type: {dte_intent.intent_type}")
             raise HTTPException(status_code=400, detail="Unknown intent type")
 
         # Infere system state from the request
@@ -78,11 +78,11 @@ class DTEController:
         """
         self._storage.intent_remove(intent_id)
 
-    def __get_valid_threats(self) -> List[str]:
+    def __get_valid_threats(self) -> []:
         """
         Get all valid threats from the storage.
         """
-        threats = List[str]()
+        threats = []
         for mitigation in self._storage.mitigation_get_all():
             for threat in mitigation.threats:
                 if threat not in threats:
