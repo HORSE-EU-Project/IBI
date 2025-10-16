@@ -131,11 +131,16 @@ class RTR:
         for key, value in mitigation_action.parameters.items():
             fields_template[key] = value
             self._logger.debug(f"Field {key} with value {value} added to the action template")
+        
+        # Fix for UPC testbed
+        fields_template["duration"]: int(intent.duration)
+        self._logger.debug(f"Field duration with value {str(intent.duration)} added to the action template. FIX for UPC!")
 
         action_template = {
             "name": mitigation_action.name,
             "fields": fields_template
         }
+
         message_template = {
             "command": "add",
             "intent_type": intent.intent_type.value,

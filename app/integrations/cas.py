@@ -52,13 +52,14 @@ class CASClient:
         if mitigation_action.name in  ["rate_limiting", "dns_rate_limiting"]:
             if 'rate' in mitigation_action.parameters.keys():
                 rate_value = mitigation_action.parameters['rate']
+                rate = 0
                 if isinstance(rate_value, str) and rate_value.endswith('mbps'):
-                    try:
-                        int_part = int(''.join(filter(str.isdigit, rate_value)))
-                        new_rate = f"{int_part + Const.CAS_RATE_LIMITTING_INCREMENT}mbps"
-                        mitigation_action.parameters['rate'] = new_rate
-                    except Exception as e:
-                        self._logger.error(f"Error tuning rate value: {e}")
+                    rate = int(''.join(filter(str.isdigit, rate_value)))
+                else:
+                    rate = int(rate_value)
+                # Update the field with the new rate
+                mitigation_action.parameters['rate'] = rate + Const.CAS_RATE_LIMITTING_INCREMENT
+        # return the tuned mitigation action
         return mitigation_action
                     
 
@@ -154,10 +155,15 @@ class CASClient:
         }
         fields_template = {}
         for key, value in mitigation_action.parameters.items():
+            # Fix for the request types (send as array)
             if mitigation_action.name == "firewall_pfcp_requests" and key == "request_types":
                 fields_template[key] = [value]
             else:
                 fields_template[key] = value
+            # Add 'mbps' suffix to the rate field
+            if mitigation_action.name in  ["rate_limiting", "dns_rate_limiting"]:
+                if 'rate' in fields_template.keys():
+                    fields_template['rate'] = f"{fields_template['rate']}mbps"
             self._logger.debug(f"Field {key} with value {value} added to the action template")
 
         action_template = {

@@ -79,7 +79,7 @@ class Recommender:
                 mitigation.define_field("action", "block")
             
             elif mitigation.name == "dns_rate_limiting":
-                mitigation.define_field("rate", "9mbps")
+                mitigation.define_field("rate", "9")
                 mitigation.define_field("source_ip_filter", "0.0.0.0/0")
             
             elif mitigation.name == "ntp_access_control":
@@ -89,7 +89,7 @@ class Recommender:
 
         elif mitigation.category == MitigationAction.MitigationCategory.PREVENTION:
             if mitigation.name == "dns_rate_limiting":
-                mitigation.define_field("rate", "9mbps")
+                mitigation.define_field("rate", "9")
                 mitigation.define_field("source_ip_filter", "0.0.0.0/0")
             
             elif mitigation.name == "rate_limiting":
@@ -102,7 +102,7 @@ class Recommender:
                 else:
                     mitigation.define_field("device", "ceos2")
                     mitigation.define_field("interface", "eth4")                
-                mitigation.define_field("rate", "8mbps")
+                mitigation.define_field("rate", "8")
             
             elif mitigation.name == "block_pod_address":
                 mitigation.define_field("blocked_pod", "attacker")
@@ -132,13 +132,13 @@ class Recommender:
                 str_hosts = "".join(threat.hosts).lower()
                 if "upc" in str_hosts:
                     mitigation.define_field("domains", ["UPC"])
-                    mitigation.define_field("rate_limiting", "10mbps")
+                    mitigation.define_field("rate_limiting", "10")
                 elif "cnit" in str_hosts:
                     mitigation.define_field("domains", ["CNIT"])
-                    mitigation.define_field("rate_limiting", "0mbps")
+                    mitigation.define_field("rate_limiting", "0")
                 else:
                     mitigation.define_field("domains", ["ND"])
-                    mitigation.define_field("rate_limiting", "00mbps")
+                    mitigation.define_field("rate_limiting", "0")
             
             elif mitigation.name == "define_dns_servers":
                 mitigation.define_field("dns_servers", json.dumps(["dns-s"]))
@@ -151,13 +151,13 @@ class Recommender:
                 mitigation.define_field("limit", "1000")
             
             elif mitigation.name == "dns_rate_limiting":
-                mitigation.define_field("rate", "9mbps")
+                mitigation.define_field("rate", "9")
                 mitigation.define_field("source_ip_filter", "0.0.0.0/0")
             
             elif mitigation.name == "rate_limiting":
                 mitigation.define_field("device", "ceos2")
                 mitigation.define_field("interface", "eth4")
-                mitigation.define_field("rate", "10mbps")
+                mitigation.define_field("rate", "10")
             
             elif mitigation.name == "block_pod_address":
                 mitigation.define_field("blocked_pod", "attacker")
