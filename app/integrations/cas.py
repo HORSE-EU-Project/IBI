@@ -162,8 +162,8 @@ class CASClient:
                 fields_template[key] = value
             # Add 'mbps' suffix to the rate field
             if mitigation_action.name in  ["rate_limiting", "dns_rate_limiting"]:
-                if 'rate' in fields_template.keys():
-                    fields_template['rate'] = f"{fields_template['rate']}mbps"
+                if key == "rate":
+                    fields_template[key] = f"{value}mbps"
             self._logger.debug(f"Field {key} with value {value} added to the action template")
 
         action_template = {

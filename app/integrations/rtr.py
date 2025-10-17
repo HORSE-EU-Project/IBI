@@ -133,7 +133,7 @@ class RTR:
             self._logger.debug(f"Field {key} with value {value} added to the action template")
         
         # Fix for UPC testbed
-        fields_template["duration"]: int(intent.duration)
+        fields_template["duration"] = intent.duration
         self._logger.debug(f"Field duration with value {str(intent.duration)} added to the action template. FIX for UPC!")
 
         action_template = {
@@ -168,6 +168,7 @@ class RTR:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.access_token}",
         }
+        self._logger.debug(f"Sending workflow to RTR: {json.dumps(workflow, indent=4)}")
         try:
             response = requests.post(
                 f"{self.rtr_url}/actions",
