@@ -4,6 +4,8 @@
 ibi:
   log_level: 'DEBUG'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+
+
 ########################################
 #                                      #
 #     Test Only (log to STDOUT)        #
@@ -22,6 +24,21 @@ cas:
   url: ''
 syslog:
   ip: '127.0.0.1'  # Default local syslog server
+
+########################################
+#                                      #
+#   Component staus (per testbed)      #
+#                                      #
+########################################
+module-status:
+  - ibi:
+      description: HORSE Intent-Based Interface
+      url: http://127.0.0.1/ping
+      result-code: 200
+  - other:
+      description: Another module
+      url: http://127.0.0.1/ping
+      result-code: 200
 
 
 ########################################

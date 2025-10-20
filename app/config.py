@@ -57,6 +57,9 @@ Mitigation Actions configuration
 """
 MITIGATION_ACTIONS = parameters.get("mitigation_actions", [])
 
+# HORSE Component Status
+MODULE_STATUS = parameters["module-status"]
+
 # whatif_receive_url = "http://" + host + ":" + port + parameters["to_receive_whatif"]
 # whatif_send_url = parameters["san_api_url"]
 # workflow_url = parameters["rtr_api_url"]
