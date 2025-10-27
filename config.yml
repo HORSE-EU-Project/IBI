@@ -1,0 +1,258 @@
+# Configuration file for the IBI application
+
+# Elasticsearch configuration
+ibi:
+  log_level: 'DEBUG'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+
+
+########################################
+#                                      #
+#     Test Only (log to STDOUT)        #
+#                                      #
+########################################
+ckb:
+  url: ''
+iadt:
+  url: ''
+rtr:
+  url: ''
+  username: 'horse-6g'
+  password: 'horse-6g'
+  email: 'user3@horse-6g.eu'
+cas:
+  url: ''
+syslog:
+  ip: '127.0.0.1'  # Default local syslog server
+
+########################################
+#                                      #
+#   Component staus (per testbed)      #
+#                                      #
+########################################
+module-status:
+  - name: IBI
+    description: HORSE Intent-Based Interface
+    url: http://127.0.0.1/ping
+    expected_code: 200
+  - name: Other
+    description: Another module
+    url: http://127.0.0.1/ping
+    expected_code: 200
+
+
+########################################
+#                                      #
+#     UPC Testbed configuration        #
+#                                      #
+########################################
+# ckb:
+#   url: 'http://10.19.2.18'
+# iadt:
+#   url: ''
+#   # url: 'http://10.19.2.23:5005'
+# rtr:
+#   url: ''
+#   # url: 'http://10.19.2.19:8000'
+#   username: 'horse-6g'
+#   password: 'horse-6g'
+#   email: 'user3@horse-6g.eu'
+# cas:
+#   url: 'http://10.19.2.15:8080'
+# syslog:
+#   ip: '127.0.0.1'  # Default local syslog server
+
+
+########################################
+#                                      #
+#        UMU Testbed configuration     #
+#                                      #
+########################################
+# ckb:
+#   url: 'http://10.208.11.73'
+# iadt:
+#   url: 'http://10.208.11.74:5005'
+# rtr:
+#   url: ''
+#   username: 'horse-6g'
+#   password: 'horse-6g'
+#   email: 'user3@horse-6g.eu'
+# cas:
+#   url: ''  # Check port
+# syslog:
+#   ip: '127.0.0.1'  # Default local syslog server
+
+########################################
+#                                      #
+#    CNIT Testbed configuration        #
+#                                      #
+########################################
+# ckb:
+#   url: 'http://192.168.130.111'
+# iadt:
+#   url: ''
+#   # url: 'http://10.19.2.23:5005'
+# rtr:
+#   url: ''
+#   # url: 'http://192.168.130.62:8000'
+#   username: 'horse-6g'
+#   password: 'horse-6g'
+#   email: 'user3@horse-6g.eu'
+# cas:
+#   url: 'http://192.168.130.48:8080'
+# syslog:
+#   ip: '127.0.0.1'  # Default local syslog server
+
+
+########################################
+#                                      #
+#      Mitigation Actions              #
+#                                      #
+########################################
+mitigation_actions:
+  # Demo 0
+  - name: "execute_test_1"
+    category: "mitigation"
+    threats: ["hello_world"]
+    fields: ["test_id", "modules"]
+    priority: 1
+    enabled: true
+  
+  - name: "execute_test_2"
+    category: "prevention"
+    threats: ["hello_world"]
+    fields: ["test_id", "modules"]
+    priority: 1
+    enabled: true
+  
+  - name: "udp_traffic_filter"
+    category: "mitigation"
+    threats: ["ddos_amplification", "ntp_ddos"]
+    fields: ["protocol", "source_ip_filter", "destination_port"]
+    priority: 0
+    enabled: true
+  
+  - name: "ntp_access_control"
+    category: "mitigation"
+    threats: ["ddos_amplification", "ntp_ddos"]
+    fields: ["authorized_hosts", "mode"]
+    priority: 1
+    enabled: true
+  
+  # Demo 2
+  - name: "dns_rate_limiting"
+    category: "prevention"
+    threats: ["dns_amplification"]
+    fields: ["rate", "source_ip_filter"]
+    priority: 0
+    enabled: true
+  
+  - name: "rate_limiting"
+    category: "prevention"
+    threats: ["dns_amplification"]
+    fields: ["device", "interface", "rate"]
+    priority: 2
+    enabled: true
+  
+  - name: "block_pod_address"
+    category: "prevention"
+    threats: ["dns_amplification"]
+    fields: ["blocked_pod", "device", "interface"]
+    priority: 1
+    enabled: true
+  
+  # Demo 3
+  - name: "rate_limiting"
+    category: "prevention"
+    threats: ["ddos_download_link"]
+    fields: ["device", "interface", "rate"]
+    priority: 0
+    enabled: true
+  
+  - name: "block_pod_address"
+    category: "prevention"
+    threats: ["ddos_download_link"]
+    fields: ["blocked_pod", "device", "interface"]
+    priority: 0
+    enabled: true
+  
+  # Demo 5
+  - name: "block_ues_multidomain"
+    category: "mitigation"
+    threats: ["multidomain"]
+    fields: ["domains", "rate_limiting"]
+    priority: 0
+    enabled: true
+  
+  - name: "define_dns_servers"
+    category: "mitigation"
+    threats: ["multidomain"]
+    fields: ["dns_servers"]
+    priority: 0
+    enabled: true
+  
+  # Demo 6
+  - name: "firewall_pfcp_requests"
+    category: "detection"
+    threats: ["pfcp_deletion", "pfcp_establishment", "pfcp_modification", "signaling_pfcp"]
+    fields: ["drop_percentage", "request_types"]
+    priority: 0
+    enabled: true
+  
+  - name: "validate_smf_integrity"
+    category: "detection"
+    threats: ["pfcp_deletion", "pfcp_establishment", "pfcp_modification", "signaling_pfcp"]
+    fields: ["check", "action"]
+    priority: 0
+    enabled: true
+  
+  - name: "dns_rate_limiting"
+    category: "detection"
+    threats: ["dns_amplification"]
+    fields: ["rate", "source_ip_filter"]
+    priority: 0
+    enabled: true
+  
+  - name: "ntp_access_control"
+    category: "detection"
+    threats: ["ddos_amplification"]
+    fields: ["authorized_hosts", "mode"]
+    priority: 1
+    enabled: true
+  
+  # Demo 7
+  - name: "filter_malicious_access"
+    category: "mitigation"
+    threats: ["nf_exposure"]
+    fields: ["actor", "response"]
+    priority: 0
+    enabled: true
+  
+  - name: "api_rate_limiting"
+    category: "mitigation"
+    threats: ["nf_exposure"]
+    fields: ["limit"]
+    priority: 0
+    enabled: true
+  
+  # Demo 9
+  - name: "dns_rate_limiting"
+    category: "mitigation"
+    threats: ["poisoning_and_amplification"]
+    fields: ["rate", "source_ip_filter"]
+    priority: 0
+    enabled: true
+  
+  - name: "rate_limiting"
+    category: "mitigation"
+    threats: ["poisoning_and_amplification"]
+    fields: ["device", "interface", "rate"]
+    priority: 0
+    enabled: true
+  
+  - name: "block_pod_address"
+    category: "mitigation"
+    threats: ["poisoning_and_amplification"]
+    fields: ["blocked_pod", "device", "interface"]
+    priority: 0
+    enabled: true

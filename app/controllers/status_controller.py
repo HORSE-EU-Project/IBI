@@ -1,12 +1,8 @@
 from ast import Dict
 import random
-from data.store import InMemoryStore
-from models.core_models import MitigationAction
-from config import MITIGATION_ACTIONS
+from config import MODULE_STATUS
 
 from utils.log_config import setup_logging
-
-logger = setup_logging(__name__)
 
 class StatusController:
     """
@@ -15,23 +11,26 @@ class StatusController:
     each module.
     Only HTTP/HTTPS status check are supported
     """
+    _logger = setup_logging(__name__)
 
     MODULE_STATUS_ONLINE = "Online"
     MODULE_STATUS_OFFLINE = "Offline"
-
     list_of_modules = []
-    module_status = {}
-
-    def __init__(self) -> None:
-        self.list_of_modules = MITIGATION_ACTIONS
-        
+    status = []
+  
 
     def get_status(self) -> Dict:
-        for module in self.list_of_modules:
-            self.module_status[module] = self._query_status()
+        for module in MODULE_STATUS:
+            self.status.append({
+                "name": module["name"],
+                "description": module["description"],
+                "status": self._query_status(module)
+            })
+        return self.status
 
 
-    def _query_status(self, module_name) -> str:
+    def _query_status(self, module_object) -> str:
+        self._logger.debug(f"Querying status of module {module_object['description']}")
         if random.random() > 0.5:
             return self.MODULE_STATUS_ONLINE
         else:

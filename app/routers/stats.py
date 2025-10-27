@@ -1,17 +1,21 @@
 from fastapi import APIRouter, Request
-from pydantic_core import TzInfo
+from controllers.status_controller import StatusController
 from utils.log_config import setup_logging
-from typing import List, Dict, Any
 from data.store import InMemoryStore
 from datetime import datetime, timezone
 from models.core_models import DetectedThreat
+
+"""
+Initialising the objects used in this router
+"""
 logger = setup_logging(__name__)
 router = APIRouter()
+status_controller = StatusController()
+
 
 """
-    REST endpoints for the stats
+    REST endpoints for querying the list of all intents
 """
-
 @router.get("/stats/intents")
 def get_intents(request: Request):
     """Get all intents with their status"""
@@ -35,7 +39,10 @@ def get_intents(request: Request):
         })
     return {"intents": intents_list}
 
-
+"""
+    REST endpoints for querying the summary of all intents
+    It counts the number of intents that have been fulfilled and not fulfilled
+"""
 @router.get("/stats/intents-summary")
 def get_intents_summary(request: Request):
     """Get intents summary counts"""
@@ -50,7 +57,9 @@ def get_intents_summary(request: Request):
         "total": total
     }
 
-
+"""
+    REST endpoints for querying the list and status of all threats
+"""
 @router.get("/stats/threats")
 def get_threats(request: Request):
     """Get all threats with their status"""
@@ -76,7 +85,9 @@ def get_threats(request: Request):
         })
     return {"threats": threats_list}
 
-
+"""
+    REST endpoints for querying the status of the threats
+"""
 @router.get("/stats/threat-status")
 def get_threat_status(request: Request):
     """Get threat status summary counts"""
@@ -97,7 +108,9 @@ def get_threat_status(request: Request):
         "total": total
     }
 
-
+"""
+    REST endpoints for querying the list of mitigation actions available at the IBI
+"""
 @router.get("/stats/mitigations")
 def get_mitigations(request: Request):
     """Get all mitigation actions"""
@@ -115,7 +128,9 @@ def get_mitigations(request: Request):
         })
     return {"mitigations": mitigations_list}
 
-
+"""
+    REST endpoints for querying the status of the IA-NDT
+"""
 @router.get("/stats/ndt")
 def get_ndt_queue(request: Request):
     """Get stats about IA-NDT queue"""
@@ -130,13 +145,26 @@ def get_ndt_queue(request: Request):
     ndt_status = "available" if store._dt_available else "busy"
     return {"queue_size": ndt_queue_size, "ndt_status": ndt_status}
 
-
+"""
+    REST endpoints for querying the status of the IBI
+"""
 @router.get("/stats/ibi")
 def get_ibi_status(request: Request):
     """Return General Status of the IBI"""
     store = InMemoryStore()
     status = "running" if not store._ibi_compromised else "stopped"
     return {"status": status}
+
+
+"""
+    REST endpoints for querying the status of the other HORSE modules
+    Used in the dashboard to show the status of the other modules
+    (Not related to IBi at all but requested by CNIT for demo 10)
+"""
+@router.get("/stats/modules")
+def get_other_status(request: Request):
+    """Return the status of the other modules"""
+    return status_controller.get_status()
 
 
 """
