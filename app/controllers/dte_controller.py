@@ -78,7 +78,7 @@ class DTEController:
         """
         self._storage.intent_remove(intent_id)
 
-    def __get_valid_threats(self) -> []:
+    def __get_valid_threats(self) -> [str]:
         """
         Get all valid threats from the storage.
         """
