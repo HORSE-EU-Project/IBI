@@ -67,6 +67,10 @@ async function loadDashboardData() {
         // Load threats table
         const threats = await fetchAPI('/stats/threats');
         updateThreatsTable(threats.threats);
+
+        // Load component status
+        const componentStatus = await fetchAPI('/stats/component-status');
+        updateComponentStatusTable(componentStatus);
         
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -202,6 +206,29 @@ function updateThreatsTable(threats) {
     });
 }
 
+// Update component status table
+function updateComponentStatusTable(componentStatus) {
+    const tbody = $('#component-status-table-body');
+    tbody.empty();
+    
+    if (componentStatus.length === 0) {
+        tbody.append('<tr><td colspan="2" class="text-center">No components found</td></tr>');
+        return;
+    } else {
+        componentStatus.forEach(component => {
+            const statusClass = component.status === 'Online' ? 'led-online' : 'led-offline';
+            const row = `
+            <tr>
+                <td>${component.name}</td>
+                <td>
+                    <span class="led-status ${statusClass}"></span>
+                    <span>${component.status}</span>
+                </td>
+            </tr>`;
+            tbody.append(row);
+        });
+    }
+}
 // Update mitigations table
 function updateMitigationsTable(mitigations) {
     const tbody = $('#mitigations-table-body');

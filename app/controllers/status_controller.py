@@ -16,17 +16,16 @@ class StatusController:
     MODULE_STATUS_ONLINE = "Online"
     MODULE_STATUS_OFFLINE = "Offline"
     list_of_modules = []
-    status = []
-  
 
     def get_status(self) -> Dict:
+        status = []
         for module in MODULE_STATUS:
-            self.status.append({
+            status.append({
                 "name": module["name"],
                 "description": module["description"],
                 "status": self._query_status(module)
             })
-        return self.status
+        return status
 
 
     def _query_status(self, module_object) -> str:

@@ -161,7 +161,7 @@ def get_ibi_status(request: Request):
     Used in the dashboard to show the status of the other modules
     (Not related to IBi at all but requested by CNIT for demo 10)
 """
-@router.get("/stats/modules")
+@router.get("/stats/component-status")
 def get_other_status(request: Request):
     """Return the status of the other modules"""
     return status_controller.get_status()
