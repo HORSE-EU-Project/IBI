@@ -31,14 +31,10 @@ syslog:
 #                                      #
 ########################################
 module-status:
-  - ibi:
-      description: HORSE Intent-Based Interface
-      url: http://127.0.0.1/ping
-      result-code: 200
-  - other:
-      description: Another module
-      url: http://127.0.0.1/ping
-      result-code: 200
+  - name: IBI
+    description: HORSE Intent-Based Interface
+    url: http://127.0.0.1:8001/ping
+    expected_code: 200
 
 
 ########################################

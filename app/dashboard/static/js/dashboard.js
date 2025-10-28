@@ -212,7 +212,7 @@ function updateComponentStatusTable(componentStatus) {
     tbody.empty();
     
     if (componentStatus.length === 0) {
-        tbody.append('<tr><td colspan="2" class="text-center">No components found</td></tr>');
+        tbody.append('<tr><td colspan="2" class="text-center">Components not being monitored</td></tr>');
         return;
     } else {
         componentStatus.forEach(component => {
