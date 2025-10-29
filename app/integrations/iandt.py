@@ -173,7 +173,7 @@ class ImpactAnalysisDT:
         if threat_obj.threat_name == "dns_amplification":
             what_device = "ceos3"
             what_iface = "eth2"
-        elif threat_obj.threat_name in ["ddos_download", "ddos_download_link"]:
+        elif threat_obj.threat_name in ["ddos_download", "ddos_download_link", "ddos_downlink"]:
             what_device = "dns-c1"
             what_iface = "eth1"
         else:
@@ -210,7 +210,7 @@ class ImpactAnalysisDT:
                 message["if-condition"]["element"]["network"] = "*"
                 message["if-condition"]["element"]["ref"] = "ceos3_eth2_*"
             
-            elif threat_name in ["ddos_download", "ddos_download_link"]:
+            elif threat_name in ["ddos_download", "ddos_download_link", "ddos_downlink"]:
                 message["what-condition"]["KPIs"]["element"]["node"] = "dns-c1"
                 message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
                 message["if-condition"]["element"]["node"] = "ceos2"
@@ -229,7 +229,7 @@ class ImpactAnalysisDT:
                 message["if-condition"]["element"]["network"] = "*"
                 message["if-condition"]["element"]["ref"] = "ceos3_eth1_*"
             
-            elif threat_name in ["ddos_download", "ddos_download_link"]:
+            elif threat_name in ["ddos_download", "ddos_download_link", "ddos_downlink"]:
                 message["what-condition"]["KPIs"]["element"]["node"] = "dns-c1"
                 message["what-condition"]["KPIs"]["element"]["interface"] = "eth1"
                 message["if-condition"]["action"]["value"] = "internet"
@@ -303,6 +303,7 @@ class ImpactAnalysisDT:
             "dns_ddos": "DDoS_DNS",
             "ddos_download": "DDoS_Downlink",
             "ddos_download_link": "DDoS_Downlink",
+            "ddos_downlink": "ddos_downlink",
             "dns_amplification": "DNS_Amplification",
         }
         return names.get(from_threat, from_threat)
