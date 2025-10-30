@@ -1,4 +1,5 @@
 import requests
+import json
 import config
 import threading
 import time
@@ -239,6 +240,7 @@ class ImpactAnalysisDT:
                 message["if-condition"]["element"]["ref"] = "ceos2_eth1_*"
         # Alaways update the id of the DT Job
         message["id"] = dt_job.uid
+        message["attack"] = self._dt_attack_name(threat_name)
         return message
 
 
@@ -247,9 +249,9 @@ class ImpactAnalysisDT:
         # Message to send to the Impact Analysis Digital Twin
         if not self.enabled:
             self._logger.warning(
-                f"Impact Analysis Digital Twin is not enabled. Commands will be sent to logging system."
+                f"Impact Analysis Digital Twin is not enabled. Commands will be sent to logging system if in DEBUG mode"
             )
-            self._logger.warning(f"Impact Analysis Digital Twin message: {message}")
+            self._logger.debug(f"Impact Analysis Digital Twin message: {json.dumps(message, indent=4)}")
             
             # Schedule a mock response if in development mode
             if Const.APP_ENV == Const.APP_ENV_DEV:
@@ -267,27 +269,12 @@ class ImpactAnalysisDT:
                 print(f"Error sending workflow to Impact Analysis Digital Twin: {e}")
 
 
-    def log_received_answer(self, answer_dict):
-        """
-        Log the received answer from the Impact Analysis Digital Twin.
-        """
-        if not self.enabled:
-            self._logger.warning(
-                f"Impact Analysis Digital Twin is not enabled. Answer will be logged."
-            )
-            self._logger.info(f"Received answer: {answer_dict}")
-            return
-
-        # Log the received answer
-        self._logger.info(
-            f"Received answer from Impact Analysis Digital Twin: {answer_dict}"
-        )
-
     def check_results(self, threat_id: str, kpi_before: float, kpi_after: float) -> bool:
         """
         Check if the result is good.
         """
         return kpi_after < kpi_before * Const.IADT_PPS_THRESHOLD
+
 
     def _dt_attack_name(self, from_threat: str) -> str:
         """
@@ -300,11 +287,11 @@ class ImpactAnalysisDT:
         @return: The corresponding attack name for the Digital Twin
         """
         names = {
-            "dns_ddos": "DDoS_DNS",
-            "ddos_download": "DDoS_Downlink",
-            "ddos_download_link": "DDoS_Downlink",
+            "dns_ddos": "dns_ddos",
+            "ddos_download": "ddos_downlink",
+            "ddos_download_link": "ddos_downlink",
             "ddos_downlink": "ddos_downlink",
-            "dns_amplification": "DNS_Amplification",
+            "dns_amplification": "dns_amplification",
         }
         return names.get(from_threat, from_threat)
     
@@ -329,7 +316,9 @@ class ImpactAnalysisDT:
                     json=mock_response,
                 )
                 response.raise_for_status()
-                self._logger.info(f"Mock response sent to impact-analysis endpoint. Status: {response.status_code}")
+                self._logger.debug(f"Mock response sent to impact-analysis endpoint.")
+                self._logger.debug(f"Response status: {response.status_code}")
+                self._logger.debug(f"Response body: {json.dumps(mock_response, indent=4)}")
             except requests.exceptions.RequestException as e:
                 self._logger.error(f"Error sending mock response to impact-analysis endpoint: {e}")
         

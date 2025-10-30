@@ -87,7 +87,7 @@ class CASClient:
             self._logger.info(f"Document body: " + doc_body)
             return self.VALID
         else:
-            self._logger.debug(f"CAS message to be sent: {doc_body}")
+            self._logger.debug(f"CAS message to be sent: {json.dumps(doc_body, indent=4)}")
             response = requests.post(
                 f"{self.cas_url}",
                 headers=self.headers,

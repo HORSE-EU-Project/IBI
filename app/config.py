@@ -44,6 +44,7 @@ RTR_URL = parameters["rtr"]["url"]
 RTR_USER = parameters["rtr"]["username"]
 RTR_PASSWORD = parameters["rtr"]["password"]
 RTR_EMAIL = parameters["rtr"]["email"]
+RTR_FORCE_IP = parameters["rtr"].get("force_ip", False)
 
 
 """

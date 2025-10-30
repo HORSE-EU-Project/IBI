@@ -110,21 +110,14 @@ module-status:
 #                                      #
 ########################################
 mitigation_actions:
-  # Demo 0
-  - name: "execute_test_1"
-    category: "mitigation"
-    threats: ["hello_world"]
-    fields: ["test_id", "modules"]
-    priority: 1
-    enabled: true
-  
-  - name: "execute_test_2"
+  # Demo 0 -- Prediction
+  - name: "block_pod_address"
     category: "prevention"
-    threats: ["hello_world"]
-    fields: ["test_id", "modules"]
-    priority: 1
+    threats: ["ddos_downlink"]
+    fields: ["blocked_pod", "device", "interface"]
+    priority: 0
     enabled: true
-  
+
   - name: "udp_traffic_filter"
     category: "mitigation"
     threats: ["ddos_amplification", "ntp_ddos"]

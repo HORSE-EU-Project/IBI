@@ -35,8 +35,8 @@ class DTEController:
         logger.info(f"Processing intent request from DTE: {dte_intent}")
 
         if dte_intent.threat not in self.__get_valid_threats():
-            logger.warning(f"Unknown intent type: {dte_intent.intent_type}")
-            raise HTTPException(status_code=400, detail="Unknown intent type")
+            logger.warning(f"Unknown threat: {dte_intent.threat}")
+            raise HTTPException(status_code=400, detail=f"Threat not supported: {dte_intent.threat}")
 
         # Infere system state from the request
         # It a simlar threat exists, renew it, otherwise create a new one

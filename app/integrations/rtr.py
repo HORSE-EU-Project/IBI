@@ -156,10 +156,8 @@ class RTR:
 
     def send_workflow(self, workflow):
         if not self._enabled:
-            self._logger.error(
-                "Connection to RTR is not established. The workflow will be printed to the log."
-            )
-            self._logger.info(f"Workflow details: {workflow}")
+            self._logger.info("Connection to RTR is not established.")
+            self._logger.info(f"Workflow details: {json.dumps(workflow, indent=4)}")
             return
 
         """Send a workflow to the RTR service."""

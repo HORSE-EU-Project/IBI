@@ -1,5 +1,6 @@
 import requests
 import config
+import json
 from utils.log_config import setup_logging
 from difflib import get_close_matches
 
@@ -64,6 +65,7 @@ class CKB:
                     json=req_body,
                 )
                 response.raise_for_status()
+                self._logger.debug(f"CKB query successful for attacks. Message sent: {json.dumps(req_body, indent=4)}")
                 self._logger.info(f"CKB query successful for attacks.")
             except requests.exceptions.RequestException as e:
                 self._logger.error(f"Error querying CKB for attacks: {e}")
