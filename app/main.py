@@ -77,4 +77,6 @@ Main entry point
 """
 if __name__ == "__main__":
     populate_database()
-    uvicorn.run(app, host=Const.APP_HOST, port=Const.APP_PORT)
+    # Possible log_levels
+    # 'critical', 'error', 'warning', 'info', 'debug', 'trace'
+    uvicorn.run(app, host=Const.APP_HOST, port=Const.APP_PORT, log_level="warning")
