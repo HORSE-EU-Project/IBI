@@ -3,7 +3,14 @@
 # Elasticsearch configuration
 ibi:
   log_level: 'DEBUG'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  resolve_hostnames: True
 
+# This is a mapping of hostnames to IP addresses since
+# some testbeds cannot handle hostnames
+ip_mappings:
+  ceos2: "10.0.0.2"
+  ceos3: "10.0.0.3"
+  attacker: "10.10.10.0/24"
 
 
 ########################################
