@@ -1,4 +1,5 @@
 import json
+from config import RESOLVE_HOSTNAMES, IP_MAPPINGS
 from typing import List
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
@@ -94,26 +95,26 @@ class Recommender:
             
             elif mitigation.name == "rate_limiting":
                 if threat.threat_name == "dns_amplification":
-                    mitigation.define_field("device", "ceos3")
+                    mitigation.define_field("device", self._resolve_hostnames("ceos3"))
                     mitigation.define_field("interface", "eth2")
                 elif threat.threat_name in ["ddos_download", "ddos_download_link"]:
-                    mitigation.define_field("device", "ceos2")
+                    mitigation.define_field("device", self.resolve_hostnames("ceos2"))
                     mitigation.define_field("interface", "eth1")
                 else:
-                    mitigation.define_field("device", "ceos2")
+                    mitigation.define_field("device", self._resolve_hostnames("ceos2"))
                     mitigation.define_field("interface", "eth4")                
                 mitigation.define_field("rate", "8")
             
             elif mitigation.name == "block_pod_address":
-                mitigation.define_field("blocked_pod", "attacker")
+                mitigation.define_field("blocked_pod", self._resolve_hostnames("attacker"))
                 if threat.threat_name == "dns_amplification":
-                    mitigation.define_field("device", "ceos3")
+                    mitigation.define_field("device", self._resolve_hostnames("ceos3"))
                     mitigation.define_field("interface", "eth1")
                 elif threat.threat_name in ["ddos_download", "ddos_download_link"]:
-                    mitigation.define_field("device", "ceos2")
+                    mitigation.define_field("device", self._resolve_hostnames("ceos2"))
                     mitigation.define_field("interface", "eth1")
                 else:
-                    mitigation.define_field("device", "ceos2")
+                    mitigation.define_field("device", self._resolve_hostnames("ceos2"))
                     mitigation.define_field("interface", "eth4")
 
         elif mitigation.category == MitigationAction.MitigationCategory.MITIGATION:
@@ -141,7 +142,8 @@ class Recommender:
                     mitigation.define_field("rate_limiting", "0")
             
             elif mitigation.name == "define_dns_servers":
-                mitigation.define_field("dns_servers", json.dumps(["dns-s"]))
+                dns_servers_list = [self._resolve_hostnames("dns-s")]
+                mitigation.define_field("dns_servers", json.dumps(dns_servers_list))
             
             elif mitigation.name == "filter_malicious_access":
                 mitigation.define_field("actor", "malicious")
@@ -155,13 +157,13 @@ class Recommender:
                 mitigation.define_field("source_ip_filter", "0.0.0.0/0")
             
             elif mitigation.name == "rate_limiting":
-                mitigation.define_field("device", "ceos2")
+                mitigation.define_field("device", self._resolve_hostnames("ceos2"))
                 mitigation.define_field("interface", "eth4")
                 mitigation.define_field("rate", "10")
             
             elif mitigation.name == "block_pod_address":
-                mitigation.define_field("blocked_pod", "attacker")
-                mitigation.define_field("device", "ceos2")
+                mitigation.define_field("blocked_pod", self._resolve_hostnames("attacker"))
+                mitigation.define_field("device", self._resolve_hostnames("ceos2"))
                 mitigation.define_field("interface", "eth4")
         return mitigation
 
@@ -171,29 +173,39 @@ class Recommender:
         """
         if mitigation.name == "udp_traffic_filter":
             if "node" in mitigation.parameters:
-                result = mitigation.parameters.get("node", "ceos2")
+                result = mitigation.parameters.get("node", self._resolve_hostnames("ceos2"))
             else:
-                result = "ceos2"
+                result = self._resolve_hostnames("ceos2")
         elif mitigation.name == "ntp_access_control":
             result = ""
         elif mitigation.name == "dns_rate_limiting":
-            result = "ceos2"
+            result = self._resolve_hostnames("ceos2")
         elif mitigation.name == "rate_limiting":
-            result = mitigation.parameters.get("device", "ceos2")
+            result = mitigation.parameters.get("device", self._resolve_hostnames("ceos2"))
         elif mitigation.name == "block_pod_address":
-            result = "ceos2"
+            result = self._resolve_hostnames("ceos2")
         elif mitigation.name == "block_ues_multidomain":
-            result = "ceos3"
+            result = self._resolve_hostnames("ceos3")
         elif mitigation.name == "define_dns_servers":
-            result = "dns-c1"
+            result = self._resolve_hostnames("dns-c1")
         elif mitigation.name == "firewall_pfcp_requests":
-            result = "ceos2"
+            result = self._resolve_hostnames("ceos2")
         elif mitigation.name == "validate_smf_integrity":
             result = "5g-core"
         elif mitigation.name == "filter_malicious_access":
-            result = "ceos2"
+            result = self._resolve_hostnames("ceos2")
         elif mitigation.name == "api_rate_limiting":
-            result = "ceos2"
+            result = self._resolve_hostnames("ceos2")
         else:
             result = ""
         return result
+    
+    def _resolve_hostnames(self, hostname: str) -> str:
+        """
+        Resolve a hostname to an IP address.
+        """
+        if RESOLVE_HOSTNAMES:
+            return IP_MAPPINGS.get(hostname, hostname)
+        else:
+            return hostname
+

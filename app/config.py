@@ -61,29 +61,7 @@ MITIGATION_ACTIONS = parameters.get("mitigation_actions", [])
 # HORSE Component Status
 MODULE_STATUS = parameters["module-status"]
 
-# whatif_receive_url = "http://" + host + ":" + port + parameters["to_receive_whatif"]
-# whatif_send_url = parameters["san_api_url"]
-# workflow_url = parameters["rtr_api_url"]
-# intents_url = parameters["intents_url"]
-# alerts_url = parameters["alerts_url"]
-# stored_intents_url = parameters["stored_intents_url"]
-# qos_intents_url = parameters["qos_intents_url"]
-# stored_qos_intents_url = parameters["stored_qos_intents_url"]
-# rtr_username = parameters["rtr_username"]
-# rtr_password = parameters["rtr_password"]
-# rtr_email = parameters["rtr_email"]
-# to_connect_to_rtr = parameters["to_connect_to_rtr"]
+# Should use IPs instead of hostnames for RTR?
+RESOLVE_HOSTNAMES = parameters.get("ibi").get("resolve_hostnames", False)
+IP_MAPPINGS = parameters.get("ip_mappings", [])
 
-# templates_directory = files_directory + parameters["templates_directory"]
-# static_directory = files_directory + parameters["static_directory"]
-# policy_store_directory = files_directory + parameters["policy_store_file"]
-
-# ddos_ntp = parameters["ddos_ntp"]
-# ddos_dns = parameters["ddos_dns"]
-# ddos_pfcp = parameters["ddos_pfcp"]
-
-# rate_req = parameters["req/s"]
-# qos_requirements = parameters["qos_requirements"]
-
-# hosts = parameters["hosts"]
-# links = parameters["links"]
