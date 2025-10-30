@@ -287,7 +287,6 @@ class ImpactAnalysisDT:
         @return: The corresponding attack name for the Digital Twin
         """
         names = {
-            "dns_ddos": "dns_ddos",
             "ddos_download": "ddos_downlink",
             "ddos_download_link": "ddos_downlink",
             "ddos_downlink": "ddos_downlink",
