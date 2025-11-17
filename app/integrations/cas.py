@@ -164,6 +164,9 @@ class CASClient:
             if mitigation_action.name in  ["rate_limiting", "dns_rate_limiting"]:
                 if key == "rate":
                     fields_template[key] = f"{value}mbps"
+            if mitigation_action.name == "block_ues_multidomain":
+                if key == "rate_limiting":
+                    fields_template[key] = f"generic"
             self._logger.debug(f"Field {key} with value {value} added to the action template")
 
         action_template = {
