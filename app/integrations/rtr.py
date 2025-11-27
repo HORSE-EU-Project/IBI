@@ -7,6 +7,7 @@ to establish an HTTP connection to the RTR service.
 import requests
 import json
 import config
+from uuid import uuid4
 from utils.log_config import setup_logging
 from models.core_models import CoreIntent, MitigationAction
 from recommender import Recommender
@@ -149,7 +150,7 @@ class RTR:
             "mitigation_host": self._recommender.get_mitigation_host(intent, mitigation_action),
             "action": action_template,
             "duration": intent.duration,
-            "intent_id": intent.uid
+            "intent_id": str(uuid4())
         }
         return message_template
 
