@@ -117,12 +117,17 @@ class Recommender:
                     mitigation.define_field("device", self._resolve_hostnames("ceos2"))
                     mitigation.define_field("interface", "eth4")
 
+            elif mitigation.name == "udp_traffic_filter":
+                mitigation.define_field("protocol", "UDP")
+                mitigation.define_field("source_ip_filter", threat.hosts[0])
+                mitigation.define_field("destination_port", "50100")  # Example port for NTP
+
         elif mitigation.category == MitigationAction.MitigationCategory.MITIGATION:
             # configure mitigation action
             if mitigation.name == "udp_traffic_filter":
                 mitigation.define_field("protocol", "UDP")
                 mitigation.define_field("source_ip_filter", threat.hosts[0])
-                mitigation.define_field("destination_port", "123")  # Example port for NTP
+                mitigation.define_field("destination_port", "50100")  # Example port for NTP
             
             elif mitigation.name == "ntp_access_control":
                 host_list = ["dns-c1", "dns-c2", "dns-c3", "dns-c4", "dns-c5", "dns-c6", "dns-c7", "dns-c8", "dns-c9", "dns-c10"]
