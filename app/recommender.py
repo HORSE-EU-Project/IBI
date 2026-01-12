@@ -157,8 +157,8 @@ class Recommender:
                 mitigation.define_field("source_ip_filter", "0.0.0.0/0")
             
             elif mitigation.name == "rate_limiting":
-                mitigation.define_field("device", self._resolve_hostnames("ceos2"))
-                mitigation.define_field("interface", "eth4")
+                mitigation.define_field("device", self._resolve_hostnames("r1"))
+                mitigation.define_field("interface", "eth1")
                 mitigation.define_field("rate", "10")
             
             elif mitigation.name == "block_pod_address":
