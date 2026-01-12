@@ -119,14 +119,14 @@ class Recommender:
 
             elif mitigation.name == "udp_traffic_filter":
                 mitigation.define_field("protocol", "UDP")
-                mitigation.define_field("source_ip_filter", threat.hosts[0])
+                mitigation.define_field("source_ip_filter", threat.hosts)
                 mitigation.define_field("destination_port", "50100")  # Example port for NTP
 
         elif mitigation.category == MitigationAction.MitigationCategory.MITIGATION:
             # configure mitigation action
             if mitigation.name == "udp_traffic_filter":
                 mitigation.define_field("protocol", "UDP")
-                mitigation.define_field("source_ip_filter", threat.hosts[0])
+                mitigation.define_field("source_ip_filter", threat.hosts)
                 mitigation.define_field("destination_port", "50100")  # Example port for NTP
             
             elif mitigation.name == "ntp_access_control":
