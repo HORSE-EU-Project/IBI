@@ -1,5 +1,5 @@
 import json
-from config import RESOLVE_HOSTNAMES, IP_MAPPINGS
+from config import RESOLVE_HOSTNAMES, IP_MAPPINGS, MITIGATION_HOST
 from typing import List
 from utils.log_config import setup_logging
 from data.store import InMemoryStore
@@ -171,35 +171,43 @@ class Recommender:
         """
         Get the mitigation host based on the threat and the mitigation action.
         """
-        if mitigation.name == "udp_traffic_filter":
-            if "node" in mitigation.parameters:
-                result = mitigation.parameters.get("node", self._resolve_hostnames("ceos2"))
-            else:
+        try:
+            host_name = MITIGATION_HOST[mitigation.name]
+            logger.debug("MITIGATION_HOST is set. Using configured value %s", host_name)
+            result = self._resolve_hostnames(host_name)
+        except (KeyError, TypeError):
+            logger.debug("MITIGATION_HOST is not set, using default values")
+            if mitigation.name == "udp_traffic_filter":
+                if "node" in mitigation.parameters:
+                    result = mitigation.parameters.get("node", self._resolve_hostnames("ceos2"))
+                else:
+                    result = self._resolve_hostnames("ceos2")
+            elif mitigation.name == "ntp_access_control":
+                result = ""
+            elif mitigation.name == "dns_rate_limiting":
                 result = self._resolve_hostnames("ceos2")
-        elif mitigation.name == "ntp_access_control":
-            result = ""
-        elif mitigation.name == "dns_rate_limiting":
-            result = self._resolve_hostnames("ceos2")
-        elif mitigation.name == "rate_limiting":
-            result = mitigation.parameters.get("device", self._resolve_hostnames("ceos2"))
-        elif mitigation.name == "block_pod_address":
-            result = self._resolve_hostnames("ceos2")
-        elif mitigation.name == "block_ues_multidomain":
-            result = self._resolve_hostnames("ceos3")
-        elif mitigation.name == "define_dns_servers":
-            result = self._resolve_hostnames("dns-c1")
-        elif mitigation.name == "firewall_pfcp_requests":
-            result = self._resolve_hostnames("ceos2")
-        elif mitigation.name == "validate_smf_integrity":
-            result = "5g-core"
-        elif mitigation.name == "filter_malicious_access":
-            result = self._resolve_hostnames("ceos2")
-        elif mitigation.name == "api_rate_limiting":
-            result = self._resolve_hostnames("ceos2")
-        else:
-            result = ""
+            elif mitigation.name == "rate_limiting":
+                result = mitigation.parameters.get("device", self._resolve_hostnames("ceos2"))
+            elif mitigation.name == "block_pod_address":
+                result = self._resolve_hostnames("ceos2")
+            elif mitigation.name == "block_ues_multidomain":
+                result = self._resolve_hostnames("ceos3")
+            elif mitigation.name == "define_dns_servers":
+                result = self._resolve_hostnames("dns-c1")
+            elif mitigation.name == "firewall_pfcp_requests":
+                result = self._resolve_hostnames("ceos2")
+            elif mitigation.name == "validate_smf_integrity":
+                result = "5g-core"
+            elif mitigation.name == "filter_malicious_access":
+                result = self._resolve_hostnames("ceos2")
+            elif mitigation.name == "api_rate_limiting":
+                result = self._resolve_hostnames("ceos2")
+            else:
+                result = ""
+        # Always return a value
         return result
     
+
     def _resolve_hostnames(self, hostname: str) -> str:
         """
         Resolve a hostname to an IP address.

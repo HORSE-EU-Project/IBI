@@ -57,6 +57,7 @@ SYSLOG_PORT = parameters["syslog"].get("port", 514)  # Default syslog port is 51
 Mitigation Actions configuration
 """
 MITIGATION_ACTIONS = parameters.get("mitigation_actions", [])
+MITIGATION_HOST = parameters.get("mitigation_host", [])
 
 # HORSE Component Status
 MODULE_STATUS = parameters["module-status"]
