@@ -24,7 +24,4 @@ class Const:
     # Digital Twin related constants
     IADT_PPS_THRESHOLD = 0.5
 
-    # CAS related constants (parameter tuning)
-    CAS_RATE_LIMITTING_INCREMENT = 1
-
 
