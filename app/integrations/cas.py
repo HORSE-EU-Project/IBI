@@ -18,6 +18,10 @@ class CASClient:
     INVALID = "invalid"
     PARTIAL = "partial"
 
+    # CAS related constants (parameter tuning)
+    CAS_RATE_LIMITTING_INC = 1
+    CAS_API_LIMITTING_INC = 100
+
     _cas_actions = {
         # "rate_limiting": "router_rate_limiting",
     }
@@ -58,7 +62,19 @@ class CASClient:
                 else:
                     rate = int(rate_value)
                 # Update the field with the new rate
-                mitigation_action.parameters['rate'] = rate + Const.CAS_RATE_LIMITTING_INCREMENT
+                mitigation_action.parameters['rate'] = rate + self.CAS_RATE_LIMITTING_INC
+
+        if mitigation_action.name in  ["api_rate_limiting"]:
+            if 'limit' in mitigation_action.parameters.keys():
+                rate_value = mitigation_action.parameters['limit']
+                rate = 0
+                if isinstance(rate_value, str) and rate_value.endswith('requests per minute'):
+                    rate = int(''.join(filter(str.isdigit, rate_value)))
+                else:
+                    rate = int(rate_value)
+                # Update the field with the new rate
+                mitigation_action.parameters['limit'] = rate + self.CAS_API_LIMITTING_INC
+
         # return the tuned mitigation action
         return mitigation_action
                     

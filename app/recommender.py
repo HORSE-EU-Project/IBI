@@ -150,7 +150,7 @@ class Recommender:
                 mitigation.define_field("response", "immediate")
             
             elif mitigation.name == "api_rate_limiting":
-                mitigation.define_field("limit", "1000")
+                mitigation.define_field("limit", "800")
             
             elif mitigation.name == "dns_rate_limiting":
                 mitigation.define_field("rate", "9")
