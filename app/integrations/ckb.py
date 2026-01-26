@@ -15,6 +15,7 @@ class CKB:
         "ddos_amplification",
         "dns_amplification",
         "ddos_download_link",
+        "ddos_downlink",
         "data_poisoning",
         "multidomain",
         "mitm",
