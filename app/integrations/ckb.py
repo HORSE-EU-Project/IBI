@@ -15,7 +15,6 @@ class CKB:
         "ddos_amplification",
         "dns_amplification",
         "ddos_download_link",
-        "ddos_downlink",
         "data_poisoning",
         "multidomain",
         "mitm",
@@ -27,9 +26,9 @@ class CKB:
 
     def __init__(self):
         self.ckb_url = config.CKB_URL
-        self.headers = {
+        self.headers = { 
             "accept": "application/json",
-            "Content-Type": "application/json",
+            "content-type": "application/json",
         }
         if self.ckb_url:
             self.enabled = True
@@ -60,7 +59,7 @@ class CKB:
             try:
 
                 response = requests.post(
-                    f"{self.ckb_url}/mitigations",
+                    f"{self.ckb_url}",
                     timeout=2,
                     headers=self.headers,
                     json=req_body,

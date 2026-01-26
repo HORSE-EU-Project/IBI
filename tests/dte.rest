@@ -1,4 +1,4 @@
-@host = 192.168.130.58:8001
+@host = 10.208.11.73:8002
 
 ### Demo 0
 POST http://{{host}}/intents HTTP/1.1
@@ -51,7 +51,7 @@ content-type: application/json
 
 {
     "intent_type": "prevention",
-    "threat": "ddos_download_link",
+    "threat": "ddos_downlink",
     "host": ["dns-c2", "dns-c3"],
     "duration": 1200
 }
