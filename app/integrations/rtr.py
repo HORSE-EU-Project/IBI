@@ -145,11 +145,20 @@ class RTR:
 
         action_template = {"name": mitigation_action.name, "fields": fields_template}
 
+        attacked_host = ""
+        if (
+            intent.intent_type == IntentType.PREVENTION
+            and intent.threat == "ddos_downlink"
+        ):
+            attacked_host = self._recommender._resolve_hostnames("ue_panel")
+        else:
+            attacked_host = intent.host[0] if intent.host else ""
+
         message_template = {
             "command": "add",
             "intent_type": intent.intent_type.value,
             "threat": intent.threat,
-            "attacked_host": intent.host[0] if intent.host else "",
+            "attacked_host": attacked_host,
             "mitigation_host": self._recommender.get_mitigation_host(
                 intent, mitigation_action
             ),
