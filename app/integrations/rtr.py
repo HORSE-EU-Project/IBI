@@ -147,7 +147,7 @@ class RTR:
 
         attacked_host = ""
         if (
-            intent.intent_type == IntentType.PREVENTION
+            mitigation_action.category == MitigationAction.MitigationCategory.PREVENTION
             and intent.threat == "ddos_downlink"
         ):
             attacked_host = self._recommender._resolve_hostnames("ue_panel")
