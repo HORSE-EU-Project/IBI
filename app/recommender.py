@@ -116,7 +116,11 @@ class Recommender:
                 if threat.threat_name == "dns_amplification":
                     mitigation.define_field("device", self._resolve_hostnames("ceos3"))
                     mitigation.define_field("interface", "eth2")
-                elif threat.threat_name in ["ddos_download", "ddos_download_link", "ddos_downlink"]:
+                elif threat.threat_name in [
+                    "ddos_download",
+                    "ddos_download_link",
+                    "ddos_downlink",
+                ]:
                     mitigation.define_field("device", self._resolve_hostnames("ceos2"))
                     mitigation.define_field("interface", "eth1")
                 else:
@@ -128,10 +132,17 @@ class Recommender:
                 mitigation.define_field(
                     "blocked_pod", self._resolve_hostnames("attacker")
                 )
+                mitigation.define_field(
+                    "blocked_ips", [self._resolve_hostnames("attacker")]
+                )
                 if threat.threat_name == "dns_amplification":
                     mitigation.define_field("device", self._resolve_hostnames("ceos3"))
                     mitigation.define_field("interface", "eth1")
-                elif threat.threat_name in ["ddos_download", "ddos_download_link", "ddos_downlink"]:
+                elif threat.threat_name in [
+                    "ddos_download",
+                    "ddos_download_link",
+                    "ddos_downlink",
+                ]:
                     mitigation.define_field("device", self._resolve_hostnames("ceos2"))
                     mitigation.define_field("interface", "eth1")
                 elif threat.threat_name == "ddos_downlink":

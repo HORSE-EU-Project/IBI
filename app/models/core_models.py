@@ -76,8 +76,7 @@ class CoreIntent:
             hosts_str = f" on host(s) {', '.join(hosts)}" if hosts else ""
         duration_str = f" for {duration}s" if duration else ""
 
-        description = f"{intent_type_str} {threat_str}{hosts_str}{duration_str}".strip(
-        )
+        description = f"{intent_type_str} {threat_str}{hosts_str}{duration_str}".strip()
         return description
 
     def set_fulfilled(self, fulfilled: bool) -> None:
@@ -161,7 +160,7 @@ class DetectedThreatBuilder:
     """
     Builder for detected threats.
     It allows to build a detected threat from a DTEIntent.
-    It also supports returning multiple threats from a DTEIntent when 
+    It also supports returning multiple threats from a DTEIntent when
     the threat is of type "multidomain".
     """
 
@@ -217,7 +216,8 @@ class MitigationAction:
         :param field_name: Name of the field
         :param field_value: Value of the field
         """
-        self.parameters[field_name] = field_value
+        if field_name in self.fields:
+            self.parameters[field_name] = field_value
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
@@ -228,7 +228,7 @@ class MitigationAction:
             "threats": self.threats,
             "fields": self.fields,
             "priority": self.priority,
-            "enabled": self.enabled
+            "enabled": self.enabled,
         }
 
     def __repr__(self):
@@ -300,5 +300,5 @@ class DTJob:
             "mitigation_id": self.mitigation_id,
             "kpi_before": self.kpi_before,
             "kpi_after": self.kpi_after,
-            "status": self.status.value
+            "status": self.status.value,
         }
