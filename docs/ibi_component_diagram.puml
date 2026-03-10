@@ -1,0 +1,110 @@
+@startuml IBI_Component_Diagram
+
+title IBI Component - UML Component Diagram\n(horse-ibi)
+
+' ===================== IBI SYSTEM =====================
+package "IBI Component (horse-ibi)" {
+
+    ' --- API Interfaces ---
+    interface "POST /intents" as IPostIntents
+    interface "GET /intents" as IGetIntents
+    interface "DELETE /intents/{id}" as IDeleteIntents
+    interface "POST /impact-analysis" as IImpactAnalysis
+
+    ' --- REST API Layer ---
+    package "REST API Layer\n(FastAPI / Uvicorn)" {
+        component [IntentsRouter\n/intents] as RouterIntents
+        component [IANDTRouter\n/impact-analysis] as RouterIANDT
+        component [DashboardRouter\n/] as RouterDash
+    }
+
+    ' --- Controller Layer ---
+    package "Controller Layer" {
+        component [DTEController\nProcesses DTE intents;\ncreates & stores\nCoreIntents & DetectedThreats] as DTECtrl
+        component [IANDTController\nHandles IA-NDT callbacks;\nupdates DTJob KPIs] as IandTCtrl
+        component [MitigationsController\nLoads MitigationActions\nfrom cKB] as MitigCtrl
+    }
+
+    ' --- Core Processing Engine ---
+    package "Core Processing Engine" {
+        component [IntentPipeline\nBackground thread;\norchestrates integrations] as Pipeline
+        component [Recommender\nMatches threats to\nMitigationActions;\nresolves hostnames] as Recommender
+    }
+
+    ' --- Integration Layer ---
+    package "Integration Layer" {
+        component [RTR Client] as RTRInt
+        component [CAS Client] as CASInt
+        component [ImpactAnalysisDT Client] as IANDTInt
+        component [CKB Client] as CKBInt
+        component [CustomSIEM\n(UDP syslog)] as SIEMInt
+    }
+
+    ' --- Shared Data Store ---
+    database "InMemoryStore\n(Thread-safe Singleton)" as Store {
+        component [CoreIntents] as StoreIntents
+        component [DetectedThreats] as StoreThreats
+        component [MitigationActions] as StoreMitigations
+        component [Associations\nThreat <-> Mitigation] as StoreAssoc
+        component [DTJobs] as StoreDTJobs
+    }
+
+    ' --- Knowledge Base (internal) ---
+    database "Knowledge Base\n(config.yml)" as KnowledgeBase
+
+    ' --- Dashboard ---
+    component [Dashboard\n(Static HTML/JS UI)] as DashUI
+}
+
+' ===================== EXTERNAL INTEGRATIONS =====================
+cloud "External Integrations" {
+    component [RTR\nReliability, Trust & Resilience] as ExtRTR
+    component [CAS\nCompliance Assessment] as ExtCAS
+    component [IA-NDT\nImpact Analysis Digital Twin] as ExtIANDT
+    component [CKB\nCentral Knowledge Base] as ExtCKB
+    component [SIEM] as ExtSIEM
+}
+
+' ===================== PROVIDED INTERFACE BINDINGS =====================
+IPostIntents   -- RouterIntents
+IGetIntents    -- RouterIntents
+IDeleteIntents -- RouterIntents
+IImpactAnalysis -- RouterIANDT
+
+' ===================== API -> CONTROLLERS =====================
+RouterIntents  ..>  DTECtrl   : delegates
+RouterIANDT    ..>  IandTCtrl : delegates
+RouterDash     ..>  DashUI    : serves
+
+' ===================== CONTROLLERS -> STORE =====================
+DTECtrl    ..>  Store : create/update CoreIntents & DetectedThreats
+IandTCtrl  ..>  Store : update DTJob KPIs
+MitigCtrl  ..>  Store : populate MitigationActions
+
+' ===================== KNOWLEDGE BASE -> CONTROLLER =====================
+KnowledgeBase ..>  MitigCtrl : MITIGATION_ACTIONS
+
+' ===================== CORE ENGINE =====================
+Pipeline   ..>  Recommender : get_mitigations()
+Pipeline   ..>  Store       : read/write intents, threats & DT jobs
+Recommender ..>  Store      : query mitigations & associations
+
+' ===================== PIPELINE -> INTEGRATIONS =====================
+Pipeline   ..>  CKBInt   : query_ckb()
+Pipeline   ..>  CASInt   : validate()
+Pipeline   ..>  RTRInt   : enforce_mitigation()
+Pipeline   ..>  IANDTInt : enqueue_simulation()
+Pipeline   ..>  SIEMInt  : send_log()
+
+' ===================== INTEGRATIONS -> RECOMMENDER =====================
+RTRInt  ..>  Recommender : get_mitigation_host()
+CASInt  ..>  Recommender : get_mitigation_host()
+
+' ===================== INTEGRATIONS -> EXTERNAL =====================
+RTRInt   ..>  ExtRTR   : HTTP/JSON
+CASInt   ..>  ExtCAS   : HTTP/JSON
+IANDTInt ..>  ExtIANDT : HTTP/JSON
+CKBInt   ..>  ExtCKB   : HTTP/JSON
+SIEMInt  ..>  ExtSIEM  : Syslog (UDP)
+
+@enduml

@@ -1,0 +1,41 @@
+@startuml IBI_Component_Diagram
+
+' actor "Distributed Trustable AI Engine (DTE)" as DTE
+' actor "Network Administrator" as Admin
+
+package "IBI Component (horse-ibi)" {
+
+    package "REST API Layer" {
+        component [Intents Router] as RouterIntents
+        component [Impact Analysis Router] as RouterIandT
+        component [Dashboard Router] as RouterDash
+    }
+
+    package "Core Processing Engine" {
+        component [IntentPipeline] as Pipeline
+        component [Recommender] as Recommender
+    }
+
+    ' --- Integration Layer ---
+    package "Integration Layer" {
+        component [RTR Client] as RTRInt
+        component [CAS Client] as CASInt
+        component [ImpactAnalysisDT Client] as IANDTInt
+        component [CKB Client] as CKBInt
+        component [CustomSIEM\n(UDP syslog)] as SIEMInt
+    }
+
+    package "User Interface" {
+        component [Dashboard (Web UI)] as Dashboard
+    }
+
+    database "Knowledge Base\n(Internal)" as Store {
+        component [CoreIntents] as StoreIntents
+        component [DetectedThreats] as StoreThreats
+        component [MitigationActions] as StoreMitigations
+        component [Associations\nThreat <-> Mitigation] as StoreAssoc
+        component [DigitalTwinJobs] as StoreDTJobs
+    }
+}
+
+@enduml

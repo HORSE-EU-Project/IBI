@@ -1,0 +1,155 @@
+@startuml IBI_Block_Diagram
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam component {
+    BackgroundColor #E8F4FD
+    BorderColor #2980B9
+    FontColor #1A252F
+}
+skinparam database {
+    BackgroundColor #FEF9E7
+    BorderColor #F39C12
+}
+skinparam interface {
+    BackgroundColor #EAFAF1
+    BorderColor #27AE60
+}
+skinparam cloud {
+    BackgroundColor #FDEDEC
+    BorderColor #E74C3C
+}
+skinparam arrow {
+    Color #2C3E50
+    FontColor #2C3E50
+    FontSize 10
+}
+skinparam note {
+    BackgroundColor #F8F9FA
+    BorderColor #95A5A6
+}
+
+title IBI Component - Block Diagram
+
+' =================== EXTERNAL ACTORS ===================
+actor "DTE\n(Decision-Taking Engine)" as DTE #LightCoral
+actor "Network Admin\n/ Dashboard" as Admin #LightBlue
+
+' =================== EXTERNAL SERVICES ===================
+cloud "External Services" {
+    [RTR\n(Response & Threat Remediation)] as RTR #FFD700
+    [CAS\n(Compliance Assurance Service)] as CAS #FFD700
+    [IA-NDT\n(Impact Analysis Digital Twin)] as IANDT #FFD700
+    [CKB\n(Cybersecurity Knowledge Base)] as CKB #FFD700
+    [SIEM\n(Security Information & Event Mgmt)] as SIEM #FFD700
+}
+
+' =================== IBI SYSTEM ===================
+package "IBI Component (horse-ibi)" {
+
+    ' --- API Layer ---
+    package "REST API Layer (FastAPI)" {
+        [Intents Router\n/intents] as RouterIntents
+        [I&T Router\n/impact-analysis] as RouterIandT
+        [Stats Router\n/stats] as RouterStats
+        [Dashboard Router\n/] as RouterDash
+        [Ping Router\n/ping] as RouterPing
+    }
+
+    ' --- Controller Layer ---
+    package "Controller Layer" {
+        [DTEController\nProcesses DTE intents,\nmanages threats] as DTECtrl
+        [MitigationsController\nLoads & manages mitigation\nactions from config] as MitigCtrl
+        [IANDTController\n(via router)] as IandTCtrl
+        [StatusController] as StatCtrl
+    }
+
+    ' --- Core Engine ---
+    package "Core Processing Engine" {
+        [IntentPipeline\nMain processing loop\n(background thread)] as Pipeline
+        [Recommender\nMatches threats to\nmitigation actions] as Recommender
+    }
+
+    ' --- Integration Layer ---
+    package "Integration Layer" {
+        [RTR Client\nEnforce mitigations\non network] as RTRInt
+        [CAS Client\nValidate & tune\nmitigation compliance] as CASInt
+        [ImpactAnalysisDT\nSimulate mitigation\nin digital twin] as IANDTInt
+        [CKB Client\nQuery cybersecurity\nknowledge base] as CKBInt
+        [CustomSIEM\nSend syslog alarms] as SIEMInt
+    }
+
+    ' --- Data Store ---
+    database "InMemoryStore\n(Singleton)" as Store {
+        [CoreIntents]
+        [DetectedThreats]
+        [MitigationActions]
+        [Associations\n(Threat<->Mitigation)]
+        [DTJobs]
+    }
+
+    ' --- Config ---
+    [Configuration\n(config.yml)] as Config
+}
+
+' =================== CONNECTIONS ===================
+
+' External Actors -> API
+DTE --> RouterIntents : POST /intents\n(DTEIntent)
+DTE --> RouterIandT : POST /impact-analysis\n(IA-NDT callback)
+Admin --> RouterDash : Browser
+Admin --> RouterStats : GET /stats
+
+' API -> Controllers
+RouterIntents --> DTECtrl
+RouterIandT --> IandTCtrl
+RouterStats --> StatCtrl
+RouterDash --> RouterDash
+
+' Controller -> Store
+DTECtrl --> Store : persist intents & threats
+MitigCtrl --> Store : populate mitigation actions
+IandTCtrl --> Store : update DTJob KPIs
+
+' Core Pipeline
+Pipeline --> Store : read/write
+Pipeline --> Recommender : get & configure mitigations
+Pipeline --> RTRInt : enforce_mitigation()
+Pipeline --> CASInt : validate()
+Pipeline --> IANDTInt : enqueue_simulation()
+Pipeline --> CKBInt : query_ckb()
+Pipeline --> SIEMInt : send_log()
+
+' Recommender -> Store
+Recommender --> Store : query mitigations & associations
+
+' Integrations -> External Services
+RTRInt --> RTR : POST /actions\n(HTTP)
+CASInt --> CAS : POST /api/external-data\n(HTTP)
+IANDTInt --> IANDT : POST /from_ibi\n(HTTP)
+CKBInt --> CKB : POST /mitigations\n(HTTP)
+SIEMInt --> SIEM : Syslog UDP
+
+' Config loading
+Config --> MitigCtrl : MITIGATION_ACTIONS
+Config --> RTRInt
+Config --> CASInt
+Config --> IANDTInt
+Config --> CKBInt
+
+' CAS uses Recommender for host resolution
+CASInt --> Recommender : get_mitigation_host()
+RTRInt --> Recommender : get_mitigation_host()
+
+note bottom of Pipeline
+  Runs in a background thread.
+  Polls every N seconds.
+  Processes active intents against
+  detected threats lifecycle.
+end note
+
+note right of Store
+  Thread-safe Singleton.
+  All components share one instance.
+end note
+
+@enduml

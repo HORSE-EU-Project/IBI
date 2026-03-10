@@ -1,0 +1,34 @@
+@startuml
+
+actor "DTE"
+
+participant "REST API\nServer" as RestApiServer
+participant "Intent\nController" as IntentController
+participant "Internal\nKnowledge\nBase" as kb
+participant "Intent\nProcessor" as IntentProcessor
+participant "Recommender" as Recommender
+participant "Ext:CAS" as CAS
+participant "Ext:RTR" as RTR
+
+"DTE" -> RestApiServer : Intent + Threat
+RestApiServer->IntentController : Intent + Threat
+IntentController->kb : store(Intent)
+IntentController->kb : store(Threat)
+
+loop while (intents and threats)
+    activate IntentProcessor
+    IntentProcessor -> kb : read(intents)
+    IntentProcessor -> kb : read(threats)
+    activate Recommender
+    IntentProcessor -> Recommender: Threat
+    Recommender -> kb : read(Mitigations)
+    Recommender -> Recommender: select(Mitigation)
+    Recommender -> IntentProcessor : propose(Mitigation)
+    deactivate Recommender
+    IntentProcessor->CAS : validate(Mitigation)
+    CAS -> IntentProcessor : result()
+    IntentProcessor -> enforce(Mitigation)
+    deactivate IntentProcessor
+end
+
+@enduml

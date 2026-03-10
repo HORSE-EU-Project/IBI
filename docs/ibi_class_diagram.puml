@@ -1,0 +1,391 @@
+@startuml IBI_Class_Diagram
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam class {
+    BackgroundColor #EBF5FB
+    BorderColor #2980B9
+    HeaderBackgroundColor #2980B9
+    HeaderFontColor white
+    FontColor #1A252F
+}
+skinparam enum {
+    BackgroundColor #EAFAF1
+    BorderColor #27AE60
+    HeaderBackgroundColor #27AE60
+    HeaderFontColor white
+}
+skinparam note {
+    BackgroundColor #FEF9E7
+    BorderColor #F39C12
+}
+skinparam arrow {
+    Color #2C3E50
+    FontColor #2C3E50
+    FontSize 10
+}
+
+title IBI Component - Class Diagram
+
+' =================== API MODELS ===================
+package "models.api_models" #F0F8FF {
+
+    enum DTEIntentType {
+        MITIGATION = "mitigation"
+        PREVENTION = "prevention"
+        DETECTION = "detection"
+    }
+
+    class DTEIntent {
+        + intent_type : DTEIntentType
+        + threat : str
+        + host : list
+        + duration : int
+        --
+        + __str__() : str
+    }
+
+    class ImpactAnalysisRequest {
+        + id : str
+        + topology_name : str
+        + attack : str
+        + what : WhatModel
+    }
+
+    class WhatModel {
+        + KPIs : KPIsModel
+    }
+
+    class KPIsModel {
+        + element : ElementModel
+        + metric : str
+        + result : ResultModel
+    }
+
+    class ElementModel {
+        + node : str
+        + interface : str
+    }
+
+    class ResultModel {
+        + value : str
+        + unit : str
+    }
+
+    DTEIntent --> DTEIntentType
+    ImpactAnalysisRequest --> WhatModel
+    WhatModel --> KPIsModel
+    KPIsModel --> ElementModel
+    KPIsModel --> ResultModel
+}
+
+' =================== CORE MODELS ===================
+package "models.core_models" #F0FFF0 {
+
+    class Expectation {
+        + name : str
+        + value : str
+        --
+        + __init__(name, value)
+    }
+
+    class CoreIntent {
+        + uid : str
+        + intent_type : str
+        + threat : str
+        + host : List[str]
+        + duration : int
+        + start_time : int
+        + end_time : int
+        + description : str
+        + fulfilled : bool = False
+        --
+        + __init__(dte_intent: DTEIntent)
+        + get_uid() : str
+        + timedout() : bool
+        + set_fulfilled(fulfilled: bool)
+        - _generate_description(dte_intent) : str
+    }
+
+    class DetectedThreat {
+        + uid : str
+        + threat_type : str
+        + threat_name : str
+        + hosts : List[str]
+        + start_time : int
+        + end_time : int
+        + last_update : int
+        + status : ThreatStatus
+        --
+        + __init__(dte_intent, host=None)
+        + renew()
+        + update_status(new_status)
+        + get_status() : ThreatStatus
+        + is_expired() : bool
+    }
+
+    enum "DetectedThreat.ThreatStatus" as ThreatStatus {
+        NEW
+        UNDER_EMULATION
+        UNDER_MITIGATION
+        REINCIDENT
+        MITIGATED
+    }
+
+    class DetectedThreatBuilder {
+        - dte_intent : DTEIntent
+        - threats : List[DetectedThreat]
+        --
+        + build(dte_intent: DTEIntent) : List[DetectedThreat]
+    }
+
+    class MitigationAction {
+        + uid : str
+        + name : str
+        + category : MitigationCategory
+        + threats : List[str]
+        + fields : List[str]
+        + priority : int = 0
+        + enabled : bool = True
+        + parameters : Dict[str, Any]
+        --
+        + __init__(name, category, threats, fields)
+        + define_field(field_name, field_value)
+        + to_dict() : Dict
+    }
+
+    enum "MitigationAction.MitigationCategory" as MitigationCategory {
+        MITIGATION = "mitigation"
+        PREVENTION = "prevention"
+        DETECTION = "detection"
+    }
+
+    class DTJob {
+        + uid : str
+        + threat_id : str
+        + mitigation_id : str
+        + mitigation_obj : MitigationAction
+        + kpi_before : int
+        + kpi_after : int
+        + status : JobStatus
+        --
+        + __init__(threat_id, mitigation_id)
+        + set_mitigation_obj(mitigation_obj)
+        + update_kpi_before(kpi)
+        + update_kpi_after(kpi)
+        + update_status(status)
+        + to_dict() : Dict
+    }
+
+    enum "DTJob.JobStatus" as JobStatus {
+        PENDING
+        COMPLETED
+        EXPIRED
+    }
+
+    CoreIntent --> DTEIntent : "created from"
+    DetectedThreat --> ThreatStatus
+    DetectedThreat --> DTEIntent : "created from"
+    DetectedThreatBuilder --> DetectedThreat : "<<creates>>"
+    MitigationAction --> MitigationCategory
+    DTJob --> JobStatus
+    DTJob --> MitigationAction : "references"
+}
+
+' =================== DATA STORE ===================
+package "data.store" #FFFACD {
+
+    class InMemoryStore <<Singleton>> {
+        - _instance : InMemoryStore
+        - _lock : RLock
+        - _core_intents : Dict[str, CoreIntent]
+        - _threats : Dict[str, DetectedThreat]
+        - _available_actions : Dict[str, MitigationAction]
+        - _associations : Dict[str, List[MitigationAction]]
+        - _dt_jobs : List[DTJob]
+        - _dt_available : bool
+        - _ibi_compromised : bool
+        --
+        + intent_add(intent)
+        + intent_get(key) : CoreIntent
+        + intent_get_all() : List[CoreIntent]
+        + intent_remove(key) : bool
+        + intent_exists(intent) : bool
+        + threat_add(threat)
+        + threat_get(key) : DetectedThreat
+        + threat_get_all() : List[DetectedThreat]
+        + threat_locate(threat) : str
+        + expire_old_threats()
+        + mitigation_add(action)
+        + mitigation_get_all() : List[MitigationAction]
+        + association_add(threat_id, mitigation)
+        + association_get(threat_id) : List[MitigationAction]
+        + dt_job_add(job)
+        + dt_job_get(job_id) : DTJob
+        + dt_job_get_by_threat(threat_id) : DTJob
+        + dt_job_update(job_id, job) : bool
+        + dt_job_delete(threat_id) : bool
+        + dt_is_available() : bool
+        + dt_set_busy()
+        + dt_set_available()
+    }
+
+    InMemoryStore "1" o-- "0..*" CoreIntent
+    InMemoryStore "1" o-- "0..*" DetectedThreat
+    InMemoryStore "1" o-- "0..*" MitigationAction
+    InMemoryStore "1" o-- "0..*" DTJob
+}
+
+' =================== RECOMMENDER ===================
+package "recommender" #FFF0F5 {
+
+    class Recommender {
+        - _store : InMemoryStore
+        --
+        + get_mitigations(threat: DetectedThreat) : List[MitigationAction]
+        + associate_mitigation(threat_uid, mitigation)
+        + configure_mitigation(threat, mitigation) : MitigationAction
+        + get_mitigation_host(intent, mitigation) : str
+        - _resolve_hostnames(hostname) : str
+    }
+
+    Recommender --> InMemoryStore : uses
+    Recommender --> DetectedThreat : reads
+    Recommender --> MitigationAction : configures
+}
+
+' =================== INTEGRATIONS ===================
+package "integrations" #FDF2F8 {
+
+    class RTR <<Singleton>> {
+        - rtr_url : str
+        - rtr_username : str
+        - rtr_password : str
+        - access_token : str
+        - _recommender : Recommender
+        --
+        - _register()
+        - _login()
+        + enforce_mitigation(intent, mitigation_action)
+        + create_workflow(intent, mitigation_action) : dict
+        + send_workflow(workflow)
+    }
+
+    class CASClient {
+        + VALID : str = "valid"
+        + INVALID : str = "invalid"
+        + PARTIAL : str = "partial"
+        - cas_url : str
+        - _recommender : Recommender
+        - _store : InMemoryStore
+        --
+        + validate(intent, mitigation_action) : str
+        + tune_mitigation(mitigation_action) : MitigationAction
+        - _cas_message(intent, mitigation_action) : dict
+    }
+
+    class ImpactAnalysisDT {
+        - iadt_url : str
+        - _store : InMemoryStore
+        - _queue : List[Tuple[DTJob, JobType]]
+        --
+        + enqueue_simulation(threat, action)
+        + process_queued_jobs()
+        + send_iandt_message(message)
+        + check_results(threat_id, kpi_before, kpi_after) : bool
+        - _get_monitor_msg(dt_job) : dict
+        - _get_simulation_msg(dt_job) : dict
+        - _schedule_mock_response(message)
+    }
+
+    enum "ImpactAnalysisDT.JobType" as JobType {
+        MEASUREMENT
+        SIMULATION
+    }
+
+    class CKB {
+        - ckb_url : str
+        - _attacks : List[str]
+        --
+        + query_ckb(attack_name)
+        + get_attack_by_similarity(attack_name) : str
+    }
+
+    class CustomSIEM {
+        - syslog_addr : str
+        --
+        + send_log(threat: DetectedThreat, status: AlarmType)
+    }
+
+    enum "CustomSIEM.AlarmType" as AlarmType {
+        NEW
+        MITIGATED
+    }
+
+    ImpactAnalysisDT --> JobType
+    ImpactAnalysisDT --> InMemoryStore : uses
+    ImpactAnalysisDT --> DTJob : manages
+    CASClient --> InMemoryStore : reads
+    CASClient --> Recommender : uses
+    RTR --> Recommender : uses
+    CustomSIEM --> AlarmType
+}
+
+' =================== PIPELINE ===================
+package "pipeline" #F5F5F5 {
+
+    class IntentPipeline {
+        - _store : InMemoryStore
+        - recommender : Recommender
+        - rtr_client : RTR
+        - cas_client : CASClient
+        - ckb : CKB
+        - iadt : ImpactAnalysisDT
+        - customSIEM : CustomSIEM
+        --
+        + process_intents()
+        + process_mitigation_intents(intent, threats)
+        + process_prevention_intents(intent, threats)
+        + update_expired_threats(threats)
+        + check_intent_fulfillment(intents, threats)
+    }
+
+    IntentPipeline --> InMemoryStore : uses
+    IntentPipeline --> Recommender : uses
+    IntentPipeline --> RTR : uses
+    IntentPipeline --> CASClient : uses
+    IntentPipeline --> CKB : uses
+    IntentPipeline --> ImpactAnalysisDT : uses
+    IntentPipeline --> CustomSIEM : uses
+    IntentPipeline --> CoreIntent : processes
+    IntentPipeline --> DetectedThreat : processes
+}
+
+' =================== CONTROLLERS ===================
+package "controllers" #F8F9FA {
+
+    class DTEController {
+        - _storage : InMemoryStore
+        - _customSIEM : CustomSIEM
+        --
+        + get_all_intents() : List[CoreIntent]
+        + process_dte_intent(dte_intent: DTEIntent) : str
+        + delete_intent(intent_id)
+        - __get_valid_threats() : List[str]
+    }
+
+    class MitigationsController {
+        {static} + populate_mitigation_actions()
+        {static} + dump_mitigation_actions()
+    }
+
+    DTEController --> InMemoryStore : reads/writes
+    DTEController --> DTEIntent : receives
+    DTEController --> CoreIntent : creates
+    DTEController --> DetectedThreat : creates
+    DTEController --> DetectedThreatBuilder : uses
+    DTEController --> CustomSIEM : uses
+    MitigationsController --> InMemoryStore : populates
+    MitigationsController --> MitigationAction : creates
+}
+
+@enduml
