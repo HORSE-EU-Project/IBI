@@ -34,9 +34,11 @@ class DTEController:
         """
         logger.info(f"Processing intent request from DTE: {dte_intent}")
 
-        if dte_intent.threat not in self.__get_valid_threats():
+        if dte_intent.threat not in self.get_valid_threats():
             logger.warning(f"Unknown threat: {dte_intent.threat}")
-            raise HTTPException(status_code=400, detail=f"Threat not supported: {dte_intent.threat}")
+            raise HTTPException(
+                status_code=400, detail=f"Threat not supported: {dte_intent.threat}"
+            )
 
         # Infere system state from the request
         # It a simlar threat exists, renew it, otherwise create a new one
@@ -47,10 +49,8 @@ class DTEController:
                 logger.info(f"Threat {existing_threat_uid} already exists.")
                 updated_threat = self._storage.threat_get(existing_threat_uid)
                 updated_threat.renew()
-                self._storage.threat_update(
-                    existing_threat_uid, updated_threat)
-                logger.info(
-                    f"Threat {existing_threat_uid} updated successfully.")
+                self._storage.threat_update(existing_threat_uid, updated_threat)
+                logger.info(f"Threat {existing_threat_uid} updated successfully.")
             else:
                 logger.info(f"New threat detected: {new_threat.uid}")
                 self._storage.threat_add(new_threat)
@@ -63,13 +63,13 @@ class DTEController:
         # Check if the intent already exists
         if self._storage.intent_exists(new_core_intent):
             logger.warning(
-                f"Intent {new_core_intent.get_uid()} already exists. Updating threat state.")
+                f"Intent {new_core_intent.get_uid()} already exists. Updating threat state."
+            )
             return self.RETURN_STATUS_UPDATED
 
         # Add the new intent to storage
         self._storage.intent_add(new_core_intent)
-        logger.info(
-            f"Intent {new_core_intent.get_uid()} created successfully.")
+        logger.info(f"Intent {new_core_intent.get_uid()} created successfully.")
         return self.RETURN_STATUS_CREATED
 
     def delete_intent(self, intent_id: str):
@@ -78,7 +78,7 @@ class DTEController:
         """
         self._storage.intent_remove(intent_id)
 
-    def __get_valid_threats(self) -> [str]:
+    def get_valid_threats(self) -> [str]:
         """
         Get all valid threats from the storage.
         """

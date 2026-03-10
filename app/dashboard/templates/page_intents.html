@@ -1,8 +1,45 @@
 <!-- Intents Table Section -->
 <div id="intents-page" class="page-content" style="display: none;">
+    <!-- Intents Table Section -->
     <div class="grid-x grid-margin-x">
-        <div class="cell">
-            <h3 class="section-title">Intents</h3>
+        <div class="cell medium-8">
+            <h3 class="section-title">New Intents</h3>
+            <form id="intents-form" action="/" method="post">
+                <div class="grid-x grid-margin-x">
+                    <div class="medium-6 cell">
+                        <label for="intent-type">Intent Type</label>
+                        <select id="intent-type" name="intent_type">
+                            <option value="prevention">Prevent</option>
+                            <option value="mitigation">Mitigate</option>
+                        </select>
+                    </div>
+
+                    <div class="medium-6 cell">
+                        <label for="threat-selector">Threat</label>
+                        <select id="threat-selector" name="threat-selector">
+
+                        </select>
+                    </div>
+
+                    <div class="medium-6 cell">
+                        <label for="host">Host</label>
+                        <input type="text" id="host" name="host" placeholder="Host or list of hosts">
+                    </div>
+
+                    <div class="medium-6 cell">
+                        <label for="duration">Duration (seconds)</label>
+                        <input type="number" id="duration" name="duration" value="600">
+                    </div>
+
+                    <div class="small-12 medium-12 cell text-center">
+                        <button type="submit" id="submit-intent" class="button expand">Send</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="cell medium-12">
+            <h3 class="section-title">Active Intents</h3>
             <div class="table-container">
                 <table class="hover">
                     <thead>
@@ -22,6 +59,7 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
 </div>

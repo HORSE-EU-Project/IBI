@@ -16,7 +16,7 @@ def get_intents():
 
 
 @router.post("/intents", status_code=201)
-def post_intent(dte_intent: DTEIntent, response:Response):
+def post_intent(dte_intent: DTEIntent, response: Response):
     logger.debug(f"Received intent: {dte_intent}")
     status = controller.process_dte_intent(dte_intent)
     if status == DTEController.RETURN_STATUS_CREATED:
@@ -38,8 +38,15 @@ def put_intent(dte_intent: DTEIntent):
     logger.debug(f"Redirecting to post_intent for intent: {dte_intent}")
     post_intent(dte_intent)
 
+
 @router.delete("/intents/{intent_id}")
 def delete_intent(intent_id: str):
     logger.debug(f"Deleting intent {intent_id}")
     controller.delete_intent(intent_id)
     return {"deleted": intent_id}
+
+
+@router.get("/supported-threats")
+def get_supported_threats():
+    threats = controller.get_valid_threats()
+    return threats

@@ -1,34 +1,34 @@
 // Dashboard JavaScript
 
-$(document).ready(function() {
+$(document).ready(function () {
     // Initialize Foundation
     $(document).foundation();
 
     // Set up navigation
     setupNavigation();
-    
+
     // Load initial data
     loadDashboardData();
-        
+
     // Auto-refresh data every 5 seconds
     setInterval(loadDashboardData, 2 * 1000);
 });
 
 // Navigation setup
 function setupNavigation() {
-    $('.menu-item').on('click', function(e) {
+    $('.menu-item').on('click', function (e) {
         e.preventDefault();
-        
+
         const page = $(this).data('page');
-        
+
         // Update active menu item
         $('.menu-item').removeClass('active');
         $(this).addClass('active');
-        
+
         // Show/hide pages
         $('.page-content').hide();
         $(`#${page}-page`).show();
-        
+
         // Load page-specific data
         if (page === 'dashboard') {
             loadDashboardData();
@@ -36,6 +36,7 @@ function setupNavigation() {
             loadMitigationsData();
         } else if (page === 'intents') {
             loadIntentsManagementData();
+            loadSupportedThreats();
         }
     });
 }
@@ -46,11 +47,11 @@ async function loadDashboardData() {
         // Load IBI status
         const ibiStatus = await fetchAPI('/stats/ibi');
         updateIBIStatus(ibiStatus);
-        
+
         // Load intents summary
         const intentsSummary = await fetchAPI('/stats/intents-summary');
         updateIntentsSummary(intentsSummary);
-        
+
         // Load threat status
         const threatStatus = await fetchAPI('/stats/threat-status');
         updateThreatStatus(threatStatus);
@@ -58,12 +59,12 @@ async function loadDashboardData() {
         // Load IA-NDT status
         const ndtStatus = await fetchAPI('/stats/ndt');
         updateNdtStatus(ndtStatus);
-        
+
         // Load intents table
         const intents = await fetchAPI('/stats/intents');
         updateIntentsTable(intents.intents);
         updateIntentManagementTable(intents.intents);
-        
+
         // Load threats table
         const threats = await fetchAPI('/stats/threats');
         updateThreatsTable(threats.threats);
@@ -71,7 +72,7 @@ async function loadDashboardData() {
         // Load component status
         const componentStatus = await fetchAPI('/stats/component-status');
         updateComponentStatusTable(componentStatus);
-        
+
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showError('Failed to load dashboard data');
@@ -98,6 +99,17 @@ async function loadIntentsManagementData() {
         console.error('Error loading intents data:', error);
         showError('Failed to load intents data');
     }
+}
+
+async function loadSupportedThreats() {
+    try {
+        const threats = await fetchAPI('/supported-threats');
+        updateSupportedThreats(threats)
+    } catch (error) {
+        console.error('Error loading intents data:', error);
+        showError('Failed to load intents data');
+    }
+
 }
 
 // Generic API fetch function
@@ -156,16 +168,16 @@ function updateNdtStatus(data) {
 function updateIntentsTable(intents) {
     const tbody = $('#intents-table-body');
     tbody.empty();
-    
+
     if (intents.length === 0) {
         tbody.append('<tr><td colspan="6" class="text-center">No intents found</td></tr>');
         return;
     }
-    
+
     intents.forEach(intent => {
         const statusClass = intent.status === 'fulfilled' ? 'status-fulfilled' : 'status-not-fulfilled';
         const statusText = intent.status === 'fulfilled' ? 'Fulfilled' : 'Not Fulfilled';
-        
+
         const row = `
             <tr>
                 <td>${intent.id}</td>
@@ -183,12 +195,12 @@ function updateIntentsTable(intents) {
 function updateThreatsTable(threats) {
     const tbody = $('#threats-table-body');
     tbody.empty();
-    
+
     if (threats.length === 0) {
         tbody.append('<tr><td colspan="7" class="text-center">No threats found</td></tr>');
         return;
     }
-    
+
     threats.forEach(threat => {
         const statusClass = getStatusClass(threat.status);
         const row = `
@@ -210,7 +222,7 @@ function updateThreatsTable(threats) {
 function updateComponentStatusTable(componentStatus) {
     const tbody = $('#component-status-table-body');
     tbody.empty();
-    
+
     if (componentStatus.length === 0) {
         tbody.append('<tr><td colspan="2" class="text-center">Components not being monitored</td></tr>');
         return;
@@ -233,15 +245,15 @@ function updateComponentStatusTable(componentStatus) {
 function updateMitigationsTable(mitigations) {
     const tbody = $('#mitigations-table-body');
     tbody.empty();
-    
+
     if (mitigations.length === 0) {
         tbody.append('<tr><td colspan="7" class="text-center">No mitigation actions found</td></tr>');
         return;
     }
-    
+
     mitigations.forEach(mitigation => {
         const statusClass = getMitigationStatusClass(mitigation.enabled);
-        
+
         const row = `
             <tr>
                 <td>${mitigation.id}</td>
@@ -260,16 +272,16 @@ function updateMitigationsTable(mitigations) {
 function updateIntentManagementTable(intents) {
     const tbody = $('#intent-management-table-body');
     tbody.empty();
-    
+
     if (intents.length === 0) {
         tbody.append('<tr><td colspan="7" class="text-center">No intents found</td></tr>');
         return;
     }
-    
+
     intents.forEach(intent => {
         const statusClass = intent.status === 'fulfilled' ? 'status-fulfilled' : 'status-not-fulfilled';
         const statusText = intent.status === 'fulfilled' ? 'Fulfilled' : 'Not Fulfilled';
-        
+
         const row = `
             <tr>
                 <td>${intent.id}</td>
@@ -281,6 +293,18 @@ function updateIntentManagementTable(intents) {
             </tr>
         `;
         tbody.append(row);
+    });
+}
+
+// populate the threat list (To add intents)
+function updateSupportedThreats(threats) {
+    // populate the select control
+    var selectElem = $('#threat-selector');
+    $.each(threats, function (index, item) {
+        $("<option/>", {
+            value: item,
+            text: item
+        }).appendTo(selectElem); // or simply selectElem.append(...)
     });
 }
 
@@ -321,7 +345,7 @@ function formatMitigationStatus(status) {
 function formatDate(dateString) {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 function showError(message) {
@@ -335,14 +359,14 @@ function showError(message) {
             </button>
         </div>
     `);
-    
+
     $('body').append(errorDiv);
-    
+
     // Auto-remove after 5 seconds
     setTimeout(() => {
         errorDiv.fadeOut(() => errorDiv.remove());
     }, 5000);
-    
+
     // Manual close
     errorDiv.find('.close-button').on('click', () => {
         errorDiv.fadeOut(() => errorDiv.remove());
@@ -351,7 +375,7 @@ function showError(message) {
 
 function deleteIntent(intentId) {
     fetchAPI(
-        `/intents/${intentId}`, 
+        `/intents/${intentId}`,
         'DELETE'
     ).then(response => {
         console.log(response);
@@ -367,8 +391,31 @@ function showLoading(elementId) {
 }
 
 // Initialize tooltips and other Foundation components
-$(document).on('opened.zf.tooltip', function() {
+$(document).on('opened.zf.tooltip', function () {
     // Tooltip opened
 });
 
-
+$("#intents-form").submit(function (event) {
+    event.preventDefault();
+    const arr_hosts = [];
+    $("#host").val().split(';').forEach(function (host) {
+        arr_hosts.push(host.trim());
+    });
+    const form_data = {
+        intent_type: $("#intent-type").val().trim(),
+        threat: $("#threat-selector").val().trim(),
+        host: arr_hosts,
+        duration: $("#duration").val().trim(),
+    }
+    console.log(form_data);
+    $.ajax({
+        url: "/intents",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(form_data),
+        type: "POST",
+        dataType: "json",
+    }).done(function (json) {
+        console.log(json);
+        loadIntentsManagementData();
+    });
+})

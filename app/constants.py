@@ -1,13 +1,14 @@
 """
-    Definition of constants
+Definition of constants
 """
+
 
 class Const:
 
     # Types of environment
     APP_ENV_DEV = "development"
     APP_ENV_PROD = "production"
-    
+
     # Application
     APP_NAME = "HORSE-IBI"
     APP_VERSION = "0.0.3a"
@@ -23,5 +24,3 @@ class Const:
 
     # Digital Twin related constants
     IADT_PPS_THRESHOLD = 0.5
-
-

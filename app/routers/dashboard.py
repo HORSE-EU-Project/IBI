@@ -10,6 +10,7 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory="app/dashboard/templates")
 
+
 @router.get("/")
 def get_index(request: Request):
     return templates.TemplateResponse(name="index.html", context={"request": request})
